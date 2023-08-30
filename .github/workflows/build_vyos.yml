@@ -38,7 +38,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: vyos/vyos-build:equuleus
-          options: -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
+          options: --privileged -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
           shell: bash
           run: |
             ./configure --architecture amd64 --build-type release --build-by "mail@niklasea.dk"
