@@ -1,8 +1,10 @@
+# LinuxGSM
+
 Requires Ansible version 2.5
 
-It is also possible to use this role with a non-sudo account simply by manually installing any dependencies beforehand. Game server dependencies can be found on the LGSM website: https://linuxgsm.com/servers/
+It is also possible to use this role with a non-sudo account simply by manually installing any dependencies beforehand. Game server dependencies can be found on [the LGSM website](https://linuxgsm.com/servers/).
 
-### Example play for non-root LGSM user:
+## Example play for non-root LGSM user
 
 ```yaml
 - name: Example LGSM server
@@ -102,8 +104,8 @@ It is also possible to use this role with a non-sudo account simply by manually 
         linuxgsm_auto_install_deps: false
 ```
 
-# Troubleshooting
+## Troubleshooting
 
-### 1. Package openjdk-8-jre-headless is not available...
+### 1. Package openjdk-8-jre-headless is not available
 
 The LGSM installer currently does not install the correct Java package on Debian 8 and Debian 10. The simplest solution is to manually run `apt install default-jre` to get a supported JRE.
