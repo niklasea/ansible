@@ -1,3 +1,5 @@
+# LinuxGSM
+
 Requires Ansible version 2.5
 
 It is also possible to use this role with a non-sudo account simply by manually installing any dependencies beforehand. Game server dependencies can be found on the LGSM website: https://linuxgsm.com/servers/

@@ -1,5 +1,8 @@
 ---
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       branch:
@@ -37,7 +40,7 @@ jobs:
           image: vyos/vyos-build:${{ inputs.branch }}
           options: -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
           run: |
-            ./configure --architecture ${{ inputs.architecture }} --build-by "mail@niklasea.dk"
+            ./configure --architecture ${{ inputs.architecture }} --build-type release --build-by "mail@niklasea.dk"
             sudo make iso
 
       - name: Archive production artifacts
