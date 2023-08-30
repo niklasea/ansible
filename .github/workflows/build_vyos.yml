@@ -1,0 +1,47 @@
+---
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "VyOS branch to build"
+        required: false
+        default: "equuleus"
+        type: string
+      architecture:
+        description: "Target computer architecture"
+        required: false
+        default: "amd64"
+        type: string
+      release:
+        description: "VyOS release version"
+        required: false
+        default: "lts"
+        type: string
+
+jobs:
+  build:
+    name: Build VyOS LTS ISO
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+        with:
+          repository: https://github.com/vyos/vyos-build
+          ref: ${{ inputs.branch }}
+          path: vyos_build
+
+      - name: Run the build process with Docker
+        uses: addnab/docker-run-action@v3
+        with:
+          image: vyos/vyos-build:${{ inputs.branch }}
+          options: -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
+          run: |
+            ./configure --architecture ${{ inputs.architecture }} --build-by "mail@niklasea.dk"
+            sudo make iso
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: VyOS_${{ inputs.branch }}_${{ inputs.release }}_${{ inputs.architecture }}
+          path: vyos_build/build/live-image-*.hybrid.iso
