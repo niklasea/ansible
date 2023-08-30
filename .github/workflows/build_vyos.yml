@@ -42,7 +42,7 @@ jobs:
           shell: bash
           run: |
             ./configure --architecture amd64 --build-type release --build-by "mail@niklasea.dk"
-            sudo make iso
+            make iso
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
