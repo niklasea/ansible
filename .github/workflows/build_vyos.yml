@@ -8,7 +8,7 @@ on:
       branch:
         description: "VyOS branch to build"
         required: false
-        default: "equuleus"
+        default: "current"
         type: string
       architecture:
         description: "Target computer architecture"
