@@ -30,7 +30,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
         with:
-          repository: https://github.com/vyos/vyos-build
+          repository: vyos/vyos-build
           ref: ${{ inputs.branch }}
           path: vyos_build
 
