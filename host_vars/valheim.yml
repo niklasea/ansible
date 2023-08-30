@@ -1,0 +1,15 @@
+---
+linuxgsm_user: "{{ ansible_user_id }}"
+linuxgsm_game: vhserver
+linuxgsm_instancename: HogsWorld
+linuxgsm_instance_config: |
+  servername="Hogs World"
+  # Minimum password length is 5.
+  serverpassword="{{ valheim_server_password }}"
+
+smb_username: valheim
+smb_password: "{{ vault_smb_valheim_password }}"
+smb_mounts:
+  - network_path: //DS216j/ServerBackup/valheim
+    local_path: "{{ smb_backup_folder }}"
+    options: '_netdev,dir_mode=0555,file_mode=0444'

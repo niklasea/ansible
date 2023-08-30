@@ -1,0 +1,32 @@
+---
+# - name: (Ubuntu) Install dependencies for repository key verification
+#   become: true
+#   package:
+#     name:
+#       - gpg
+#       - ca-certificates
+#     state: present
+
+# - name: (Ubuntu) Add repository keys
+#   become: true
+#   apt_key:
+#     url: "{{ item }}"
+#     state: present
+#   loop:
+#     - "https://www.mongodb.org/static/pgp/server-4.2.asc"
+
+# - name: (Ubuntu) Add repositories
+#   become: true
+#   apt_repository:
+#     repo: "deb {{ item }}"
+#     state: present
+#   loop:
+#     - "https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/4.2 main"
+
+- name: (Ubuntu) Install Java 8 and MongoDB
+  become: true
+  package:
+    name:
+      - openjdk-8-jre-headless
+      - mongodb-server
+    state: present

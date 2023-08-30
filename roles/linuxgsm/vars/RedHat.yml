@@ -1,0 +1,3 @@
+---
+linuxgsm_auto_install_dependencies:
+  - epel-release

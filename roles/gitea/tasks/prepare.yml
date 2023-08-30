@@ -1,0 +1,15 @@
+---
+- name: Check existence of Gitea
+  stat:
+    path: "{{ gitea_bin_path }}"
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  failed_when: false
+  register: gitea_old_install
+
+- name: Detect new install
+  set_fact:
+    gitea_new_install: true
+    gitea_force_reinstall: true
+  when: not gitea_old_install.stat.exists | default(true)

@@ -1,0 +1,11 @@
+---
+duckdns_token: "{{ vault_duckdns_token }}"
+duckdns_domains: []
+
+inadyn_period: 600
+inadyn_ddns_configurations:
+  provider:
+    - default@cloudflare.com:
+        username: 'n/a'
+        password: "{{ vault_cloudflare_zone }}"
+        hostname: "{{ home_domain }}"

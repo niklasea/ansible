@@ -1,0 +1,141 @@
+---
+pihole_network_interface: "{{ ansible_default_ipv4.interface }}"
+pihole_gateway_address: "{{ ansible_default_ipv4.gateway }}"
+pihole_ipv4_address: "{{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4.netmask }}"
+pihole_ipv6_address: "{{ ansible_default_ipv6.address | default('') }}"
+
+pihole_automatic_updates: false
+
+# setupVars.conf
+# Passwords are hashed twice with SHA256 and pihole_webpassword takes the hashed value.
+# Another option is to set a password via the pihole command and copy the value from setupVars.conf to here.
+# Default password is 'ansiblepihole'
+pihole_webpassword: '7bbe988b035c2c744082b5da9b5d8a495d7b0ffa64e18ac386957432a395b9a0'
+# pihole_enable_webinterface only applies at first install
+pihole_enable_webinterface: 'true'
+pihole_query_logging: 'true'
+pihole_upstream_dns:
+  - '1.1.1.1#53'
+  - '1.0.0.1#53'
+# Available options are: 'single', 'local', and 'all'. Respectively, these correspond to the dnsmasq options:
+# "interface={{ pihole_network_interface }}", 'local-service', and 'except-interface=nonexisting'
+pihole_dnsmasq_listening: 'single'
+pihole_dns_fqdn_required: 'true'
+pihole_dns_bogus_priv: 'true'
+pihole_dnssec: 'false'
+pihole_conditional_fwd: 'false'
+# This supports both multiple conditional forwarding rules and reverse DNS for different network sizes.
+# server_ip is the IP of the DHCP server to query and domain is the local domain name it uses.
+# network is the network address in CIDR notation for which the rule applies.
+pihole_conditional_fwd_rules:
+  - server_ip: "{{ pihole_gateway_address }}"
+    network: "{{ pihole_ipv4_address }}"
+    domain: "{{ pihole_domain }}"
+pihole_api_exclude_domains: []
+#   - example.org
+#   - example.com
+pihole_api_exclude_clients: []
+#   - example_client
+#   - example_client2
+pihole_dhcp: 'false'
+pihole_dhcp_range:
+  start: "{{ pihole_ipv4_address | ipaddr('20') }}"
+  end: "{{ pihole_ipv4_address | ipaddr('-2') }}"
+pihole_dhcp_leasetime: 24
+pihole_domain: 'lan'
+pihole_dhcp_rapid_commit: 'false'
+pihole_dhcp_ipv6: 'false'
+pihole_api_privacy_mode: 'false'
+pihole_api_query_log_show: 'all'
+# 'C' for Celsius, 'F' for Fahrenheit or 'K' for Kelvin
+pihole_temperatureunit: 'C'
+# 'boxed' or 'traditional'
+pihole_webuiboxedlayout: 'boxed'
+pihole_admin_email:           # mail@example.org
+pihole_setupvars_custom: {}
+# Intended for variables not supported by this role, use the following format:
+#   option: value
+# Example:
+#   WEBUIBOXEDLAYOUT: 'boxed'
+
+# pihole-FTL.conf
+# Options: https://docs.pi-hole.net/ftldns/configfile/
+pihole_blocking_mode: 'NULL'
+pihole_maxlogage: '24.0'
+pihole_privacy_level: 0
+pihole_analyze_aaaa: 'yes'
+pihole_analyze_a_aaaa_only: 'true'
+pihole_ignore_localhost: 'no'
+pihole_socket_listening: 'localonly'
+pihole_ftlport: 4711
+pihole_resolve_ipv4: 'yes'
+pihole_resolve_ipv6: 'yes'
+pihole_dbimport: 'yes'
+pihole_maxdbdays: 365
+pihole_dbinterval: '1.0'
+pihole_debug_regex: 'false'
+pihole_piholeftl_custom: {}
+# Intended for variables not supported by this role, use the following format:
+#   option: value
+# Example:
+#   MAXDBDAYS: 90
+
+# Pi-hole lists can be added in a number of ways, the commented lines serve as examples
+pihole_adlists:
+  - "{{ query('file', 'default_adlists.txt') }}"
+#   - "{{ query('file', 'pihole_adlists.txt') }}"
+#   - "{{ query('url', 'https://v.firebog.net/hosts/lists.php?type=tick') }}"
+#   - https://dbl.oisd.nl/
+pihole_regexlists: []
+#   - "{{ query('file', 'pihole_regexlist.txt') }}"
+#   - "{{ query('url', 'https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list') }}"
+#   - .*\.g00\..*
+pihole_blacklists: []
+#   - "{{ query('file', 'pihole_blacklist.txt') }}"
+#   - example.org
+#   - example.com
+pihole_whitelists: []
+#   - "{{ query('file', 'pihole_whitelist.txt') }}"
+#   - "{{ query('url', 'https://raw.githubusercontent.com/anudeepND/whitelist/master/domains/whitelist.txt') }}"
+#   - example.org
+#   - example.com
+
+# dnsmasq configuration
+# Duplicate DHCP reservations set in the Pi-hole interface will conflict with these.
+# Most of these options can be omitted (see which are required on the dnsmasq man page).
+# hardware_address is simply treated as a string and can also contain an ID by prefixing with 'id:'.
+# ipv6_address should not have square brackets.
+# For more detail, see the dnsmasq man page: http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq-man.html
+pihole_dhcp_reservations: {}
+  # examplehostname:
+  #   hardware_address: 'AB:CD:EF:GH:IJ:KL'
+  #   ipv4_address: '192.168.1.2'
+  #   ipv6_address: '1234::56'
+  #   lease_time: '168h'
+  #   ignore: false
+  #   tags:
+  #     - 'otherdns'
+pihole_dhcp_dns:
+  - "{{ pihole_ipv4_address }}"
+#   - '192.168.1.3'
+pihole_dhcp_alternate_dns:
+#   servers:
+#   - '192.168.1.4'
+#   - '192.168.1.5'
+#   tag: 'otherdns'
+pihole_static_routes:
+#   - subnet_in_cidr, subnet_gateway
+#   - '172.16.0.0/24', '192.168.1.10'
+pihole_ntp_addresses:
+#   - '192.168.1.3'
+pihole_ntp_redirect_requests:
+#   - 'pool.ntp.org'
+#   - 'ntp.ubuntu.com'
+#   - 'time.windows.com'
+#   - 'time.android.com'
+#   - 'time.nist.gov'
+pihole_ntp_exceptions:
+  - 'www.pool.ntp.org'
+pihole_dnsmasq_custom: |
+#   Intended for options not supported by this role
+#   Whatever options you want can go here

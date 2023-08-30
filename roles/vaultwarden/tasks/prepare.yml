@@ -1,0 +1,41 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install dependencies
+  become: true
+  package:
+    name: "{{ vaultwarden_dependencies }}"
+
+# TODO: Test systemd DynamicUser
+- name: Add the vaultwarden user
+  become: true
+  user:
+    name: "{{ vaultwarden_system_user }}"
+    state: present
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Create directories
+  become: true
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: '750'
+  loop:
+    - path: "{{ vaultwarden_state_dir }}/{{ vaultwarden_web_vault_folder }}"
+      owner: "{{ vaultwarden_system_user }}"
+    - path: "{{ vaultwarden_env_dir }}"
+      owner: root
+
+- name: Check existence of vaultwarden
+  stat:
+    path: "{{ vaultwarden_bin_path }}"
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  failed_when: false
+  register: vaultwarden_existing_install

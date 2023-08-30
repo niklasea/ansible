@@ -1,0 +1,3 @@
+---
+nginx_domain: "{{ ansible_fqdn }}"
+nginx_hsts_max_age: 15768000

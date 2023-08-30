@@ -1,0 +1,11 @@
+---
+omada_install_dir: /opt/tplink
+omada_controller_dir: "{{ omada_install_dir }}/EAPController"
+
+# tar is for unpacking the archive
+omada_deps:
+  - python*-pip
+  - tar
+  - curl
+  - jsvc                      # Not available in EPEL8
+  - net-tools

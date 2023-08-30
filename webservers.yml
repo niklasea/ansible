@@ -1,0 +1,26 @@
+---
+- name: Get LetsEncrypt TLS certificates
+  hosts: webservers
+  roles:
+    - certbot-dns-cloudflare
+
+- name: Allow HTTPS
+  hosts: webservers
+  roles:
+    - role: firewall
+      vars:
+        firewall_rules:
+          - { port: '80', proto: 'tcp', comment: HTTP }
+          - { port: '443', proto: 'tcp', comment: 'HTTPS' }
+
+- name: Configure speedtest
+  hosts: speedtest
+  roles:
+    - speedtest
+    - role: firewall
+      vars:
+        firewall_rules:
+          - { port: '5001', proto: 'tcp', comment: 'iperf' }
+          - { port: '5001', proto: 'udp', comment: 'iperf' }
+          - { port: '5201', proto: 'tcp', comment: 'iperf3' }
+          - { port: '5201', proto: 'udp', comment: 'iperf3' }

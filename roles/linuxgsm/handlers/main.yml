@@ -1,0 +1,5 @@
+---
+- name: Restart LGSM server
+  command: ./{{ linuxgsm_instancename }} restart
+  args:
+    chdir: "{{ linuxgsm_install_path }}"

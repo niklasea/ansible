@@ -1,0 +1,32 @@
+---
+pihole_dhcp: 'true'
+pihole_dhcp_range:
+  start: "{{ dhcp_range.start }}"
+  end: "{{ dhcp_range.end }}"
+pihole_dhcp_rapid_commit: 'true'
+
+pihole_dhcp_dns: "{{ dhcp_dns }}"
+
+pihole_conditional_fwd: 'false'
+pihole_conditional_fwd_rules:
+  # Never forward queries for local domain even if they are FQDNs
+  # - server_ip: ''
+  #   domain: "{{ pihole_domain }}"
+
+pihole_static_routes: "{{ static_routes }}"
+
+pihole_ntp_addresses: "{{ ntp_addresses }}"
+pihole_ntp_redirect_requests:
+  # - pool.ntp.org    # Local NTP server needs this
+  - ntp.ubuntu.com
+  - time.windows.com
+  - time.android.com
+  - time.nist.gov
+pihole_ntp_exceptions:
+  - www.pool.ntp.org
+  - 0.dk.pool.ntp.org
+  - 1.dk.pool.ntp.org
+  - 2.dk.pool.ntp.org
+  - 3.dk.pool.ntp.org
+
+pihole_dhcp_reservations: "{{ hosts }}"

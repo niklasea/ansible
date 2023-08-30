@@ -1,0 +1,243 @@
+---
+- name: Configure DoT stub resolver
+  hosts: stubbyservers
+  tasks:
+    - import_role:
+        name: stubby
+
+- name: Configure Pi-Hole servers
+  hosts: piholeservers
+
+  handlers:
+    - name: 'Restart lighttpd'
+      become: true
+      service:
+        name: lighttpd
+        state: restarted
+
+  pre_tasks:
+    - block:
+        - block:
+            - name: 'pihole: Enable SELinux modification through Python'
+              package:
+                name: python*-libselinux
+                state: present
+          rescue:
+            - name: 'pihole: Try legacy SELinux Python package name'
+              package:
+                name: libselinux-python
+                state: present
+
+        - name: 'pihole: Put SELinux in permissive mode'
+          selinux:
+            policy: targeted
+            state: permissive
+      become: true
+      when: ansible_os_family == 'RedHat'
+
+  tasks:
+    - import_role:
+        name: pihole
+    - import_role:
+        name: firewall
+      vars:
+        firewall_rules:
+          - { port: '80', proto: 'tcp', comment: 'Pi-hole HTTP' }
+    - import_role:
+        name: certbot-dns-cloudflare
+
+  post_tasks:
+    - name: 'pihole: Check existence of TLS certificate'
+      stat:
+        path: "/etc/letsencrypt/live/{{ certbot_domain }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      failed_when: false
+      register: pihole_tls_certificate
+
+    - block:
+        - name: 'pihole: Check lighttpd version number'
+          # lighttpd is not in PATH by default for non-root users
+          shell: /usr/sbin/lighttpd -v | awk -F '[ /]' 'NR==1{ print $2 }'
+          register: pihole_lighttpd_version
+          changed_when: false
+          failed_when: "pihole_lighttpd_version.rc != 0 or 'lighttpd: not found' in pihole_lighttpd_version.stderr"
+          check_mode: false
+
+        - name: 'pihole: Check OpenSSL version number'
+          shell: openssl version | cut -d ' ' -f 2
+          register: pihole_openssl_version
+          changed_when: false
+          check_mode: false
+
+        # https://discourse.pi-hole.net/t/enabling-https-for-your-pi-hole-web-interface/5771
+        - name: 'pihole: Configure HTTPS'
+          become: true
+          blockinfile:
+            path: "/etc/lighttpd/external.conf"
+            state: present
+            block: |
+              # Enable OpenSSL module
+              server.modules += (
+                  "mod_openssl"
+              )
+
+              $HTTP["host"] == "{{ certbot_domain }}" {
+                # Ensure the Pi-hole Block Page knows that this is not a blocked domain
+                setenv.add-environment = ("fqdn" => "true")
+
+                # Redirect HTTP to HTTPS
+                $SERVER["socket"] == ":80" {
+                  $HTTP["host"] =~ ".*" {
+                    url.redirect = (".*" => "https://%0$0")
+                  }
+                }
+
+                # Enable the SSL engine with a LE cert, only for this specific host
+                $SERVER["socket"] == ":443" {
+                  protocol     = "https://"
+                  ssl.engine   = "enable"
+                  ssl.disable-client-renegotiation = "enable"
+
+                  # Environment flag for HTTPS enabled
+                  setenv.add-environment = (
+                      "HTTPS" => "on"
+                  )
+
+                  # https://ssl-config.mozilla.org/
+              {% if pihole_lighttpd_version.stdout is version('1.4.53', '>=') and pihole_openssl_version.stdout is version('1.1.1', '>=') %}
+                  # Modern configuration
+                  # Requires at least lighttpd version 1.4.53 and OpenSSL version 1.1.1
+                  ssl.pemfile = "/etc/letsencrypt/live/{{ certbot_domain }}/cert.pem"
+                  ssl.privkey = "/etc/letsencrypt/live/{{ certbot_domain }}/privkey.pem"
+                  ssl.ca-file = "/etc/letsencrypt/live/{{ certbot_domain }}/fullchain.pem"
+
+                  ssl.openssl.ssl-conf-cmd = ("Protocol" => "ALL, -SSLv2, -SSLv3, -TLSv1, -TLSv1.1, -TLSv1.2")
+                  ssl.cipher-list          = ""
+              {% else %}
+                  # Intermediate configuration
+                  # For old lighttpd versions < 1.4.53 or old OpenSSL versions < 1.1.1
+                  # pemfile is cert+privkey concatenated, ca-file is the intermediate chain in one file
+                  ssl.pemfile = "/etc/letsencrypt/live/{{ certbot_domain }}/lighttpd_combined.pem"
+                  ssl.ca-file = "/etc/letsencrypt/live/{{ certbot_domain }}/fullchain.pem"
+
+                  ssl.dh-file = "/etc/lighttpd/dhparam.pem"
+
+              {% if pihole_lighttpd_version.stdout is version('1.4.48', '>=') %}
+                  ssl.openssl.ssl-conf-cmd = ("Protocol" => "ALL, -SSLv2, -SSLv3, -TLSv1, -TLSv1.1") # Requires lighttpd version 1.4.48
+              {% else %}
+                  ssl.use-sslv2 = "disable"
+                  ssl.use-sslv3 = "disable"
+              {% endif %}
+                  ssl.cipher-list = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
+              {% endif %}
+                  # The cipher suites are all strong and so we allow the client to choose, as they will know best if they have support for hardware-accelerated AES
+                  ssl.honor-cipher-order = "disable"
+
+                  # HTTP Strict Transport Security (2 years)
+                  setenv.add-response-header  = (
+                      "Strict-Transport-Security" => "max-age=63072000; includeSubDomains"
+                  )
+
+                  # Redirect HTTPS block page requests to admin interface (block page does not work over HTTPS)
+                  $HTTP["url"] =~ "^\/?$" {
+                    $HTTP["host"] =~ ".*" {
+                      url.redirect = (".*" => "https://%0$0/admin")
+                    }
+                  }
+                }
+              }
+          notify: 'Restart lighttpd'
+
+        # 2048-bit matches the Mozilla intermediate recommendation.
+        # Doubling length is about 16 times slower, 4096-bit takes an hour on one J4105-core.
+        - name: 'pihole: Generate DH-file for HTTPS on old versions'
+          become: true
+          command: openssl dhparam -out /etc/lighttpd/dhparam.pem 2048
+          args:
+            creates: /etc/lighttpd/dhparam.pem
+          when: pihole_lighttpd_version.stdout is version('1.4.53', '<')
+                or pihole_openssl_version.stdout is version('1.1.1', '<')
+
+        - import_role:
+            name: firewall
+          vars:
+            firewall_rules:
+              - { port: '443', proto: 'tcp', comment: 'Pi-hole HTTPS' }
+      when:
+        - pihole_tls_certificate.stat.exists | default(false)
+        - pihole_enable_webinterface | bool
+
+    - name: Reset failed hosts in case DNS/DHCP was an issue
+      meta: clear_host_errors
+
+- name: Open DNS port
+  hosts: dnsservers
+  tasks:
+    - import_role:
+        name: firewall
+      vars:
+        firewall_rules:
+          # Internal DNS servers should only respond to local UDP queries (prevents DDoS amplification attacks against external networks)
+          - { port: '53', proto: 'udp', src: '10.0.0.0/8', comment: 'Internal DNS' }
+          - { port: '53', proto: 'udp', src: '172.16.0.0/12', comment: 'Internal DNS' }
+          - { port: '53', proto: 'udp', src: '192.168.0.0/16', comment: 'Internal DNS' }
+          - { port: '53', proto: 'tcp', comment: 'DNS' }
+
+- name: Open DHCP port
+  hosts: pihole_dhcp
+  tasks:
+    - import_role:
+        name: firewall
+      vars:
+        firewall_rules:
+          - { port: '67', proto: 'udp', comment: 'DHCP' }
+
+- name: Configure DoT/recursive resolver
+  hosts: unboundservers
+  tasks:
+    - import_role:
+        name: unbound
+
+    # This is for busy servers that handle spikes in answer traffic,
+    # otherwise packets might be dropped with error 'send: resource temporarily unavailable'.
+    # Despite my best efforts, Unbound is slow compared to Stubby, about 100 qps on one core of a J4105.
+    - name: 'unbound: Increase buffer size'
+      become: true
+      sysctl:
+        name: "{{ item }}"
+        value: '4194304'
+        state: present
+      loop:
+        - 'net.core.wmem_max'
+        - 'net.core.rmem_max'
+
+- name: Configure DDNS
+  hosts: ddns
+  tasks:
+    - import_role:
+        name: inadyn
+
+    - block:
+        - name: Make sure cron is installed
+          become: true
+          package:
+            name: cronie
+            state: present
+      rescue:
+        - name: Make sure cron is installed
+          become: true
+          package:
+            name: cron
+            state: present
+
+    - name: Configure regular DDNS updates
+      cron:
+        name: 'Update DuckDNS domains'
+        job: >
+          echo url="https://www.duckdns.org/update?domains={{ duckdns_domains | join(',') | quote }}&token={{ duckdns_token | quote }}&ip="
+          | curl -s -o ~/duck.log -K -
+        minute: '*/10'
+        state: present
+      tags: update_config

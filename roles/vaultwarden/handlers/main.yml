@@ -1,0 +1,6 @@
+---
+- name: Restart vaultwarden
+  become: true
+  service:
+    name: vaultwarden
+    state: restarted

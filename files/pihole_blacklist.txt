@@ -1,0 +1,128 @@
+# GeForce Experience tracking (does not prevent driver updates)
+events.gfe.nvidia.com
+
+# Yatse (Kodi remote) analytics
+goose.yatse.tv
+
+# Snapchat ads
+ase.adserver.snapads.com
+euw.adserver.snapads.com
+usc.adserver.snapads.com
+use.adserver.snapads.com
+
+# Recordere.dk ads
+ads.recordere.dk
+
+# Google ads DK
+adservice.google.dk
+
+# Politiken.dk ads
+macro.adnami.io
+macro.adnami2.io
+
+# Cointelegraph.com ads / tracking
+gp.cointelegraph.com
+zoa.cointelegraph.com
+
+# Vev.io overlay ads
+cdn.run-syndicate.com
+
+# Vev.io malvertising
+yh5ynji49w.com
+
+# gfycat ad bidding script
+assets.gfycat.com
+
+# Banner ads
+fst.securefastoffers.com
+a.bestcontentpc.top
+b.bestcontentpc.top
+a.bestcontentjob.top
+b.bestcontentjob.top
+a.bestcontenttrade.top
+b.bestcontenttrade.top
+a.bestcontentfood.top
+b.bestcontentfood.top
+a.bestcontentplan.top
+b.bestcontentplan.top
+cyneburg-yam.com
+cs996.wac.sigmacdn.net
+
+# Ad redirect
+fadsabs.com
+fadsanz.com
+fadsats.com
+fadsecs.com
+fadsecz.com
+fadsips.com
+fadskis.com
+fadslims.com
+fadspms.com
+gadspms.com
+usd.veremund-hon.com
+bycelebian.com
+powhyptene.pro
+ditookry.com
+audriasite.pro
+noamiagainst.pro
+lindenlaugh.pro
+gstatic-eu.pro
+api.clickaine.com
+trblocked.com
+raenfh9tkuka.com
+depictlicencegrandmother.com
+
+# Scam
+succesfulday.com
+triumphantplace.com
+packwithwealth.com
+
+# https://www.reddit.com/r/technology/comments/gp976i/roughly_half_the_twitter_accounts_pushing_to/frotrp3/?context=3
+analcreampietube.com
+analfingeringtube.com
+anorexictube.com
+assspankingtube.com
+baristatube.com
+bigclittube.com
+bracestube.com
+buttplugtube.com
+clasroomtube.com
+climaxtube.com
+closuptube.com
+clothedtube.com
+cmnftube.com
+coveredincumtube.com
+cumeatingtube.com
+disgracetube.com
+doggystyletube.com
+fartingtube.com
+fishnetstube.com
+fuckdolltube.com
+fuckmachinetube.com
+fullnelsontube.com
+gaggingtube.com
+glassestube.com
+hairlesstube.com
+highdefinitiontube.com
+hogtiedtube.com
+hookertube.com
+lactatingtube.com
+longhairtube.com
+musculartube.com
+nippleclampstube.com
+oiledtube.com
+oldwomantube.com
+pigtailstube.com
+pukingtube.com
+rimjobtube.com
+schoolgirlstube.com
+scissoringtube.com
+speculumtube.com
+sybiantube.com
+tattooedtube.com
+tinyasiantube.com
+toestube.com
+
+# Fake troubleshooting
+fileerrors.com
+www.fileerrors.com

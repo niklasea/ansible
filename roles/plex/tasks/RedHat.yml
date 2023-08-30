@@ -1,0 +1,10 @@
+---
+- name: (RedHat) Add Plex repository
+  become: true
+  yum_repository:
+    name: plex
+    description: Official Plex repository
+    baseurl: https://downloads.plex.tv/repo/rpm/$basearch/
+    gpgcheck: true
+    gpgkey: https://downloads.plex.tv/plex-keys/PlexSign.key
+    enabled: true

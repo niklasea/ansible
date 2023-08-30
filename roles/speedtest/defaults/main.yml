@@ -1,0 +1,4 @@
+---
+speedtest_html_directory: /var/www/html
+speedtest_release: '5.2.5'
+speedtest_set_overhead_compensation: 1

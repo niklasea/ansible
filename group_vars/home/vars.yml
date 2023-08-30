@@ -1,0 +1,74 @@
+---
+gateway_address: '172.21.1.1'
+local_network_ipv4: '172.21.1.0/24'
+# local_network_ipv6: '::/0'
+
+home_domain: "{{ vault_home_domain }}"
+local_domain: "internal.{{ home_domain }}"
+dhcp_address: "{{ hosts.pihole01.ipv4_address }}"
+dhcp_range:
+  start: '172.21.1.50'
+  end: '172.21.1.254'
+dhcp_dns:
+  - "{{ dhcp_address }}"
+  - "{{ hosts.pihole02.ipv4_address }}"
+ntp_addresses:
+  - "{{ hosts.ds216j.ipv4_address }}"
+  - "{{ hosts.retropie.ipv4_address }}"
+
+ansible_become_password: "{{ vault_ansible_become_password }}"
+
+smb_backup_folder: /mnt/backup
+
+certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
+certbot_subject_alt_names:
+  - "{{ inventory_hostname_short }}.{{ home_domain }}"
+certbot_email: "{{ vault_notification_email }}"
+certbot_use_dns: true
+certbot_dns_plugin: cloudflare
+certbot_dns_credentials: |
+  # https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials
+  dns_{{ certbot_dns_plugin }}_email = {{ vault_cloudflare_email }}
+  dns_{{ certbot_dns_plugin }}_api_key = {{ vault_cloudflare_global_api_key }}
+certbot_dns_propagation: 10
+
+wireguard_network: '172.20.255.0/25'
+# openvpn_network: '172.20.255.128/25'
+
+static_routes:
+  - "{{ wireguard_network }},{{ hosts.wireguard.ipv4_address }}"
+  # - "{{ openvpn_network }},{{ hosts.openvpn.ipv4_address }}"
+
+wifi_pass: "{{ vault_wifi_pass }}"
+
+hosts:
+  ordos:
+    ipv4_address: '172.21.1.2'
+  arrakis:
+    ipv4_address: '172.21.1.3'
+  ds216j:
+    ipv4_address: '172.21.1.4'
+  retropie:
+    ipv4_address: '172.21.1.5'
+  arvon:
+    ipv4_address: '172.21.1.6'
+  ninosdesktop:
+    ipv4_address: '172.21.1.9'
+  unbound:
+    ipv4_address: '172.21.1.10'
+  pihole01:
+    ipv4_address: '172.21.1.11'
+  pihole02:
+    ipv4_address: '172.21.1.12'
+  wireguard:
+    ipv4_address: '172.21.1.15'
+  mail:
+    ipv4_address: '172.21.1.19'
+  reverse_proxy:
+    ipv4_address: '172.21.1.20'
+  plex:
+    ipv4_address: '172.21.1.21'
+  jellyfin:
+    ipv4_address: '172.21.1.23'
+  valheim:
+    ipv4_address: '172.21.1.22'

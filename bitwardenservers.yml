@@ -1,0 +1,106 @@
+---
+- name: Build Bitwarden server
+  hosts: bitwardenservers
+  pre_tasks:
+    - block:
+        - block:
+            - name: 'bitwarden: Enable SELinux modification through Ansible'
+              package:
+                name: python*-libselinux
+                state: present
+          rescue:
+            - name: 'bitwarden: Try legacy package name'
+              package:
+                name: libselinux-python
+                state: present
+
+        - name: 'bitwarden: Put SELinux in permissive mode'
+          selinux:
+            policy: targeted
+            state: permissive
+      become: true
+      when: ansible_os_family == 'RedHat'
+
+  tasks:
+    - import_role:
+        name: vaultwarden
+
+    - name: 'Install sqlite for backup purposes'
+      become: true
+      package:
+        name: sqlite
+        state: present
+
+    - import_role:
+        name: nginxinc.nginx
+      become: true
+      vars:
+        nginx_http_template_enable: true
+        nginx_http_template:
+          default:
+            template_file: http/default.conf.j2
+            conf_file_name: default.conf
+            conf_file_location: /etc/nginx/conf.d/
+            port: 443
+            server_name: localhost
+            error_page: /usr/share/nginx/html
+            autoindex: false
+            ssl:
+              cert: "/etc/letsencrypt/live/{{ certbot_domain }}/fullchain.pem"
+              key: "/etc/letsencrypt/live/{{ certbot_domain }}/privkey.pem"
+              protocols: TLSv1.2
+              ciphers: ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+              session_cache: none
+              session_timeout: 5m
+            add_headers:
+              strict_transport_security:
+                name: Strict-Transport-Security
+                value: max-age=15768000; includeSubDomains
+                always: true
+            reverse_proxy:
+              locations:
+                frontend:
+                  location: /
+                  proxy_pass: http://frontend_servers
+            upstreams:
+              upstream_1:
+                name: frontend_servers
+                lb_method: least_conn
+                zone_name: frontend
+                zone_size: 64k
+                sticky_cookie: false
+                servers:
+                  frontend_server_1:
+                    address: localhost
+                    port: 8000
+                    weight: 1
+                    health_check: max_fails=3 fail_timeout=3s
+
+  post_tasks:
+    - import_role:
+        name: smb_mount
+
+    - name: Schedule sqlite3 database backup
+      become: true
+      cron:
+        name: "Dump sqlite3 database to backup file"
+        job: >
+          /usr/bin/sqlite3
+          {{ vaultwarden_state_dir }}/{{ vaultwarden_data_folder }}/db.sqlite3
+          ".backup '{{ vaultwarden_state_dir }}/{{ vaultwarden_data_folder }}/backup.sqlite3'"
+        hour: '3'
+        minute: '0'
+        state: present
+
+    - name: Schedule backup to network drive
+      become: true
+      cron:
+        name: "Back up vaultwarden to network drive"
+        job: >
+          /usr/bin/tar
+          -zcf
+          {{ smb_backup_folder }}/data.tar.gz
+          {{ vaultwarden_state_dir }}/{{ vaultwarden_data_folder }}
+        hour: '4'
+        minute: '0'
+        state: present

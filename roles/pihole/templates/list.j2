@@ -1,0 +1,8 @@
+{# The gravity database has a UNIQUE constraint. This parses the lists and removes duplicates #}
+{% set ns = namespace(existing = []) %}
+{% for list in item.list | flatten %}
+{% for line in list.splitlines() if line not in ns.existing %}
+{% set ns.existing = ns.existing | union([line]) %}
+{% endfor %}
+{% endfor %}
+{{ ns.existing | unique | join("\n")}}

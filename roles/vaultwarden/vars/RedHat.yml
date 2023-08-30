@@ -1,0 +1,8 @@
+---
+vaultwarden_dependencies:
+  - git                       # Ansible git module
+  - tar                       # Ansible unarchive module
+  - curl                      # rustup dependency
+  - gcc
+  - openssl
+  - openssl-devel

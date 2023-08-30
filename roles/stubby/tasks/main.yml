@@ -1,0 +1,36 @@
+---
+- include_tasks: prepare.yml
+
+- block:
+    - name: (RedHat) Enable EPEL
+      become: true
+      package:
+        name: epel-release
+        state: present
+      when:
+        - ansible_os_family == 'RedHat'
+        - ansible_distribution != 'Fedora'
+
+    - name: Install Stubby from repository
+      become: true
+      package:
+        name: stubby
+        state: present
+      ignore_errors: true
+      register: stubby_installed
+  when: not stubby_force_build
+
+- name: Build Stubby from source
+  include_tasks: build.yml
+  when: stubby_installed is failed or stubby_force_build
+
+- name: Apply Stubby configuration
+  become: true
+  template:
+    src: stubby.yml.j2
+    dest: "{{ stubby_conf_file }}"
+    owner: root
+    group: root
+    mode: '644'
+  notify: Restart Stubby
+  tags: update_config

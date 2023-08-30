@@ -1,0 +1,39 @@
+[Interface]
+{% for address in wg_address %}
+Address = {{ address | ipaddr }}
+{% endfor %}
+PrivateKey = {{ wg_server_keys.private | default(wg_private_key.stdout) }}
+# PublicKey = {{ wg_server_keys.public | default(wg_public_key.stdout) }}
+ListenPort = {{ wg_listenport }}
+FwMark = {{ wg_fwmark }}
+MTU = {{ wg_mtu }}
+Table = {{ wg_table }}
+{% for rule in wg_preup %}
+PreUp = {{ rule }}
+{% endfor %}
+{% for rule in wg_postup %}
+PostUp = {{ rule }}
+{% endfor %}
+{% for rule in wg_predown %}
+PreDown = {{ rule }}
+{% endfor %}
+{% for rule in wg_postdown %}
+PostDown = {{ rule }}
+{% endfor %}
+SaveConfig = {{ wg_saveconfig }}
+{% for peer in wg_peers %}
+
+[Peer] {% if peer.comment is defined %}# {{ peer.comment }}{% endif %}
+
+PublicKey = {{ peer.publickey }}
+{% if peer.presharedkey is defined %}
+PresharedKey = {{ peer.presharedkey }}
+{% endif %}
+AllowedIPs = {{ peer.allowedips }}
+{% if peer.endpoint is defined %}
+Endpoint = {{ peer.endpoint }}
+{% endif %}
+{% if peer.persistentkeepalive is defined %}
+PersistentKeepalive = {{ peer.persistentkeepalive }}
+{% endif %}
+{% endfor %}

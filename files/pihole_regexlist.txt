@@ -1,0 +1,5 @@
+# Gfycat ad bidding
+#(^|\.)ga\.gfycat\.com$
+
+# Tracking pixels
+^p(x|ixels?)[._-]

@@ -1,0 +1,10 @@
+---
+inadyn_dependencies:
+  - git                       # Ansible git module
+  - make
+  - automake
+  - libtool
+  - gcc
+  - libconfuse-devel
+  - gnutls-devel
+  - ca-certificates

@@ -1,0 +1,34 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- block:
+    # https://developer.github.com/v3/repos/releases/#get-the-latest-release
+    - name: Get the latest non-prerelease tag on GitHub
+      # The GitHub API is rate limited
+      run_once: true
+      uri:
+        url: https://api.github.com/repos/getdnsapi/getdns/releases/latest
+      register: stubby_release_latest
+
+    - name: Select latest stubby release
+      set_fact:
+        stubby_release: "{{ stubby_release_latest.json.tag_name | regex_replace('^v') }}"
+  when: stubby_latest_release
+
+- name: Remove stubby if installed through package manager
+  become: true
+  package:
+    name: stubby
+    state: absent
+  when: stubby_force_build
+
+- name: Remove existing stubby files to force a reinstall
+  become: true
+  file:
+    path: "{{ item }}"
+    state: absent
+  when: stubby_force_reinstall
+  loop:
+    - "{{ stubby_makefile_path }}"
+    - "{{ stubby_bin_path }}"

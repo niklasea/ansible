@@ -1,0 +1,21 @@
+---
+- name: OS-specific configuration
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Install virtualisation guest agents
+  become: true
+  package:
+    name:
+      - qemu-guest-agent        # KVM
+      - open-vm-tools           # VMware
+    state: present
+  when: ansible_virtualization_role == 'guest'
+
+- name: Configure SSH
+  become: true
+  import_tasks: ssh_hardening.yml
+
+- name: Set timezone
+  become: true
+  timezone:
+    name: Europe/Copenhagen

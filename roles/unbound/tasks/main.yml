@@ -1,0 +1,34 @@
+---
+# https://nlnetlabs.nl/documentation/unbound/howto-anchor/
+# root.key dir should be owned by unbound for auto-trust-anchor-file to work and unbound-anchor has to run as unbound user
+# https://src.fedoraproject.org/rpms/unbound/blob/master/f/unbound.spec
+# https://git.archlinux.org/svntogit/community.git/tree/trunk/PKGBUILD?h=packages/unbound
+# https://salsa.debian.org/dns-team/unbound/blob/master/debian/rules
+
+- name: Install unbound
+  become: true
+  package:
+    name: unbound
+    state: present
+  when: not unbound_force_build
+
+- import_tasks: build.yml
+  when: unbound_force_build
+
+# TODO: Test with Unbound from distro repos, in what order are options applied?
+- name: Apply user config
+  become: true
+  blockinfile:
+    path: "{{ unbound_conf_file }}"
+    block: "{{ unbound_config }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK : USER CONFIG"
+    validate: "{{ unbound_install_dir }}/sbin/unbound-checkconf %s"
+  notify: Reload Unbound config
+  tags: update_config
+
+- name: Enable unbound service
+  become: true
+  service:
+    name: unbound
+    enabled: true
+    state: started
