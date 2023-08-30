@@ -1,0 +1,11 @@
+---
+stubby_force_build: true
+stubby_listen_addresses:
+  - 0.0.0.0@5353
+stubby_upstream: |
+  - address_data: 9.9.9.11
+    tls_auth_name: "dns.quad9.net"
+  - address_data: 149.112.112.11
+    tls_auth_name: "dns.quad9.net"
+stubby_options:
+  idle_timeout: 9000

@@ -1,0 +1,110 @@
+# /etc/inadyn.conf :: v2 configuration file format
+#
+# 1. Select a matching DDNS provider to uncomment, this file lists a few
+#    common ones, including a custom one, see inadyn(8) for the full list
+#
+# 2. Edit the following options:
+#    <username> - your username at the DDNS provider
+#    <password> - your password at the DDNS provider
+#    <hostname> - the DNS hostname(s) you want to update
+#
+# 3. Ensure to set 600 permissions on this file!
+#
+# See inadyn.conf(5) for detailed information on the syntax
+
+# How often the IP is checked. The value denotes seconds
+period = {{ inadyn_period }}
+
+# How often the IP should be updated even if it is not changed. The time should be given in seconds
+forced-update = {{ inadyn_forced_update }}
+
+# Set the number of DNS updates. 0 means infinity
+iterations = {{ inadyn_iterations }}
+
+# Disable IP address validation
+verify-address = {{ inadyn_verify_address }}
+
+# This option can be used to fake an address update with a “random” address in the 203.0.113.0/24 range,
+# example address range from RFC5737, before updating with the actual IP address
+fake-address = {{ inadyn_fake_address }}
+
+# Inadyn can get an IPv6 address from an interface, or with an external checkip script
+# This option controls if IPv6 addresses should be allowed or discarded
+allow-ipv6 = {{ inadyn_allow_ipv6 }}
+
+# If the HTTPS certificate validation fails for a provider inadyn aborts the DDNS update before sending any credentials
+# When this setting is disabled, i.e. false, then inadyn will only issue a warning.
+secure-ssl = {{ inadyn_secure_ssl }}
+
+# Custom HTTP user agent, some DDNS providers require this
+# Default is inadyn/VERSION, you rarely need this
+user-agent = {{ inadyn_user_agent }}
+
+# This setting overrides the built-in paths and fallback locations and provides a way to
+# specify the path to a trusted set of CA certificates, in PEM format, bundled into one file.
+#ca-trust-file =
+{% if inadyn_ca_trust_file is not none %}
+ca-trust-file = {{ inadyn_ca_trust_file }}
+{% endif %}
+
+# Set interface to check for IP, default is to ask an external
+# checkip server -- you rarely need this
+#iface = eth1
+{% if inadyn_iface is not none %}
+iface = {{ inadyn_iface }}
+{% endif %}
+
+### FreeDNS -- https://freedns.afraid.org
+#provider freedns.afraid.org {
+#	username = <username>
+#	password = <password>
+#	hostname = <hostname>
+#}
+
+### Loopia -- https://www.loopia.com
+#provider loopia {
+#	username = <username>
+#	password = <password>
+##	wildcard = true	
+#	hostname = { <hostname1>, <hostname2>, ... }
+#}
+
+### DYN.com -- http://www.dyn.com
+#provider Dyn {
+#	username = <username>
+#	password = <password>
+#	hostname = <hostname>
+#}
+
+### FreeMyIP -- https://freemyip.com
+#provider freemyip.com {
+#        password = <your_token>
+#        hostname = <your_hostname>.freemyip.com
+#}
+
+### Custom provider setup for http://twoDNS.de
+#custom twoDNS {
+#	username	= <username>
+#	password	= <password>
+#	checkip-server  = checkip.two-dns.de
+#	checkip-path    = /
+#	checkip-ssl     = false
+#	ddns-server     = update.twodns.de
+#	ddns-path       = "/update?hostname=%h"
+#	ssl             = true
+#	hostname	= <hostname>.dd-dns.de
+#}
+
+{% for type, configs in inadyn_ddns_configurations.items() %}
+{% for single_config in configs %}
+{% for provider, options in single_config.items() %}
+{{ type }} {{ provider }} {
+{% for key, value in options.items() %}
+{% if value is not none %}
+    {{ key }} = {{ value }}
+{% endif %}
+{% endfor %}
+}
+{% endfor %}
+{% endfor %}
+{% endfor %}

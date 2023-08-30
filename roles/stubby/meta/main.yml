@@ -1,0 +1,32 @@
+---
+# Stubby is not available from the Debian 9/Stretch and Ubuntu 16.04/Xenial repositories
+# Debian 8 only has OpenSSL 1.0.1t in its repo, 1.0.2 required
+
+galaxy_info:
+  author: Niklas Elmose Andersen
+  description: Stubby - DNS stub resolver for Linux.
+
+  license: "license (0BSD, MIT-0)"
+  min_ansible_version: 2.2
+  platforms:
+    - name: EL
+      versions:
+        - 7
+        - 8
+    - name: Fedora
+      versions:
+        - 29
+        - 30
+    - name: Debian
+      versions:
+        - stretch
+        - buster
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+  galaxy_tags:
+    - dns
+    - stubby
+    - resolver
+    - getdns

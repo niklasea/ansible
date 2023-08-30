@@ -1,0 +1,24 @@
+---
+- name: (Fedora) Add package repositories
+  become: true
+  yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.name }}"
+    baseurl: "{{ item.baseurl }}"
+    gpgcheck: true
+    gpgkey: "{{ item.gpgkey }}"
+    repo_gpgcheck: true
+    enabled: true
+  loop:
+    - name: MongoDB
+      description: Official MongoDB releases
+      baseurl: 'https://repo.mongodb.org/yum/redhat/8Server/mongodb-org/4.2/x86_64/'
+      gpgkey: 'https://www.mongodb.org/static/pgp/server-4.2.asc'
+
+- name: (Fedora) Install Java 8 and MongoDB
+  become: true
+  yum:
+    name:
+      - java-1.8.0-openjdk-headless
+      - mongodb-org-server
+    state: present

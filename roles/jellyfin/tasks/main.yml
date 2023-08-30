@@ -1,0 +1,10 @@
+---
+# https://jellyfin.org/downloads/
+- name: OS-specific configuration
+  include_tasks: "{{ ansible_os_family }}.yml"
+
+- name: Install Jellyfin
+  become: true
+  package:
+    name: jellyfin
+    state: present

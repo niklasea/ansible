@@ -1,0 +1,14 @@
+---
+speedtest_librespeed_src_dir: /usr/local/src/speedtest
+speedtest_dependencies:
+  - python*-pip
+  ## librespeed speedtest
+  - git
+  - "{{ speedtest_webserver }}"
+  - php
+  ## Flent
+  - fping
+  # - netperf                   # netperf requires the non-free Debian repo
+  ## Other
+  - iperf
+  - iperf3

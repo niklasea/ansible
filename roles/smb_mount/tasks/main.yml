@@ -1,0 +1,25 @@
+---
+- name: Install SMB tools
+  become: true
+  package:
+    name: cifs-utils
+    state: present
+
+- name: Add SMB credentials
+  become: true
+  template:
+    src: credentials.j2
+    dest: "{{ smb_credential_path }}"
+    owner: root
+    group: root
+    mode: '600'
+
+- name: Mount volume
+  become: true
+  mount:
+    path: "{{ item.local_path }}"
+    src: "{{ item.network_path }}"
+    state: mounted
+    fstype: cifs
+    opts: "{{ item.options }},credentials={{ smb_credential_path }}"
+  loop: "{{ smb_mounts }}"

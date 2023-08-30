@@ -1,0 +1,10 @@
+[Unit]
+Description=Automatic reboot
+
+[Timer]
+OnBootSec=30d
+RandomizedDelaySec=24h
+Unit=reboot.target
+
+[Install]
+WantedBy=timers.target

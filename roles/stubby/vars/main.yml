@@ -1,0 +1,20 @@
+---
+stubby_install_dir: /usr/local
+stubby_bin_path: "{{ stubby_install_dir }}/bin/stubby"
+stubby_src_dir: "{{ stubby_install_dir }}/src/getdns-{{ stubby_release }}"
+stubby_makefile_path: "{{ stubby_src_dir }}/Makefile"
+stubby_conf_dir: /etc/stubby
+stubby_conf_file: "{{ stubby_conf_dir }}/stubby.yml"
+stubby_build_options:
+  - BUILD_TESTING=OFF     # Removes dependency on Check which causes build failure on Fedora 31
+  - CMAKE_BUILD_TYPE=Release
+  - CMAKE_INSTALL_PREFIX={{ stubby_install_dir }}
+  # TODO: - CMAKE_INSTALL_RUNSTATEDIR=/run/stubby
+  - CMAKE_INSTALL_RUNSTATEDIR=/run
+  - BUILD_STUBBY=ON
+  - USE_LIBIDN2=OFF
+  - ENABLE_STUB_ONLY=ON
+
+# Build can scale to at least four jobs, but does not take long regardless.
+# Start a job for each logical processor, start no more than four simultaneous jobs.
+stubby_make_job_count: "{{ [ansible_processor_vcpus | default(1), 4] | min }}"

@@ -1,0 +1,15 @@
+---
+- name: (RedHat) Enable repositories
+  become: true
+  package:
+    name:
+      - 'epel-release'
+      - 'elrepo-release'
+    state: present
+
+- name: (RedHat) Install WireGuard kernel module
+  become: true
+  package:
+    name:
+      - 'kmod-wireguard'
+    state: present

@@ -1,0 +1,6 @@
+---
+smb_credential_path: /root/smbcredentials
+smb_mounts:
+  - network_path:
+    local_path:
+    options:

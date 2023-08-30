@@ -1,0 +1,60 @@
+# https://github.com/dani-garcia/vaultwarden/wiki/Setup-as-a-systemd-service
+# Customised for my Ansible role
+
+[Unit]
+Description=Vaultwarden Server
+Documentation=https://github.com/dani-garcia/vaultwarden
+
+{% if vaultwarden_database == 'sqlite' %}
+After=network.target
+{% else %}
+# If you use a database like mariadb, mysql or postgresql, 
+# you have to add them like the following. This makes sure that your 
+# database server is started before vaultwarden ("After") and has 
+# started successfully before starting vaultwarden ("Requires").
+After=network.target {{ vaultwarden_database_service_name }}.service
+Requires={{ vaultwarden_database_service_name }}.service
+{% endif %}
+
+[Service]
+# The user/group vaultwarden is run under. The working directory (see below) should allow write and read access to this user/group
+User={{ vaultwarden_system_user }}
+Group={{ vaultwarden_system_user }}
+# The location of the .env file for configuration
+EnvironmentFile={{ vaultwarden_env_path }}
+# The location of the compiled binary
+ExecStart={{ vaultwarden_bin_path }}
+
+# TODO: SELinux compatibility
+#DynamicUser=true
+#StateDirectory={{ vaultwarden_state_dir | basename }}
+# Only allow writes to the following directory and set it to the working directory (user and password data are stored here)
+WorkingDirectory={{ vaultwarden_state_dir }}
+ReadWritePaths={{ vaultwarden_state_dir }}
+# Set reasonable connection and process limits
+LimitNOFILE={{ vaultwarden_limitnofile }}
+LimitNPROC={{ vaultwarden_limitnproc }}
+
+# Isolate service from the rest of the system
+ProtectSystem=strict
+ProtectHome=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+LockPersonality=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+# Allow service to bind ports in the range of 0-1024
+# Requires systemd version 229 or newer
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

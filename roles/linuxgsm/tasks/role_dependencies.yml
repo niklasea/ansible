@@ -1,0 +1,75 @@
+---
+- name: Include host-specific variables
+  include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+        - main.yml
+      paths:
+        - vars
+
+- block:
+    # Requires python-apt on Debian-based distros
+    - name: Gather package facts
+      package_facts:
+        manager: auto
+      register: linuxgsm_package_result
+      failed_when: >
+        linuxgsm_package_result.warnings is defined
+        or
+        ansible_facts.packages | length == 0
+
+    - name: Register missing role dependencies
+      set_fact:
+        linuxgsm_missing_role_dependencies: "{{ linuxgsm_missing_role_dependencies | default([]) | union([item]) }}"
+      when: item not in ansible_facts.packages
+      loop: "{{ linuxgsm_role_dependencies }}"
+
+  rescue:
+    # Fails on Fedora: "This command has to be run under the root user."
+    - name: Attempt check for missing dependencies if host failed to gather package facts
+      package:
+        name: "{{ linuxgsm_role_dependencies }}"
+        state: present
+      register: linuxgsm_package_result
+      ignore_errors: true
+
+- block:
+    - name: Fail if dependencies are missing
+      fail:
+        msg: >
+          Missing dependencies:
+          {{ linuxgsm_missing_role_dependencies | default(linuxgsm_role_dependencies | join(', ') ~ ' required') }}
+      when: >
+        linuxgsm_missing_role_dependencies is defined
+        or
+        linuxgsm_package_result is failed
+
+  rescue:
+    - name: Install missing role dependencies
+      become: true
+      package:
+        name: "{{ linuxgsm_role_dependencies }}"
+        state: present
+
+  always:
+    - name: Register any missing dependencies
+      set_fact:
+        linuxgsm_missing_auto_install_dependencies: "{{ linuxgsm_missing_auto_install_dependencies | default([]) | union([item]) }}"
+      when:
+        - ansible_facts.packages is defined
+        - item not in ansible_facts.packages
+      loop: "{{ linuxgsm_auto_install_dependencies }}"
+
+    # These are needed to auto-install game server dependencies, not needed if managing dependencies manually.
+    - name: Install auto-install dependencies
+      become: true
+      package:
+        name: "{{ linuxgsm_auto_install_dependencies }}"
+        state: present
+      ignore_errors: true
+      when:
+        - linuxgsm_auto_install_deps
+        - (linuxgsm_missing_auto_install_dependencies is defined or ansible_facts.packages is not defined)

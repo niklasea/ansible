@@ -1,0 +1,140 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install dependencies
+  become: true
+  package:
+    name: "{{ unbound_build_dependencies }}"
+    state: present
+
+- name: Create system user
+  become: true
+  user:
+    name: "{{ unbound_user }}"
+    state: present
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Create directories
+  become: true
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ unbound_user }}"
+    group: "{{ unbound_user }}"
+    mode: '755'
+  loop:
+    - path: "{{ unbound_conf_dir }}"
+    - path: "{{ unbound_state_dir }}"
+
+# unbound_pidfile_dir has to be owned by root in order to create pidfile
+- name: Configure tmpfiles.d to create PID file dir
+  become: true
+  blockinfile:
+    path: /usr/lib/tmpfiles.d/unbound.conf
+    block: "D {{ unbound_pidfile_dir }} 0755 root root -"
+    owner: root
+    group: root
+    mode: '644'
+    create: true
+
+# pidfile parent directory has to exist or unbound-checkconf will fail
+- name: Create PID file dir
+  become: true
+  command: systemd-tmpfiles --create
+  args:
+    creates: "{{ unbound_pidfile_dir }}"
+
+- name: Clone git repository
+  become: true
+  git:
+    repo: "{{ unbound_git_repo }}"
+    dest: "{{ unbound_src_dir }}"
+    version: "{{ unbound_release }}"
+  # The build process can result in changes to the local repo
+  ignore_errors: true
+
+- block:
+    - name: Set build flags
+      become: true
+      command: "./configure {{ unbound_build_flags }}"
+      args:
+        chdir: "{{ unbound_src_dir }}"
+        creates: "{{ unbound_src_dir }}/Makefile"
+
+    # Benchmark showed no meaningful time savings past two jobs
+    - name: Build package
+      become: true
+      command: make -j2
+      args:
+        chdir: "{{ unbound_src_dir }}"
+        creates: "{{ unbound_src_dir }}/unbound"
+
+    - name: Install package
+      become: true
+      command: make install
+      args:
+        chdir: "{{ unbound_src_dir }}"
+      changed_when: false
+  when: not ansible_check_mode
+
+- name: Link shared libraries
+  become: true
+  command: ldconfig
+  changed_when: false
+
+- name: Create systemd services
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '644'
+  loop:
+    - src: unbound.service.j2
+      dest: /lib/systemd/system/unbound.service
+    - src: unbound-anchor.service.j2
+      dest: /lib/systemd/system/unbound-anchor.service
+  notify: Reload Unbound config
+
+- name: Reload service files
+  become: true
+  service:
+    daemon_reload: true
+
+# TODO: Remove old releases
+
+- name: Check existence of trust anchor
+  stat:
+    path: "{{ unbound_root_hints_file }}"
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  register: unbound_root_hints
+
+- import_tasks: dnssec.yml
+  when: not unbound_root_hints.stat.exists
+
+# The systemd service cannot read these when they are owned by unbound_user
+- name: Generate certificate and keys for unbound-control
+  become: true
+  command: "{{ unbound_install_dir | quote }}/sbin/unbound-control-setup -d {{ unbound_state_dir | quote }}"
+  args:
+    creates: "{{ unbound_state_dir }}/unbound_server.pem"
+
+- name: Apply base config
+  become: true
+  blockinfile:
+    path: "{{ unbound_conf_file }}"
+    block: "{{ unbound_base_config }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK : BASE CONFIG"
+    insertbefore: BOF
+    create: true
+    owner: "{{ unbound_user }}"
+    group: "{{ unbound_user }}"
+    mode: '644'
+    validate: "{{ unbound_install_dir }}/sbin/unbound-checkconf %s"
+  notify: Reload Unbound config

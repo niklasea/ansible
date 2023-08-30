@@ -1,0 +1,12 @@
+---
+- name: Configure mail server
+  hosts: mailservers
+  roles:
+    - certbot-dns-cloudflare
+    - mail
+    - role: firewall
+      vars:
+        firewall_rules:
+          - { port: '25', proto: 'tcp', comment: 'SMTP' }
+          - { port: '587', proto: 'tcp', comment: 'SMTP STARTTLS' }
+          - { port: '993', proto: 'tcp', comment: 'IMAPS' }

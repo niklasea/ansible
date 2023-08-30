@@ -1,0 +1,13 @@
+---
+inadyn_install_dir: /usr/local
+inadyn_src_dir: "{{ inadyn_install_dir }}/src/inadyn/{{ inadyn_release }}"
+inadyn_src_makefile: "{{ inadyn_src_dir }}/Makefile"
+inadyn_src_binary: "{{ inadyn_src_dir }}/src/inadyn"
+inadyn_installed_binary: "{{ inadyn_install_dir }}/sbin/inadyn"
+inadyn_conf_file: /etc/inadyn/inadyn.conf
+inadyn_state_dir: /var/lib/inadyn
+
+# Using --without-systemd to avoid overwriting the custom service file when installing
+inadyn_build_flags: >
+  --prefix={{ inadyn_install_dir }}
+  --without-systemd

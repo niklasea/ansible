@@ -1,0 +1,46 @@
+---
+inadyn_release: v2.10.0
+# Set to true to pull the most recent release from GitHub instead (rate limited).
+inadyn_latest_release: false
+inadyn_force_reinstall: false
+inadyn_ignore_unsupported_distro: false
+
+inadyn_period: 300
+inadyn_forced_update: 2592000
+inadyn_iterations: 0
+inadyn_verify_address: true
+inadyn_fake_address: false
+inadyn_allow_ipv6: false
+inadyn_secure_ssl: true
+inadyn_user_agent: "inadyn/{{ inadyn_release }}"
+inadyn_ca_trust_file:
+inadyn_iface:
+
+inadyn_ddns_configurations: {}
+# Each config is a mapping from a provider to the options for that provider
+# Any arbitrary key : value mappings are possible, 'username', 'password' and 'hostname' mappings are required
+# Example:
+  # provider:
+  #   - default@freedns.afraid.org:
+  #       username:
+  #       password:
+  #       hostname:
+  #   - default@duckdns.org:1:
+  #       username:
+  #       password:
+  #       hostname:
+  #   - default@duckdns.org:2:
+  #       username:
+  #       password:
+  #       hostname:
+  # custom:
+  #   - mycustomconfig:
+  #       username:
+  #       password:
+  #       ssl:
+  #       checkip-command:
+  #       checkip-server:
+  #       ddns-server:
+  #       ddns-path:
+  #       ddns-response:
+  #       hostname:

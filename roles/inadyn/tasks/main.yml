@@ -1,0 +1,29 @@
+---
+- include_tasks: prepare.yml
+
+# Try to execute inadyn; build and install it if execution fails
+- block:
+    - name: Get installed In-A-Dyn version number
+      command: inadyn -v
+      changed_when: false
+  rescue:
+    - include_tasks: build.yml
+
+- name: Apply In-A-Dyn config
+  become: true
+  template:
+    src: inadyn.conf.j2
+    dest: "{{ inadyn_conf_file }}"
+    # Contains secrets, must not be world-readable
+    mode: '600'
+    validate: "{{ inadyn_installed_binary }} --check-config --config %s"
+  notify: Restart inadyn
+  tags: update_config
+
+- name: Enable systemd service
+  become: true
+  systemd:
+    name: inadyn
+    state: started
+    enabled: true
+    daemon-reload: true

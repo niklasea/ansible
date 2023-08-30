@@ -1,0 +1,10 @@
+---
+unbound_build_dependencies:
+  - git                       # Ansible git module
+  - cronie                    # Ansible cron module
+  - make
+  - gcc
+  - expat-devel
+  - openssl-devel
+  - libevent-devel
+  - byacc

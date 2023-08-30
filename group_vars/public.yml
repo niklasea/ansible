@@ -1,0 +1,3 @@
+---
+certbot_use_dns: false
+certbot_domain: "{{ inventory_hostname_short }}.{{ home_domain }}"

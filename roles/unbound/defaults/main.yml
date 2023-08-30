@@ -1,0 +1,27 @@
+---
+unbound_force_build: false
+unbound_release: release-1.17.0
+unbound_config: |
+  server:
+      # Use DNSSEC validation. Do not send EDNS client subnet information.
+      module-config: "validator iterator"
+
+      # Listen on all interfaces, answer queries from the local subnet.
+      interface: 0.0.0.0
+      interface: ::0
+
+      # The most specific netblock match is used, if none match deny is used.
+      # The action allow gives access to clients from that netblock.
+      access-control: 10.0.0.0/8 allow
+      access-control: 172.16.0.0/12 allow
+      access-control: 192.168.0.0/16 allow
+      access-control: fd00::/8 allow
+
+      # Any occurrence of such addresses are removed from DNS answers. Additionally, the DNSSEC
+      # validator may mark the answers bogus. This protects against so-called DNS Rebinding.
+      private-address: 10.0.0.0/8
+      private-address: 172.16.0.0/12
+      private-address: 192.168.0.0/16
+      private-address: 169.254.0.0/16
+      private-address: fd00::/8
+      private-address: fe80::/10

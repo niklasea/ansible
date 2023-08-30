@@ -1,0 +1,35 @@
+[Unit]
+Description=TP-Link EAP Omada Controller service
+Documentation=https://www.tp-link.com/us/support/download/eap-controller/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+Environment="OMADA_USER={{ omada_user }}" "HTTP_PORT={{ omada_http_port }}"
+TimeoutStartSec=5min 5s
+ExecStartPre=-chown -R {{ omada_user }}:{{ omada_user }} {{ omada_controller_dir }}
+ExecStart={{ omada_controller_dir }}/bin/control.sh start
+ExecStop={{ omada_controller_dir }}/bin/control.sh stop
+
+ReadWritePaths={{ omada_install_dir }} /var/run
+
+# Isolate service from the rest of the system
+ProtectSystem=strict
+ProtectHome=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+LockPersonality=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_CHOWN CAP_DAC_OVERRIDE CAP_DAC_READ_SEARCH CAP_KILL CAP_NET_BIND_SERVICE CAP_SETGID CAP_SETUID
+
+[Install]
+WantedBy=multi-user.target

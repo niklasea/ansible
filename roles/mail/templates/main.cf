@@ -1,0 +1,67 @@
+mydomain = {{ home_domain }}
+
+# Domain appended to an unqualified address (i.e. an address without @domain.tld).
+myorigin = $mydomain
+
+# Mail addresses Postfix should deliver locally.
+mydestination = $myhostname localhost.$mydomain localhost $mydomain
+
+inet_interfaces = all
+
+# Client IP addresses authorized to relay their mail through this machine into the Internet.
+mynetworks = {{ local_network_ipv4 }}, {{ wireguard_network }}, {{ openvpn_network }}, 127.0.0.0/8
+
+# Relay mail for untrusted networks
+#relay_domains =
+
+virtual_mailbox_domains=sqlite:/etc/postfix/virtual-mailbox-domains.cf
+virtual_mailbox_maps=sqlite:/etc/postfix/virtual-mailbox-maps.cf
+virtual_alias_maps=sqlite:/etc/postfix/virtual-alias-maps.cf
+
+# Handing off local delivery to Dovecot's LMTP
+virtual_transport=lmtp:unix:private/dovecot-lmtp
+
+
+
+# Authentication is handled through Dovecot
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+
+
+smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+
+
+# Postfix SMTP server announces STARTTLS support to remote SMTP clients, but does not require that clients use TLS encryption.
+
+# When a non-empty value is specified, this overrides the obsolete parameters smtp_use_tls and smtp_enforce_tls.
+smtp_tls_security_level = may
+
+# When a non-empty value is specified, this overrides the obsolete parameters smtpd_use_tls and smtpd_enforce_tls.
+smtpd_tls_security_level = may
+
+smtpd_tls_auth_only = yes
+
+smtpd_tls_cert_file=/etc/letsencrypt/live/{{ certbot_domain }}/fullchain.pem
+smtpd_tls_key_file=/etc/letsencrypt/live/{{ certbot_domain }}/privkey.pem
+
+# Increase mailbox and message size limits.
+mailbox_size_limit = 10000000000
+message_size_limit = 25000000
+
+# The time after which the sender receives a copy of the message headers of mail that is still queued.
+delay_warning_time = 1h
+# Increase the maximal time between attempts to deliver a deferred message.
+maximal_backoff_time = 3h
+# Consider a message undeliverable when delivery fails with a temporary error and the time in the queue has reached the maximal_queue_lifetime/bounce_queue_lifetime limit.
+maximal_queue_lifetime = 2d
+bounce_queue_lifetime = 2d
+
+# The set of characters that can separate a user name from its extension (example: user+foo@example.org).
+
+recipient_delimiter = +
+
+
+#  Whether or not to use the local biff service. This service sends "new mail" notifications to users who have requested new mail notification. Disabling can improve performance.
+
+biff = no

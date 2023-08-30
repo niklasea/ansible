@@ -1,0 +1,7 @@
+---
+gitea_bin: "gitea-{{ gitea_version }}-linux-{{ gitea_architecture }}"
+gitea_bin_path: /usr/local/bin/gitea
+gitea_bin_signature_path: "/tmp/{{ gitea_bin }}.asc"
+gitea_working_dir: /var/lib/gitea
+gitea_conf_dir: /etc/gitea
+gitea_env_path: "{{ gitea_working_dir }}/gitea.env"

@@ -1,0 +1,57 @@
+---
+# https://github.com/sivel/speedtest-cli
+# https://flent.org/intro.html
+# TODO: Add irtt https://github.com/heistp/irtt
+# TODO: Build netperf on RedHat and Debian 10 https://github.com/HewlettPackard/netperf
+# TODO: HTTPS
+
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install EPEL on CentOS
+  become: true
+  package:
+    name: epel-release
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: Install dependencies
+  become: true
+  package:
+    name: "{{ speedtest_dependencies }}"
+
+- name: Install Python packages
+  become: true
+  pip:
+    name:
+      - flent
+      - speedtest-cli
+    state: present
+
+- name: Install LibreSpeed
+  include_tasks: librespeed.yml
+
+- name: Create iperf services
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '644'
+  register: iperf_service
+  loop:
+    - { iperf_version: iperf, src: iperf.j2, dest: /lib/systemd/system/iperf.service }
+    - { iperf_version: iperf3, src: iperf.j2, dest:  /lib/systemd/system/iperf3.service }
+
+- name: Enable iperf daemons
+  become: true
+  service:
+    daemon_reload: true
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - iperf
+    - iperf3
+    - "{{ speedtest_webserver }}"

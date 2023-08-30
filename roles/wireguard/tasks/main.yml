@@ -1,0 +1,56 @@
+---
+# WireGuard will fail to launch ('Unable to access interface: Protocol not supported') if Secure Boot is enabled
+
+# TODO: Test client creation
+# TODO: IPv6 support
+# TODO: Support multiple WireGuard interfaces
+
+- include_tasks: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yml"
+      paths:
+        - 'tasks'
+
+- name: Install WireGuard
+  become: true
+  package:
+    name:
+      - 'wireguard-tools'
+    state: present
+
+- name: Configure WireGuard
+  import_tasks: config.yml
+  tags: update_config
+
+  # TODO:
+  #   net.ipv4.conf.default.rp_filter=1
+  #   net.ipv4.conf.all.rp_filter=1
+  #   net.ipv4.conf.default.log_martians = 1
+  #   net.ipv4.conf.all.log_martians = 1
+  #   net.ipv6.conf.default.forwarding=1
+  #   net.ipv6.conf.all.forwarding=1
+- name: Enable IPv4 forwarding
+  become: true
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+    state: present
+    reload: true
+  when: wg_forwarding | bool
+  tags: update_config
+
+- name: Enable WireGuard
+  become: true
+  service:
+    name: "wg-quick@{{ wg_interface_name }}"
+    enabled: true
+
+- name: Create client configs
+  import_tasks: clients.yml
+  tags:
+    - never
+    - wg_create_clients

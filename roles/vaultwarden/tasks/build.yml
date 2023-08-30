@@ -1,0 +1,41 @@
+---
+- block:
+    # https://developer.github.com/v3/repos/releases/#get-the-latest-release
+    - name: Get the latest non-prerelease tag on GitHub
+      # The GitHub API is rate limited
+      run_once: true
+      uri:
+        url: https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest
+      register: vaultwarden_release_latest
+
+    - name: Select latest vaultwarden release
+      set_fact:
+        vaultwarden_version: "{{ vaultwarden_release_latest.json.tag_name }}"
+  when: vaultwarden_latest_release
+
+- name: Clone vaultwarden repository
+  git:
+    repo: https://github.com/dani-garcia/vaultwarden.git
+    dest: "{{ vaultwarden_build_dir }}"
+    version: "{{ vaultwarden_version }}"
+  register: vaultwarden_git_clone
+
+- include_tasks: clean.yml
+  when: vaultwarden_remove_old_toolchains and vaultwarden_git_clone is changed
+
+- block:
+    - name: Build vaultwarden binary
+      command: "{{ ansible_user_dir | quote }}/.cargo/bin/cargo build --features {{ vaultwarden_database | quote }} --release"
+      args:
+        chdir: "{{ vaultwarden_build_dir }}"
+        creates: "{{ vaultwarden_build_dir }}/target/release/vaultwarden"
+
+    - name: Copy binary into place
+      become: true
+      copy:
+        src: "{{ vaultwarden_build_dir }}/target/release/vaultwarden"
+        dest: "{{ vaultwarden_bin_path }}"
+        remote_src: true
+        mode: '755'
+      notify: Restart vaultwarden
+  when: not ansible_check_mode

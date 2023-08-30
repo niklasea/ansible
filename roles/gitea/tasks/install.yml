@@ -1,0 +1,40 @@
+---
+- name: Download Gitea binary
+  get_url:
+    url: "https://dl.gitea.io/gitea/{{ gitea_version }}/{{ gitea_bin }}"
+    dest: "{{ gitea_working_dir }}"
+    owner: "{{ gitea_user }}"
+    group: "{{ gitea_user }}"
+    mode: '755'
+  register: gitea_downloaded_bin
+
+- name: Download PGP signature
+  become: false
+  get_url:
+    url: "https://dl.gitea.io/gitea/{{ gitea_version }}/{{ gitea_bin }}.asc"
+    dest: "{{ gitea_bin_signature_path }}"
+    mode: '755'
+
+- name: Import public key
+  become: false
+  command: gpg --keyserver pgp.mit.edu --recv 7C9E68152594688862D62AF62D9AE806EC1592E2
+  register: gitea_import_key
+  changed_when: "'public key \"Teabot <teabot@gitea.io>\" imported' in gitea_import_key.stdout"
+
+- name: Verify script integrity
+  become: false
+  command: "gpg --verify {{ gitea_bin_signature_path | quote }} {{ gitea_downloaded_bin.dest | quote }}"
+  changed_when: false
+
+- name: Stop Gitea before update
+  service:
+    name: gitea
+    state: stopped
+  when: not gitea_new_install | default(false)
+
+- name: Symlink Gitea binary
+  file:
+    src: "{{ gitea_downloaded_bin.dest }}"
+    dest: "{{ gitea_bin_path }}"
+    state: link
+  notify: Restart Gitea

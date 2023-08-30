@@ -1,0 +1,136 @@
+---
+# TODO: Configure monitoring alerts (https://docs.linuxgsm.com/alerts)
+
+# https://docs.linuxgsm.com/commands/install#common-installation-issues
+# https://docs.linuxgsm.com/support/faq#can-i-run-a-server-as-root
+- name: Fail if installing as root
+  fail:
+    msg: LinuxGSM does not support the root user
+  when: linuxgsm_user == 'root'
+
+- import_tasks: role_dependencies.yml
+
+- name: Download LinuxGSM installer
+  get_url:
+    url: https://linuxgsm.sh
+    dest: "{{ linuxgsm_install_path }}/linuxgsm.sh"
+    mode: '750'
+
+- block:
+    - name: Create game server instance
+      command: ./linuxgsm.sh {{ linuxgsm_game }}
+      args:
+        creates: "{{ linuxgsm_instancename }}"
+        chdir: "{{ linuxgsm_install_path }}"
+      register: linuxgsm_created_instance
+
+    - name: Make sure game server instance file is in correct location
+      command: "mv {{ linuxgsm_created_instance.stdout | regex_search(linuxgsm_game ~ '-?\\d*') | quote }} {{ linuxgsm_instancename | quote }}"
+      args:
+        creates: "{{ linuxgsm_instancename }}"
+        chdir: "{{ linuxgsm_install_path }}"
+
+    - block:
+        # Can fail if unable to get package manager lock.
+        # CentOS will fail (unable to find package) if a dependency (e.g. jq) is in the EPEL and the EPEL is not pre-installed.
+        - name: Automatically install dependencies if possible
+          become: true
+          command: ./{{ linuxgsm_instancename }} auto-install
+          args:
+            chdir: "{{ linuxgsm_install_path }}"
+          register: linuxgsm_dependencies
+          changed_when: "'Required dependencies already installed' not in linuxgsm_dependencies.stdout"
+          ignore_errors: true
+
+        # Files in log/script/ are owned by root after automatic dependency installation and interfere when installing multiple servers in the same folder.
+        - name: Fix log file permission issue
+          become: true
+          file:
+            path: "{{ linuxgsm_install_path }}/log/script/"
+            state: directory
+            recurse: true
+            owner: "{{ linuxgsm_user }}"
+            group: "{{ linuxgsm_user }}"
+          ignore_errors: true
+      when: linuxgsm_auto_install_deps
+
+    - block:
+        - name: Install game server
+          command: ./{{ linuxgsm_instancename }} auto-install
+          args:
+            chdir: "{{ linuxgsm_install_path }}"
+            creates: "lgsm/config-lgsm/{{ linuxgsm_game }}"
+          register: linuxgsm_install_result
+          failed_when: >
+            "Missing dependencies:" in linuxgsm_install_result.stdout or
+            linuxgsm_user ~ " does not have sudo access. Manually install dependencies." in linuxgsm_install_result.stdout
+      rescue:
+        # The installer only runs if the config folder for the game server does not exist.
+        # Remove the folder so the game server might install during the next run.
+        - name: Remove the game server config folder
+          file:
+            path: "lgsm/config-lgsm/{{ linuxgsm_game }}"
+            state: absent
+        - name: Fail installer
+          fail:
+            msg: "Installer failed, cleaned up files"
+
+    # - name: Check that everything is installed correctly (by starting the server)
+    #   command: ./{{ linuxgsm_instancename }} start
+    #   args:
+    #     chdir: "{{ linuxgsm_install_path }}"
+    #   register: linuxgsm_test_result
+    #   changed_when: "'is already running' not in linuxgsm_test_result.stdout"
+    #   failed_when: >
+    #     "No such directory" in linuxgsm_test_result.stdout or
+    #     "executable was not found" in linuxgsm_test_result.stdout
+
+    # If common, instance or game configs are defined, each defined config will be applied, undefined configs will simply be skipped.
+    # Both when-conditions and default-omits are needed to prevent Ansible errors on undefined variables.
+    # TODO: Support a list of instance configs
+    - name: Apply configs
+      blockinfile:
+        path: "{{ linuxgsm_install_path }}/{{ item.path }}"
+        state: present
+        create: true
+        block: "{{ item.block }}"
+      when: item.condition
+      loop:
+        - path: "lgsm/config-lgsm/{{ linuxgsm_game }}/common.cfg"
+          block: "{{ linuxgsm_common_config | default(omit) }}"
+          condition: "{{ linuxgsm_common_config is defined }}"
+        - path: "lgsm/config-lgsm/{{ linuxgsm_game }}/{{ linuxgsm_instancename }}.cfg"
+          block: "{{ linuxgsm_instance_config | default(omit) }}"
+          condition: "{{ linuxgsm_instance_config is defined }}"
+        - path: "{{ linuxgsm_game_config.path | default(omit) }}"
+          block: "{{ linuxgsm_game_config.config | default(omit) }}"
+          condition: "{{ linuxgsm_game_config is defined }}"
+      no_log: true
+      notify: Restart LGSM server
+      tags: update_config
+
+    # Monitors server state every ten minutes, updates the game every hour, updates LGSM every day.
+    - name: Automatically monitor and update game server
+      cron:
+        name: "Monitor and update {{ linuxgsm_instancename }} server [{{ loopindex }}]"
+        job: "{{ item.job }}"
+        minute: "{{ item.minute }}"
+        hour: "{{ item.hour }}"
+        state: present
+      loop:
+        - { job: "{{ linuxgsm_install_path | quote }}/{{ linuxgsm_instancename | quote }} monitor > /dev/null 2>&1", minute: '*/10', hour: '*' }
+        - { job: "{{ linuxgsm_install_path | quote }}/{{ linuxgsm_instancename | quote }} update > /dev/null 2>&1", minute: '0', hour: '*' }
+        - { job: "{{ linuxgsm_install_path | quote }}/{{ linuxgsm_instancename | quote }} update-lgsm > /dev/null 2>&1", minute: '0', hour: '5' }
+      loop_control:
+        index_var: loopindex
+
+    # Backup behaviour depends on server configuration.
+    - name: Automatically back up game server
+      cron:
+        name: "Back up {{ linuxgsm_instancename }} server"
+        job: "{{ linuxgsm_install_path | quote }}/{{ linuxgsm_instancename | quote }} backup > /dev/null 2>&1"
+        minute: "30"
+        hour: "4"
+        state: present
+      when: linuxgsm_backup
+  when: linuxgsm_game is defined

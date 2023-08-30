@@ -1,0 +1,24 @@
+---
+- name: Install nslookup
+  become: true
+  package:
+    name: "{{ lookup('vars', ansible_os_family) }}"
+    state: present
+  vars:
+    Debian: dnsutils
+    RedHat: bind-utils
+
+- block:
+    - name: Attempt DNS query
+      command: nslookup -timeout=2 cloudflare-dns.com
+      changed_when: false
+
+  rescue:
+    - name: Set remote DNS if query failed
+      become: true
+      copy:
+        src: resolv.conf
+        dest: /etc/
+        owner: root
+        group: root
+        mode: '644'

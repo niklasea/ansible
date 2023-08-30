@@ -1,0 +1,16 @@
+---
+# If managing dependencies manually, setting this to false will save up to half a minute on each execution of the role.
+linuxgsm_auto_install_deps: true
+linuxgsm_user: "{{ ansible_user_id }}"
+linuxgsm_instancename: "{{ linuxgsm_game }}"
+linuxgsm_install_path: "/home/{{ linuxgsm_user }}"
+linuxgsm_backup: false
+# linuxgsm_game:
+# linuxgsm_common_config:
+# linuxgsm_instance_config:
+# linuxgsm_game_config:
+#   path: 'asd'
+#   config: |
+#     qwe
+#     rty
+#     uio

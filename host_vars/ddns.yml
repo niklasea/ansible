@@ -1,0 +1,18 @@
+---
+duckdns_token: "{{ vault_duckdns_token }}"
+duckdns_domains:
+  - nea
+  - niklasea
+  - xelnika
+
+inadyn_period: 600
+inadyn_ddns_configurations:
+  provider:
+    # - default@duckdns.org:
+    #     username: "{{ vault_duckdns_token }}"
+    #     password: 'n/a'
+    #     hostname: '{ xelnika, niklasea, nea }'
+    - default@cloudflare.com:
+        username: 'n/a'
+        password: "{{ vault_cloudflare_niklasea_zone }}"
+        hostname: 'niklasea.dk'

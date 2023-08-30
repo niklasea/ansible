@@ -1,0 +1,6 @@
+---
+- name: Reload Unbound config
+  become: true
+  service:
+    name: unbound
+    state: reloaded

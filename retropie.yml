@@ -1,0 +1,12 @@
+---
+- name: Configure RetroPie
+  hosts: retropie
+  roles:
+    - role: firewall
+      vars:
+        firewall_rules:
+          - { port: '8080', proto: 'tcp', comment: 'Remote control' }
+          # Internal NTP servers should only respond to local queries (prevents DDoS amplification attacks against external networks)
+          - { port: '123', proto: 'udp', src: '10.0.0.0/8', comment: 'Internal NTP server' }
+          - { port: '123', proto: 'udp', src: '172.16.0.0/12', comment: 'Internal NTP server' }
+          - { port: '123', proto: 'udp', src: '192.168.0.0/16', comment: 'Internal NTP server' }

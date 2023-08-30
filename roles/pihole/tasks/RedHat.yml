@@ -1,0 +1,6 @@
+---
+- name: (RedHat) Put SELinux in permissive mode
+  become: true
+  selinux:
+    policy: targeted
+    state: permissive

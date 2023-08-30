@@ -1,0 +1,26 @@
+---
+vaultwarden_force_rebuild: true
+vaultwarden_signups_allowed: false
+vaultwarden_admin_token: "{{ vault_vaultwarden_admin_token }}"
+vaultwarden_reset_admin_config: true
+vaultwarden_domain: "https://{{ certbot_domain }}"
+vaultwarden_use_syslog: true
+
+vaultwarden_smtp:
+  host: 'smtp.gmail.com'
+  from: 'niklasea@gmail.com'
+vaultwarden_smtp_credentials:
+  username: 'niklasea@gmail.com'
+  password: "{{ vault_vaultwarden_smtp_password }}"
+
+smb_username: vaultwarden
+smb_password: "{{ vault_smb_vaultwarden_password }}"
+smb_mounts:
+  - network_path: //DS216j/ServerBackup/vaultwarden
+    local_path: "{{ smb_backup_folder }}"
+    options: '_netdev,dir_mode=0555,file_mode=0444'
+
+certbot_deploy_hook: |
+  #!/usr/bin/env bash
+  
+  systemctl restart nginx

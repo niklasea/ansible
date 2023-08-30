@@ -1,0 +1,38 @@
+---
+# https://github.com/librespeed/speedtest/
+
+- name: Make HTTP speedtest directory
+  file:
+    path: "{{ speedtest_html_directory }}"
+    state: directory
+
+- name: Clone LibreSpeed speedtest
+  become: true
+  git:
+    repo: https://github.com/librespeed/speedtest.git
+    dest: "{{ speedtest_librespeed_src_dir }}"
+    version: "{{ speedtest_release }}"
+  register: speedtest_librespeed_git
+
+- name: Copy speedtest files to appropriate location
+  become: true
+  copy:
+    src: "{{ speedtest_librespeed_src_dir }}/{{ item.src }}"
+    dest: "{{ speedtest_html_directory }}/{{ item.dest | default('') }}"
+    remote_src: true
+    force: "{{ speedtest_librespeed_git is changed | bool }}"
+  notify: Restart webserver
+  loop:
+    - { src: backend }
+    - { src: speedtest.js }
+    - { src: speedtest_worker.js }
+    - { src: example-singleServer-pretty.html, dest: index.html }
+
+- name: Set speedtest overhead compensation factor
+  become: true
+  lineinfile:
+    path: "{{ speedtest_html_directory }}/index.html"
+    line: 's.setParameter("overheadCompensationFactor",{{ speedtest_set_overhead_compensation }});'
+    regexp: '^s\.setParameter\("overheadCompensationFactor"'
+    insertafter: '^var s=new Speedtest'
+  when: speedtest_set_overhead_compensation is defined

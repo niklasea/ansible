@@ -1,0 +1,78 @@
+---
+# https://github.com/troglobit/inadyn#building-from-git
+
+- name: (CentOS) Install EPEL
+  become: true
+  package:
+    name: epel-release
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: Install dependencies
+  become: true
+  package:
+    name: "{{ inadyn_dependencies }}"
+    state: present
+
+- include_tasks: latest_release.yml
+  when: inadyn_latest_release
+
+- name: Clone chosen release from GitHub
+  become: true
+  git:
+    repo: https://github.com/troglobit/inadyn.git
+    dest: "{{ inadyn_src_dir }}"
+    version: "{{ inadyn_release }}"
+
+- name:  Generate config scripts
+  become: true
+  command: ./autogen.sh
+  args:
+    chdir: "{{ inadyn_src_dir }}"
+    creates: "{{ inadyn_src_dir }}/configure"
+
+- name: Configure package
+  become: true
+  command: "./configure {{ inadyn_build_flags }}"
+  args:
+    chdir: "{{ inadyn_src_dir }}"
+    creates: "{{ inadyn_src_makefile }}"
+
+- name: Build package
+  become: true
+  command: make -j2
+  args:
+    chdir: "{{ inadyn_src_dir }}"
+    creates: "{{ inadyn_src_binary }}"
+
+- name: Install package
+  become: true
+  command: make install
+  args:
+    chdir: "{{ inadyn_src_dir }}"
+    creates: "{{ inadyn_installed_binary }}"
+
+- name: Create systemd service
+  become: true
+  template:
+    src: inadyn.service.j2
+    dest: /lib/systemd/system/inadyn.service
+    owner: root
+    group: root
+    mode: '644'
+
+- name: Create systemd service state directory
+  become: true
+  file:
+    path: "{{ inadyn_state_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '755'
+
+- name: Create symlink from configuration dir to service state dir
+  become: true
+  file:
+    src: "{{ inadyn_state_dir }}"
+    dest: "{{ inadyn_conf_file | dirname }}"
+    state: link
