@@ -12,17 +12,17 @@ This supports both multiple conditional forwarding rules and reverse DNS for arb
 server=/{{ rule.domain }}/{{ rule.server_ip }}
 {% if rule.network is defined %}
 # Reverse DNS for {{ rule.domain }}
-rev-server={{ rule.network | ipaddr('network/prefix') }},{{ rule.server_ip }}
+rev-server={{ rule.network | ansible.utils.ipaddr('network/prefix') }},{{ rule.server_ip }}
 {% endif %}
 {% endfor %}
 {% endif %}
 
 {# Supports handing out multiple DNS servers via DHCP #}
 # Default DHCP provided DNS server(s)
-dhcp-option=option:dns-server,{{ pihole_dhcp_dns | ipaddr('address') | join(',') }}
+dhcp-option=option:dns-server,{{ pihole_dhcp_dns | ansible.utils.ipaddr('address') | join(',') }}
 {% if pihole_dhcp_alternate_dns is not none %}
 # Different DNS server(s) for specific tagged devices
-dhcp-option=tag:{{ pihole_dhcp_alternate_dns.tag }},option:dns-server,{{ pihole_dhcp_alternate_dns.servers | ipaddr('address') | join(',') }}
+dhcp-option=tag:{{ pihole_dhcp_alternate_dns.tag }},option:dns-server,{{ pihole_dhcp_alternate_dns.servers | ansible.utils.ipaddr('address') | join(',') }}
 {% endif %}
 
 {% if pihole_static_routes is not none %}
@@ -33,7 +33,7 @@ dhcp-option=option:classless-static-route,0.0.0.0/0,{{ pihole_gateway_address }}
 
 {% if pihole_ntp_addresses is not none %}
 # NTP server(s)
-dhcp-option=option:ntp-server,{{ pihole_ntp_addresses | ipaddr('address') | join(',') }}
+dhcp-option=option:ntp-server,{{ pihole_ntp_addresses | ansible.utils.ipaddr('address') | join(',') }}
 {% if pihole_ntp_redirect_requests is not none %}
 # Redirect requests for other NTP servers towards one of your servers
 address=/{{ pihole_ntp_redirect_requests | join('/') }}/{{ pihole_ntp_addresses[0] }}

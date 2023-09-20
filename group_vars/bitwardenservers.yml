@@ -1,17 +1,17 @@
 ---
 vaultwarden_force_rebuild: true
 vaultwarden_signups_allowed: false
-vaultwarden_admin_token: "{{ vault_vaultwarden_admin_token }}"
+vaultwarden_admin_token: "{{ vault_vaultwarden.admin_token }}"
 vaultwarden_reset_admin_config: true
 vaultwarden_domain: "https://{{ certbot_domain }}"
 vaultwarden_use_syslog: true
 
 vaultwarden_smtp:
   host: 'smtp.gmail.com'
-  from: "{{ vault_vaultwarden_smtp_username }}"
+  from: "{{ vault_notification_email }}"
 vaultwarden_smtp_credentials:
-  username: "{{ vault_vaultwarden_smtp_username }}"
-  password: "{{ vault_vaultwarden_smtp_password }}"
+  username: "{{ vault_vaultwarden.smtp_username }}"
+  password: "{{ vault_vaultwarden.smtp_password }}"
 
 smb_username: vaultwarden
 smb_password: "{{ vault_smb_vaultwarden_password }}"

@@ -51,7 +51,7 @@
     block: |
       [Peer]
       PublicKey = {{ wg_client_public_keys.results[i].stdout }}
-      AllowedIPs = {{ wg_network | ipaddr(loopindex+1) | ipaddr('host') }}
+      AllowedIPs = {{ wg_network | ansible.utils.ipaddr(loopindex+1) | ansible.utils.ipaddr('host') }}
     marker: "# {mark} ANSIBLE ADDED CLIENT {{ loopindex }}"
   loop: "{{ range(0, wg_create_clients) }}"
   loop_control:

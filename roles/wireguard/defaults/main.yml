@@ -17,12 +17,12 @@ wg_postup:
   - "iptables -A INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
   - "iptables -A FORWARD -i %i -j ACCEPT"
   - "iptables -A FORWARD -o %i -j ACCEPT"
-  - "iptables -t nat -A POSTROUTING -s {{ wg_address | ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
+  - "iptables -t nat -A POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 wg_postdown:
   - "iptables -D INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
   - "iptables -D FORWARD -i %i -j ACCEPT"
   - "iptables -D FORWARD -o %i -j ACCEPT"
-  - "iptables -t nat -D POSTROUTING -s {{ wg_address | ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
+  - "iptables -t nat -D POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 wg_forwarding: true
 # If wg_saveconfig is true, wg-quick will save its current config upon shutdown over whatever config was there.
 # Since this role does not stop the wg-quick service before editing the config files,

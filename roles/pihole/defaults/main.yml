@@ -39,8 +39,8 @@ pihole_api_exclude_clients: []
 #   - example_client2
 pihole_dhcp: 'false'
 pihole_dhcp_range:
-  start: "{{ pihole_ipv4_address | ipaddr('20') }}"
-  end: "{{ pihole_ipv4_address | ipaddr('-2') }}"
+  start: "{{ pihole_ipv4_address | ansible.utils.ipaddr('20') }}"
+  end: "{{ pihole_ipv4_address | ansible.utils.ipaddr('-2') }}"
 pihole_dhcp_leasetime: 24
 pihole_domain: 'lan'
 pihole_dhcp_rapid_commit: 'false'

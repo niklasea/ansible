@@ -5,7 +5,7 @@ pihole_dhcp_range:
   end: "{{ dhcp_range.end }}"
 pihole_dhcp_rapid_commit: 'true'
 
-pihole_dhcp_dns: "{{ dhcp_dns }}"
+pihole_dhcp_dns: "{{ dns_addresses }}"
 
 pihole_conditional_fwd: 'false'
 pihole_conditional_fwd_rules:

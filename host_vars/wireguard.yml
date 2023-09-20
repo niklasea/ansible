@@ -4,10 +4,10 @@ wg_server_keys:
   public: 'yVEJ55Lf2ftBarWRbtCprZO+qGLh/0UE9rmk9Er22DU='
 
 wg_address:
-  - "{{ wireguard_network | ipaddr('1') }}"
+  - "{{ wireguard_network_ipv4 | ansible.utils.ipaddr('1') }}"
 
 # wg_preup:
-#   - "ip route del {{ wireguard_network | ipaddr('network/prefix') }}"
+#   - "ip route del {{ wireguard_network_ipv4 | ansible.utils.ipaddr('network/prefix') }}"
 wg_postup:
   - "iptables -A INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
   - 'iptables -A FORWARD -i %i -j ACCEPT'

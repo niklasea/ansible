@@ -7,17 +7,17 @@ wg_server_keys:
 
 wg_interface_name: wg_orangepi
 wg_address:
-  - "{{ '192.168.179.0/24' | ipaddr('1') }}"
+  - "{{ '192.168.179.0/24' | ansible.utils.ipaddr('1') }}"
 wg_postup:
   - "iptables -A INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
   - "iptables -A FORWARD -i %i -o eth0 -j ACCEPT"
   - "iptables -A FORWARD -i eth0 -o %i -j ACCEPT"
-  - "iptables -t nat -A POSTROUTING -s {{ wg_address | ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
+  - "iptables -t nat -A POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 wg_postdown:
   - "iptables -D INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
   - "iptables -D FORWARD -i %i -o eth0 -j ACCEPT"
   - "iptables -D FORWARD -i eth0 -o %i -j ACCEPT"
-  - "iptables -t nat -D POSTROUTING -s {{ wg_address | ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
+  - "iptables -t nat -D POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 wireguard_keepalive: 55
 wg_peers:
   - { publickey: 'd1TvmSlr/N3xvQprb0wZsL/KzcyTLxlaJC8AhqgvuTQ=', allowedips: '192.168.179.2/32', persistentkeepalive: "{{ wireguard_keepalive }}", comment: 'Allan phone' }

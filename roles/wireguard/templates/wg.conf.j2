@@ -1,6 +1,6 @@
 [Interface]
 {% for address in wg_address %}
-Address = {{ address | ipaddr }}
+Address = {{ address | ansible.utils.ipaddr }}
 {% endfor %}
 PrivateKey = {{ wg_server_keys.private | default(wg_private_key.stdout) }}
 # PublicKey = {{ wg_server_keys.public | default(wg_public_key.stdout) }}

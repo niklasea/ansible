@@ -1,5 +1,5 @@
 [Interface]
-Address = {{ wg_network | ipaddr(loopindex | int+1) }}
+Address = {{ wg_network | ansible.utils.ipaddr(loopindex | int+1) }}
 {% if wg_dns is defined %}
 DNS = {{ wg_dns }}
 {% endif %}
