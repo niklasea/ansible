@@ -1,0 +1,6 @@
+{
+  "log-driver": "{{ docker_daemon_logging.driver }}",
+  "log-opts": {
+    {{ docker_daemon_logging.options | to_json }}
+  }
+}

@@ -34,6 +34,11 @@ vyos_local_interfaces:
         set firewall name GUEST-IN-v4 rule 20 destination group network-group '!LOCAL-NETWORKS'
         set firewall name GUEST-IN-v4 rule 20 protocol 'icmp'
         set firewall name GUEST-IN-v4 rule 20 state new 'enable'
+        set firewall name GUEST-IN-v4 rule 100 action 'accept'
+        set firewall name GUEST-IN-v4 rule 100 description 'Allow guests to use local DNS servers'
+        set firewall name GUEST-IN-v4 rule 100 destination group network-group 'LOCAL-DNS'
+        set firewall name GUEST-IN-v4 rule 100 protocol 'tcp_udp'
+        set firewall name GUEST-IN-v4 rule 100 state new 'enable'
       local: |
         set firewall name GUEST-LOCAL-v4 default-action 'reject'
         set firewall name GUEST-LOCAL-v4 enable-default-log

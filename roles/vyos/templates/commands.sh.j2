@@ -50,22 +50,16 @@ comment service ssh mac 'Uses Mozilla OpenSSH modern recommendations (Feb-2020)'
 # Configure DHCP server
 
 {% for interface in vyos_local_interfaces %}
+{% set current_interface_gateway = interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') %}
 set service dhcp-server shared-network-name {{ interface.name }} authoritative
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' range CLIENTS start '{{ interface.dhcp_range.start | default(interface.subnet | ansible.utils.ipaddr('50'))  | ansible.utils.ipaddr('address') }}'
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' range CLIENTS stop '{{ interface.dhcp_range.stop | default(interface.subnet | ansible.utils.ipaddr('-1'))  | ansible.utils.ipaddr('address') }}'
-set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' default-router '{{ interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') }}'
-set service dhcp-server shared-network-name {{ interface.name }} ntp-server '{{ interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') }}'
-set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') }}'
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' default-router '{{ current_interface_gateway }}'
+set service dhcp-server shared-network-name {{ interface.name }} ntp-server '{{ current_interface_gateway }}'
+{% for address in vyos_dns_addresses %}
+set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
-
-# Configure DNS server
-
-set service dns forwarding system
-{% for interface in vyos_local_interfaces %}
-set service dns forwarding allow-from '{{ interface.subnet }}'
-set service dns forwarding listen-address '{{ interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') }}'
 {% endfor %}
-comment service dns forwarding listen-address 'Listen for DNS requests'
 
 # Configure NTP server
 

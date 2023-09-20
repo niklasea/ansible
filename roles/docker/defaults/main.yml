@@ -1,0 +1,6 @@
+---
+docker_daemon_logging:
+  driver: json-file
+  options:
+    max-size: 50m
+    max-file: 3
