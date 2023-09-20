@@ -1,10 +1,9 @@
 ---
-vaultwarden_force_rebuild: true
+vaultwarden_reset_admin_config: true
+
 vaultwarden_signups_allowed: false
 vaultwarden_admin_token: "{{ vault_vaultwarden.admin_token }}"
-vaultwarden_reset_admin_config: true
 vaultwarden_domain: "https://{{ certbot_domain }}"
-vaultwarden_use_syslog: true
 
 vaultwarden_smtp:
   host: 'smtp.gmail.com'

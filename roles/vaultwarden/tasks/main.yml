@@ -1,54 +1,33 @@
 ---
-- include_tasks: prepare.yml
-
-- block:
-    - name: Download Rust installer
-      get_url:
-        url: https://sh.rustup.rs
-        dest: /var/tmp/rustup.sh
-        mode: '750'
-
-    - name: Install Rust
-      command: /var/tmp/rustup.sh --default-toolchain none -y
-      args:
-        creates: "{{ ansible_user_dir }}/.rustup"
-
-    - include_tasks: build.yml
-    - include_tasks: web_vault.yml
-  when: not vaultwarden_existing_install.stat.exists | default(true)
-        or vaultwarden_force_rebuild
+- name: Create directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: '750'
+  loop:
+    - path: "{{ vaultwarden_web_vault_folder }}"
+    - path: "{{ vaultwarden_env_dir }}"
 
 - name: Reset settings override by admin
   become: true
-  file:
-    path: "{{ vaultwarden_state_dir }}/{{ vaultwarden_data_folder }}/config.json"
+  ansible.builtin.file:
+    path: "{{ vaultwarden_data_folder }}/config.json"
     state: absent
   when: vaultwarden_reset_admin_config
-  tags: update_config
-
-- name: Apply configuration
-  become: true
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
-    mode: "{{ item.mode }}"
-  loop:
-    - src: vaultwarden.service.j2
-      dest: "{{ vaultwarden_service_path }}"
-      owner: root
-      mode: '644'
-    - src: vaultwarden.env.j2
-      dest: "{{ vaultwarden_env_path }}"
-      owner: "{{ vaultwarden_system_user }}"
-      mode: '640'
   notify: Restart vaultwarden
   tags: update_config
 
-- name: Enable Vaultwarden service
+- name: Add Docker compose file
   become: true
-  service:
-    daemon_reload: true
-    name: vaultwarden
-    enabled: true
+  ansible.builtin.template:
+    src: docker-compose.yml
+    dest: /etc/docker_compose/vaultwarden/docker-compose.yml
+    mode: '644'
+  notify: Start vaultwarden
+  tags: update_config
+
+- include_tasks: web_vault.yml
+  when: vaultwarden_web_vault_enabled

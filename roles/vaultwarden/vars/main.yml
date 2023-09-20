@@ -1,17 +1,7 @@
 ---
-vaultwarden_build_dir: "{{ vaultwarden_src_dir }}/v{{ vaultwarden_version }}"
+vaultwarden_build_dir: "/temp"
 vaultwarden_web_vault_tarball: "{{ vaultwarden_src_dir }}/bw_web_vault.tar.gz"
-vaultwarden_service_path: /lib/systemd/system/vaultwarden.service
-vaultwarden_bin_path: /usr/bin/vaultwarden
+vaultwarden_env_dir: /etc/docker_compose/vaultwarden/
+vaultwarden_web_vault_folder: "{{ vaultwarden_env_dir }}/web-vault/"
 vaultwarden_state_dir: /var/lib/vaultwarden
-vaultwarden_env_dir: /etc/vaultwarden
-vaultwarden_env_path: "{{ vaultwarden_env_dir }}/vaultwarden.env"
-vaultwarden_system_user: vaultwarden
-
-vaultwarden_data_folder: data
-vaultwarden_rsa_key_file: data/rsa_key
-vaultwarden_cache_folder: data/icon_cache
-vaultwarden_attachments_folder: data/attachments
-vaultwarden_templates_folder: data/templates
-vaultwarden_web_vault_folder: web-vault/
-vaultwarden_log_file: "{{ vaultwarden_state_dir }}/vaultwarden.log"
+vaultwarden_data_folder: "{{ vaultwarden_state_dir }}/data/"
