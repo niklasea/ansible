@@ -10,9 +10,9 @@ dhcp_address: "{{ gateway_address }}"
 dhcp_range:
   start: "{{ internal_network_ipv4 | ansible.utils.ipaddr('50') }}"
   end: "{{ internal_network_ipv4 | ansible.utils.ipaddr('-2') }}"
-dns_addresses:
+dhcp_dns_addresses:
   - "{{ hosts.docker.ipv4_address }}"
-ntp_addresses:
+dhcp_ntp_addresses:
   - "{{ hosts.docker.ipv4_address }}"
 
 ansible_become_password: "{{ vault_ansible_become_password }}"

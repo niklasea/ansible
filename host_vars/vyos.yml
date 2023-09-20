@@ -6,7 +6,7 @@ vyos_users:
   - username: vyos
     ssh_public_key: AAAAC3NzaC1lZDI1NTE5AAAAII0R2wlTuIwLKiehwg/fk4JXwcWi9RDUpZUFVBKB7JzU
     ssh_public_key_type: ssh-ed25519
-vyos_dns_addresses: "{{ dns_addresses }}"
+vyos_dns_addresses: "{{ dhcp_dns_addresses }}"
 vyos_local_domain: "{{ local_domain }}"
 vyos_local_interfaces:
   - device: eth0
