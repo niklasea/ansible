@@ -1,48 +1,54 @@
 services:
   vaultwarden:
     image: vaultwarden/server:{{ vaultwarden_version }}
+    restart: unless-stopped
+    cpu_shares: 128
+    deploy:
+      resources:
+        limits:
+          memory: 1G
     volumes:
-      - {{ vaultwarden_data_folder }}:/data/
-      - {{ vaultwarden_web_vault_folder }}:/web_vault/
+      - {{ vaultwarden_data_dir }}:/data/
+      - {{ vaultwarden_state_dir }}/web-vault/:/web_vault/
     networks:
       - reverse_proxy
     environment:
-      WEB_VAULT_FOLDER=/web_vault/
-      WEB_VAULT_ENABLED={{ vaultwarden_web_vault_enabled }}
-      DISABLE_ICON_DOWNLOAD={{ vaultwarden_disable_icon_download }}
-      DISABLE_2FA_REMEMBER={{ vaultwarden_disable_2fa_remember }}
-      REQUIRE_DEVICE_EMAIL={{ vaultwarden_require_device_email }}
-      SIGNUPS_ALLOWED={{ vaultwarden_signups_allowed }}
-      SIGNUPS_VERIFY={{ vaultwarden_signups_verify }}
-      INVITATIONS_ALLOWED={{ vaultwarden_invitations_allowed }}
+      WEB_VAULT_FOLDER: /web_vault/
+      WEB_VAULT_ENABLED: {{ vaultwarden_web_vault_enabled }}
+      DISABLE_ICON_DOWNLOAD: {{ vaultwarden_disable_icon_download }}
+      DISABLE_2FA_REMEMBER: {{ vaultwarden_disable_2fa_remember }}
+      REQUIRE_DEVICE_EMAIL: {{ vaultwarden_require_device_email }}
+      SIGNUPS_ALLOWED: {{ vaultwarden_signups_allowed }}
+      SIGNUPS_VERIFY: {{ vaultwarden_signups_verify }}
+      INVITATIONS_ALLOWED: {{ vaultwarden_invitations_allowed }}
       PASSWORD_ITERATIONS: {{ vaultwarden_password_iterations }}
-      SHOW_PASSWORD_HINT={{ vaultwarden_show_password_hint }}
-      DOMAIN={{ vaultwarden_domain }}
+      SHOW_PASSWORD_HINT: {{ vaultwarden_show_password_hint }}
+      DOMAIN: {{ vaultwarden_domain }}
 {% if vaultwarden_yubico is defined %}
-      YUBICO_CLIENT_ID={{ vaultwarden_yubico.client_id }}
-      YUBICO_SECRET_KEY={{ vaultwarden_yubico.secret_key }}
+      YUBICO_CLIENT_ID: {{ vaultwarden_yubico.client_id }}
+      YUBICO_SECRET_KEY: {{ vaultwarden_yubico.secret_key }}
 {% if vaultwarden_yubico.server is defined %}
-      YUBICO_SERVER={{ vaultwarden_yubico.server }}
+      YUBICO_SERVER: {{ vaultwarden_yubico.server }}
 {% endif %}
 {% endif %}
-      AUTHENTICATOR_DISABLE_TIME_DRIFT = {{ vaultwarden_authenticator_disable_time_drift }}
+      AUTHENTICATOR_DISABLE_TIME_DRIFT :  {{ vaultwarden_authenticator_disable_time_drift }}
 {% if vaultwarden_smtp is defined %}
-      SMTP_HOST={{ vaultwarden_smtp.host }}
-      SMTP_FROM={{ vaultwarden_smtp.from }}
-      SMTP_FROM_NAME={{ vaultwarden_smtp_from_name }}
-      SMTP_PORT={{ vaultwarden_smtp_port }}
-      SMTP_SECURITY={{ vaultwarden_smtp_security }}
+      SMTP_HOST: {{ vaultwarden_smtp.host }}
+      SMTP_FROM: {{ vaultwarden_smtp.from }}
+      SMTP_FROM_NAME: {{ vaultwarden_smtp_from_name }}
+      SMTP_PORT: {{ vaultwarden_smtp_port }}
+      SMTP_SECURITY: {{ vaultwarden_smtp_security }}
 {% if vaultwarden_smtp_credentials is defined %}
-      SMTP_USERNAME={{ vaultwarden_smtp_credentials.username }}
-      SMTP_PASSWORD={{ vaultwarden_smtp_credentials.password }}
+      SMTP_USERNAME: {{ vaultwarden_smtp_credentials.username }}
+      SMTP_PASSWORD: {{ vaultwarden_smtp_credentials.password }}
 {% endif %}
 {% if vaultwarden_smtp_auth_mechanism is defined %}
-      SMTP_AUTH_MECHANISM="{{ vaultwarden_smtp_auth_mechanism }}"
+      SMTP_AUTH_MECHANISM: "{{ vaultwarden_smtp_auth_mechanism }}"
 {% endif %}
-      SMTP_TIMEOUT={{ vaultwarden_smtp_timeout }}
+      SMTP_TIMEOUT: {{ vaultwarden_smtp_timeout }}
 {% endif %}
 {% if vaultwarden_hibp_api_key is defined %}
-      HIBP_API_KEY={{ vaultwarden_hibp_api_key }}
+      HIBP_API_KEY: {{ vaultwarden_hibp_api_key }}
 {% endif %}
 
 networks:

@@ -4,11 +4,11 @@
   become: true
   ansible.builtin.command:
     cmd: docker compose down
-    chdir: "{{ vaultwarden_env_dir }}"
-  notify: Start vaultwarden
+    chdir: "{{ vaultwarden_config_dir }}"
+  notify: Start Vaultwarden
 
 - name: Start Vaultwarden
   become: true
   ansible.builtin.command:
     cmd: docker compose up -d
-    chdir: "{{ vaultwarden_env_dir }}"
+    chdir: "{{ vaultwarden_config_dir }}"

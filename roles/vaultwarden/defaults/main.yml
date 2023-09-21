@@ -11,6 +11,7 @@ vaultwarden_web_vault_enabled: true
 # Enable to reset those overrides.
 vaultwarden_reset_admin_config: false
 
+vaultwarden_disable_icon_download: false
 vaultwarden_disable_2fa_remember: false
 vaultwarden_require_device_email: false
 vaultwarden_signups_allowed: true

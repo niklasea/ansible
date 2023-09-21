@@ -1,7 +1,6 @@
 ---
-vaultwarden_build_dir: "/temp"
-vaultwarden_web_vault_tarball: "{{ vaultwarden_src_dir }}/bw_web_vault.tar.gz"
-vaultwarden_env_dir: /etc/docker_compose/vaultwarden/
-vaultwarden_web_vault_folder: "{{ vaultwarden_env_dir }}/web-vault/"
+vaultwarden_build_dir: "/tmp"
+vaultwarden_web_vault_tarball: "{{ vaultwarden_build_dir }}/bw_web_vault.tar.gz"
+vaultwarden_config_dir: "{{ docker_compose_dir }}/vaultwarden/"
 vaultwarden_state_dir: /var/lib/vaultwarden
-vaultwarden_data_folder: "{{ vaultwarden_state_dir }}/data/"
+vaultwarden_data_dir: "{{ vaultwarden_state_dir }}/data/"

@@ -28,4 +28,4 @@
     dest: "{{ vaultwarden_state_dir }}"
     remote_src: true
     mode: '750'
-  notify: Restart vaultwarden
+  notify: Restart Vaultwarden

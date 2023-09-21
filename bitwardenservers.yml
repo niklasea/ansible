@@ -1,5 +1,5 @@
 ---
-- name: Build Bitwarden server
+- name: Add Bitwarden server
   hosts: bitwardenservers
   tasks:
     - import_role:
@@ -7,8 +7,8 @@
 
     - name: 'Install sqlite for backup purposes'
       become: true
-      package:
-        name: sqlite
+      ansible.builtin.package:
+        name: sqlite3
         state: present
 
   post_tasks:
@@ -21,8 +21,8 @@
         name: "Dump sqlite3 database to backup file"
         job: >
           /usr/bin/sqlite3
-          {{ vaultwarden_data_folder }}/db.sqlite3
-          ".backup ' {{ vaultwarden_data_folder }}/backup.sqlite3'"
+          {{ vaultwarden_data_dir }}/db.sqlite3
+          ".backup ' {{ vaultwarden_data_dir }}/backup.sqlite3'"
         hour: '3'
         minute: '0'
         state: present
@@ -34,8 +34,8 @@
         job: >
           /usr/bin/tar
           -zcf
-          {{ smb_backup_folder }}/data.tar.gz
-          {{ vaultwarden_data_folder }}
+          {{ smb_backup_dir }}/data.tar.gz
+          {{ vaultwarden_data_dir }}
         hour: '4'
         minute: '0'
         state: present

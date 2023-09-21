@@ -1,35 +1,19 @@
 ---
-- name: Install Docker dependencies
-  ansible.builtin.package:
-    name:
-      - ca-certificates
-      - curl
-      - gnupg
-    state: present
+- name: OS-specific configuration
+  include_tasks:
+    file: "{{ ansible_os_family }}.yml"
+    apply:
+      become: true
 
-- name: Add the Docker apt key
-  ansible.builtin.apt_key:
-    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-    state: present
-
-- name: Add the Docker repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-    state: present
-  register: docker_repository
-
-- name: Install Docker
-  ansible.builtin.package:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-buildx-plugin
-      - docker-compose-plugin
-    state: present
-    update_cache: true
+- name: Create directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ docker_compose_dir }}"
+    state: directory
+    mode: '755'
 
 - name: Configure Docker daemon
+  become: true
   ansible.builtin.template:
     src: daemon.json.j2
     dest: /etc/docker/daemon.json
@@ -37,7 +21,8 @@
   register: docker_daemon_configuration
 
 - name: Restart Docker daemon
-  ansible.builtin.service:
+  become: true
+  ansible.builtin.systemd:
     name: docker
     state: restarted
   when: docker_daemon_configuration is changed
