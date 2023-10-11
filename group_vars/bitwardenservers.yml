@@ -12,11 +12,11 @@ vaultwarden_smtp_credentials:
   username: "{{ vault_vaultwarden.smtp_username }}"
   password: "{{ vault_vaultwarden.smtp_password }}"
 
-smb_username: vaultwarden
-smb_password: "{{ vault_smb_vaultwarden_password }}"
+smb_username: "{{ vault_smb_vaultwarden_credentials.username }}"
+smb_password: "{{ vault_smb_vaultwarden_credentials.password }}"
 smb_mounts:
-  - network_path: //DS216j/ServerBackup/vaultwarden
-    local_path: "{{ smb_backup_folder }}"
+  - network_path: //harkonnen.{{ local_domain }}/ServerBackup/vaultwarden
+    local_path: "{{ smb_backup_dir }}"
     options: '_netdev,dir_mode=0555,file_mode=0444'
 
 certbot_deploy_hook: |

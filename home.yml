@@ -69,6 +69,6 @@
 - import_playbook: webservers.yml
 - import_playbook: dev_env.yml
 - import_playbook: jellyfinservers.yml
-# - import_playbook: bitwardenservers.yml
+- import_playbook: bitwardenservers.yml
 - import_playbook: retropie.yml
 - import_playbook: gameservers.yml

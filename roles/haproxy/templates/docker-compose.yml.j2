@@ -1,0 +1,27 @@
+services:
+  haproxy:
+    image: haproxy:{{ haproxy_version }}
+    container_name: {{ haproxy_container_name }}
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - reverse_proxy
+    volumes:
+      - {{ haproxy_configuration_dir }}:/usr/local/etc/haproxy:ro
+{% if haproxy_tls_certificate_path is defined %}
+      - {{ haproxy_tls_certificate_path }}:{{ haproxy_docker_internal_tls_certificate_path }}
+{% endif %}
+
+networks:
+  reverse_proxy:
+    name: reverse_proxy
+    ipam:
+      config:
+        - subnet: "{{ haproxy_docker_internal_network }}"

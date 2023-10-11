@@ -1,0 +1,20 @@
+---
+# community.docker.docker_compose currently does not support docker-compose >= 2.0.0
+- name: Restart haproxy
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose down
+    chdir: "{{ haproxy_configuration_dir }}"
+  notify: Start haproxy
+
+- name: Start haproxy
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ haproxy_configuration_dir }}"
+
+- name: Reload haproxy
+  become: true
+  ansible.builtin.command:
+    cmd: "docker kill -s HUP {{ haproxy_container_name }}"
+    chdir: "{{ haproxy_configuration_dir }}"

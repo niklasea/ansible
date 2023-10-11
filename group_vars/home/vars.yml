@@ -11,13 +11,15 @@ dhcp_range:
   start: "{{ internal_network_ipv4 | ansible.utils.ipaddr('50') }}"
   end: "{{ internal_network_ipv4 | ansible.utils.ipaddr('-2') }}"
 dhcp_dns_addresses:
-  - "{{ hosts.docker.ipv4_address }}"
+  - "{{ hosts.private.ipv4_address }}"
 dhcp_ntp_addresses:
-  - "{{ hosts.docker.ipv4_address }}"
+  - "{{ hosts.private.ipv4_address }}"
+
+haproxy_docker_internal_network: '10.0.0.0/16'
 
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
-smb_backup_folder: /mnt/backup
+smb_backup_dir: /mnt/backup
 
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_subject_alt_names:
@@ -33,9 +35,6 @@ certbot_dns_propagation: 10
 
 wireguard_network_ipv4: '172.21.0.0/24'
 
-static_routes:
-  - "{{ wireguard_network_ipv4 }},{{ hosts.public.ipv4_address }}"
-
 wifi_pass: "{{ vault_wifi_pass }}"
 
 hosts:
@@ -49,5 +48,5 @@ hosts:
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('6') }}"
   public: # Public server.
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
-  docker: # Internal server.
+  private: # Internal server.
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"

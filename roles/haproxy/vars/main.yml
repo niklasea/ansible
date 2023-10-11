@@ -1,0 +1,3 @@
+---
+haproxy_container_name: haproxy_container
+haproxy_docker_internal_tls_certificate_path: /usr/local/etc/certificate.pem
