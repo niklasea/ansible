@@ -1,0 +1,15 @@
+ARG DEBIAN_IMAGE_VERSION=stable-slim
+FROM debian:${DEBIAN_IMAGE_VERSION}
+
+RUN apt-get update \
+  && apt-get install -y \
+    wireguard \
+    iptables \
+    iproute2 \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY init.sh /
+
+EXPOSE 51820/udp
+
+ENTRYPOINT /init.sh

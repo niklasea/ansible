@@ -1,0 +1,16 @@
+services:
+  wireguard:
+    image: ghcr.io/niklasea/wireguard:{{ wireguard_version }}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    ports:
+      - {{ wireguard_listenport }}:{{ wireguard_listenport }}/udp
+    volumes:
+      - {{ wireguard_config_dir }}/{{ wireguard_interface_name }}.conf:/config/wg0.conf:ro
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1

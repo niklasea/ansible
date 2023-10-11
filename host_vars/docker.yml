@@ -1,0 +1,22 @@
+---
+wireguard_server_keys:
+  private: "{{ vault_wireguard_docker_keys.private }}"
+  public: "{{ vault_wireguard_docker_keys.public }}"
+wireguard_addresses:
+  - "{{ vpn_network_ipv4 | ansible.utils.ipaddr('1') }}"
+wireguard_peers:
+  orangepizero:
+    PublicKey: 'HcqY+vyuCP00we+DWbv0GL5oeupHrhVE7GnAbDKuvn8='
+    AllowedIPs: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}/32"
+  NinosDesktop:
+    PublicKey: 'KfWraMr/u5fsN3DCG10k7fUAbDH8cInJ9aVuMq/IlTI='
+    AllowedIPs: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}/32"
+  NinosOP8T:
+    PublicKey: 'NX95oJKZjkx7GfmbkkcfFUWeULqGIRsFTGrJj8b5mjo='
+    AllowedIPs: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}/32"
+  NinosLaptop:
+    PublicKey: 'sPerTiUos9AYtwcdEbStPLz33mitT6mSR0kugC2/4Hg='
+    AllowedIPs: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}/32"
+  NinosWorkLaptop:
+    PublicKey: 'k3x6G3OTimZpwDrD2RTAa3WVd3lq2fHginyFU7MfFWk='
+    AllowedIPs: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('6') | ansible.utils.ipaddr('address') }}/32"

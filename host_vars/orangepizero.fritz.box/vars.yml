@@ -1,28 +1,22 @@
 ---
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
-wg_server_keys:
-  private: "{{ vault_wg_password }}"
+wireguard_server_keys:
+  private: "{{ vault_wireguard_password }}"
   public: 'xisgBBJA0+ANDJzTS1UN28KvPRfJCIB4+yabiddwxUo='
 
-wg_interface_name: wg_orangepi
-wg_address:
+wireguard_addresses:
   - "{{ '192.168.179.0/24' | ansible.utils.ipaddr('1') }}"
-wg_postup:
-  - "iptables -A INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
-  - "iptables -A FORWARD -i %i -o eth0 -j ACCEPT"
-  - "iptables -A FORWARD -i eth0 -o %i -j ACCEPT"
-  - "iptables -t nat -A POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
-wg_postdown:
-  - "iptables -D INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
-  - "iptables -D FORWARD -i %i -o eth0 -j ACCEPT"
-  - "iptables -D FORWARD -i eth0 -o %i -j ACCEPT"
-  - "iptables -t nat -D POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
-wireguard_keepalive: 55
-wg_peers:
-  - { publickey: 'd1TvmSlr/N3xvQprb0wZsL/KzcyTLxlaJC8AhqgvuTQ=', allowedips: '192.168.179.2/32', persistentkeepalive: "{{ wireguard_keepalive }}", comment: 'Allan phone' }
-  - { publickey: 'qqEetl1bfs/yUzCJeZWfAGXsQ0gt6mqzxx8oS6ayiFQ=', allowedips: '192.168.179.3/32', persistentkeepalive: "{{ wireguard_keepalive }}", comment: 'Allan laptop' }
-  - { publickey: 'wRwy276OhOIYvCPSsoM9EInTvE+x+0C8Oe82wD7qmzg=', allowedips: '192.168.179.4/32', persistentkeepalive: "{{ wireguard_keepalive }}", comment: 'Test' }
+wireguard_peers:
+  AllanPhone:
+    PublicKey: 'd1TvmSlr/N3xvQprb0wZsL/KzcyTLxlaJC8AhqgvuTQ='
+    AllowedIPs: "{{ wireguard_addresses[0] | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}/32"
+  AllanLaptop:
+    PublicKey: 'qqEetl1bfs/yUzCJeZWfAGXsQ0gt6mqzxx8oS6ayiFQ='
+    AllowedIPs: "{{ wireguard_addresses[0] | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}/32"
+  Test:
+    PublicKey: 'wRwy276OhOIYvCPSsoM9EInTvE+x+0C8Oe82wD7qmzg='
+    AllowedIPs: "{{ wireguard_addresses[0] | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}/32"
 
 inadyn_period: 600
 inadyn_ddns_configurations:

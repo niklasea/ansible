@@ -82,5 +82,5 @@ vyos_nat_destination_rules:
   #   protocol: 'tcp'
   #   translation address: '{{ hosts.public.ipv4_address }}'
 vyos_static_routes:
-  - network: "{{ wireguard_network_ipv4 }}"
-    gateway: "{{ wireguard_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+  - network: "{{ vpn_network_ipv4 }}"
+    gateway: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"

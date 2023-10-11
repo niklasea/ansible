@@ -1,54 +1,44 @@
 ---
-# Make sure the key pair you provide is well-protected (ansible-vault)
-# wg_server_keys: { private: 'placeholder1', public: 'placeholder2' }
+wireguard_config_dir: "{{ docker_compose_dir }}/wireguard/"
+wireguard_version: latest
 
-# WireGuard interface name must be a string matching [a-zA-Z0-9_=+.-]{1,15}
-wg_interface_name: 'wg0'
-wg_address:
+# Make sure the key pair you provide is well-protected (ansible-vault)
+# wireguard_server_keys: { private: 'placeholder1', public: 'placeholder2' }
+wireguard_interface_name: wg0
+wireguard_addresses:
   - '172.16.0.1/24'
-wg_listenport: 51820
-wg_fwmark: 'off'
+wireguard_listenport: 51820
+wireguard_default_persistent_keepalive: 55
+
+wireguard_fwmark: 'off'
 # If not specified, the MTU is automatically determined from the endpoint addresses or the system default route
-wg_mtu: ''
-wg_table: 'auto'
-wg_preup: []
-wg_predown: []
-wg_postup:
-  - "iptables -A INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
+wireguard_mtu: ''
+wireguard_table: 'auto'
+wireguard_preup: []
+wireguard_predown: []
+wireguard_postup:
+  - "iptables -A INPUT -p udp --dport {{ wireguard_listenport }} -j ACCEPT"
   - "iptables -A FORWARD -i %i -j ACCEPT"
   - "iptables -A FORWARD -o %i -j ACCEPT"
-  - "iptables -t nat -A POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
-wg_postdown:
-  - "iptables -D INPUT -p udp --dport {{ wg_listenport }} -j ACCEPT"
+  - "iptables -t nat -A POSTROUTING -s {{ wireguard_addresses | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
+wireguard_postdown:
+  - "iptables -D INPUT -p udp --dport {{ wireguard_listenport }} -j ACCEPT"
   - "iptables -D FORWARD -i %i -j ACCEPT"
   - "iptables -D FORWARD -o %i -j ACCEPT"
-  - "iptables -t nat -D POSTROUTING -s {{ wg_address | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
-wg_forwarding: true
-# If wg_saveconfig is true, wg-quick will save its current config upon shutdown over whatever config was there.
-# Since this role does not stop the wg-quick service before editing the config files,
-# any changes by this role on subsequent runs will thus be erased at the end when the service restarts.
-# This should remain false unless you know what you are doing.
-wg_saveconfig: false
+  - "iptables -t nat -D POSTROUTING -s {{ wireguard_addresses | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 
-# Add a peer for each client device
-# Peers are provided as a list containing mappings for each peer
-# presharedkey, endpoint and persistentkeepalive are optional
-wg_peers: []
-# Example peer below, showing all available options:
-#   - publickey: 'example1pubk'
-#     presharedkey: 'example1psk'
-#     allowedips: '172.16.0.2/32'
-#     endpoint: 'example.org:51820'
-#     persistentkeepalive: 50
-#     comment: "Example device"
-
-
-
-# wg_create_clients > 0 is NOT idempotent, but nothing happens unless the role runs with the wg_create_clients tag.
-# wg_create_clients: 0
-# wg_endpoint: 'example.org'
-# wg_dns: '1.1.1.1, 1.0.0.1'
-# wg_allowedips: '0.0.0.0/0, ::/0'
-
-# Set a directory path to download client configs to the Ansible host
-# wg_clientconf_directory: '~/wireguardclients/'
+# Peers are provided as a mapping from name to the options as key-value pairs.
+# PublicKey and AllowedIPs are required.
+wireguard_peers:
+  # example_name:
+  #   PublicKey: 'example1pubk'
+  #   PresharedKey: 'example1psk'
+  #   AllowedIPs: '172.16.0.2/32'
+  #   Endpoint: 'example.org:51820'
+  #   PersistentKeepalive: 0
+  # example_name_2:
+  #   PublicKey: 'example2pubk'
+  #   PresharedKey: 'example2psk'
+  #   AllowedIPs: '172.16.0.3/32'
+  #   Endpoint: 'example.org:51820'
+  #   PersistentKeepalive: 25
