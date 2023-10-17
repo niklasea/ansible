@@ -12,7 +12,7 @@ services:
       - {{ vaultwarden_state_dir }}/web-vault/:/web_vault/
     networks:
       reverse_proxy:
-        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}
+        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}
     environment:
       WEB_VAULT_FOLDER: /web_vault/
       WEB_VAULT_ENABLED: {{ vaultwarden_web_vault_enabled }}

@@ -32,9 +32,9 @@ frontend https_proxy
 backend vaultwarden
     cookie SERVERUSED insert indirect nocache
     default-server check inter 10000 fastinter 1000
-    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}:80
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}:80
 
 backend pihole
     cookie SERVERUSED insert indirect nocache
     default-server check inter 10000 fastinter 1000
-    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}:80
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}:80

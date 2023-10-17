@@ -13,7 +13,7 @@ services:
       - 443:443
     networks:
       reverse_proxy:
-        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}
+        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}
     volumes:
       - {{ haproxy_configuration_dir }}:/usr/local/etc/haproxy:ro
 {% if haproxy_tls_certificate_path is defined %}
