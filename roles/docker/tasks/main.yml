@@ -26,3 +26,11 @@
     name: docker
     state: restarted
   when: docker_daemon_configuration is changed
+
+- name: Schedule docker system prune
+  become: true
+  ansible.builtin.cron:
+    name: "Prune unused docker resources"
+    state: present
+    special: daily
+    job: docker system prune -f
