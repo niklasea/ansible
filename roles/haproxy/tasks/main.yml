@@ -13,7 +13,6 @@
     dest: "{{ haproxy_configuration_dir }}/docker-compose.yml"
     mode: '644'
   notify: Restart haproxy
-  tags: update_config
 
 - name: Add configuration file
   become: true
@@ -24,4 +23,3 @@
   notify:
     - Start haproxy
     - Reload haproxy
-  tags: update_config
