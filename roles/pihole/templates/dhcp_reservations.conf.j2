@@ -7,7 +7,7 @@
 {%- set values = values | union([options.ipv4_address | ansible.utils.ipaddr('address')]) -%}
 {%- endif -%}
 {%- if options.ipv6_address is defined -%}
-{%- set values = values | union([options.ipv6_address | ansible.utils.ipaddr('address') | ipwrap ]) -%}
+{%- set values = values | union([options.ipv6_address | ansible.utils.ipaddr('address') | ansible.utils.ipwrap ]) -%}
 {%- endif -%}
 {%- set values = values | union([host]) -%}
 {%- if options.lease_time is defined -%}

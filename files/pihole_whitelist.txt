@@ -701,6 +701,10 @@ click.pstmrk.it
 # TechRepublic.com video
 #s0.2mdn.net
 
+# airbnb redirect
+bnc.lt
+www.bnc.lt
+
 ##################### Betting #####################
 
 bet365.com

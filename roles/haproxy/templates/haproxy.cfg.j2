@@ -27,8 +27,14 @@ frontend https_proxy
 {% endif %}
 
     use_backend vaultwarden if { hdr_dom(host) -i bitwarden.{{ local_domain }} }
+    use_backend pihole if { hdr_dom(host) -i pihole.{{ local_domain }} }
 
 backend vaultwarden
     cookie SERVERUSED insert indirect nocache
     default-server check inter 10000 fastinter 1000
     server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}:80
+
+backend pihole
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}:80

@@ -6,14 +6,12 @@ pihole_upstream_dns:
   - "{{ hosts.unbound.ipv4_address }}"
   - "{{ ansible_default_ipv4.address }}#5353"  # local stubby instance
 pihole_dnssec: 'false'
-pihole_conditional_fwd: 'true'
-pihole_conditional_fwd_rules:
+pihole_dnsmasq_conditional_fwd: 'true'
+pihole_dnsmasq_conditional_fwd_rules:
   - server_ip: "{{ dhcp_address }}"
     network: "{{ dhcp_address }}/{{ ansible_default_ipv4.netmask }}"
     domain: "{{ pihole_domain }}"
 
-pihole_analyze_aaaa: 'no'
-pihole_analyze_a_aaaa_only: 'false'
 pihole_ignore_localhost: 'yes'
 pihole_maxdbdays: 2
 

@@ -1,13 +1,4 @@
 ---
-pihole_installer_path: '/var/tmp/pihole.sh'
-
-pihole_config_path: '/etc/pihole'
-pihole_dnsmasq_config_path: '/etc/dnsmasq.d'
-pihole_dbfile: "{{ pihole_config_path }}/pihole-FTL.db"
-pihole_logfile: '/var/log/pihole-FTL.log'
-pihole_pidfile: '/var/run/pihole-FTL.pid'
-pihole_portfile: '/var/run/pihole-FTL.port'
-pihole_socketfile: '/var/run/pihole/FTL.sock'
-pihole_setupvarsfile: "{{ pihole_config_path }}/setupVars.conf"
-pihole_auditlistfile: "{{ pihole_config_path }}/auditlog.list"
-pihole_macvendordb: "{{ pihole_config_path }}/macvendor.db"
+pihole_compose_path: /etc/compose/pihole
+pihole_config_path: "{{ pihole_compose_path }}/pihole.d"
+pihole_dnsmasq_config_path: "{{ pihole_compose_path }}/dnsmasq.d"

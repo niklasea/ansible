@@ -1,62 +1,33 @@
 ---
-pihole_network_interface: "{{ ansible_default_ipv4.interface }}"
 pihole_gateway_address: "{{ ansible_default_ipv4.gateway }}"
 pihole_ipv4_address: "{{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4.netmask }}"
 pihole_ipv6_address: "{{ ansible_default_ipv6.address | default('') }}"
 
-pihole_automatic_updates: false
+pihole_version: latest
 
 # setupVars.conf
-# Passwords are hashed twice with SHA256 and pihole_webpassword takes the hashed value.
-# Another option is to set a password via the pihole command and copy the value from setupVars.conf to here.
-# Default password is 'ansiblepihole'
-pihole_webpassword: '7bbe988b035c2c744082b5da9b5d8a495d7b0ffa64e18ac386957432a395b9a0'
-# pihole_enable_webinterface only applies at first install
-pihole_enable_webinterface: 'true'
 pihole_query_logging: 'true'
 pihole_upstream_dns:
   - '1.1.1.1#53'
   - '1.0.0.1#53'
 # Available options are: 'single', 'local', and 'all'. Respectively, these correspond to the dnsmasq options:
-# "interface={{ pihole_network_interface }}", 'local-service', and 'except-interface=nonexisting'
-pihole_dnsmasq_listening: 'single'
+# 'interface=<interface_name>', 'local-service', and 'except-interface=nonexisting'
+pihole_dnsmasq_listening: 'local'
 pihole_dns_fqdn_required: 'true'
 pihole_dns_bogus_priv: 'true'
 pihole_dnssec: 'false'
-pihole_conditional_fwd: 'false'
-# This supports both multiple conditional forwarding rules and reverse DNS for different network sizes.
-# server_ip is the IP of the DHCP server to query and domain is the local domain name it uses.
-# network is the network address in CIDR notation for which the rule applies.
-pihole_conditional_fwd_rules:
-  - server_ip: "{{ pihole_gateway_address }}"
-    network: "{{ pihole_ipv4_address }}"
-    domain: "{{ pihole_domain }}"
-pihole_api_exclude_domains: []
-#   - example.org
-#   - example.com
-pihole_api_exclude_clients: []
-#   - example_client
-#   - example_client2
 pihole_dhcp: 'false'
 pihole_dhcp_range:
-  start: "{{ pihole_ipv4_address | ansible.utils.ipaddr('20') }}"
+  start: "{{ pihole_ipv4_address | ansible.utils.ipaddr('50') }}"
   end: "{{ pihole_ipv4_address | ansible.utils.ipaddr('-2') }}"
 pihole_dhcp_leasetime: 24
 pihole_domain: 'lan'
 pihole_dhcp_rapid_commit: 'false'
 pihole_dhcp_ipv6: 'false'
-pihole_api_privacy_mode: 'false'
-pihole_api_query_log_show: 'all'
 # 'C' for Celsius, 'F' for Fahrenheit or 'K' for Kelvin
 pihole_temperatureunit: 'C'
 # 'boxed' or 'traditional'
 pihole_webuiboxedlayout: 'boxed'
-pihole_admin_email:           # mail@example.org
-pihole_setupvars_custom: {}
-# Intended for variables not supported by this role, use the following format:
-#   option: value
-# Example:
-#   WEBUIBOXEDLAYOUT: 'boxed'
 
 # pihole-FTL.conf
 # Options: https://docs.pi-hole.net/ftldns/configfile/
@@ -136,6 +107,14 @@ pihole_ntp_redirect_requests:
 #   - 'time.nist.gov'
 pihole_ntp_exceptions:
   - 'www.pool.ntp.org'
+pihole_dnsmasq_conditional_fwd: 'false'
+# This supports both multiple conditional forwarding rules and reverse DNS for different network sizes.
+# server_ip is the IP of the DHCP server to query and domain is the local domain name it uses.
+# network is the network address in CIDR notation for which the rule applies.
+pihole_dnsmasq_conditional_fwd_rules:
+  - server_ip: "{{ pihole_gateway_address }}"
+    network: "{{ pihole_ipv4_address }}"
+    domain: "{{ pihole_domain }}"
 pihole_dnsmasq_custom: |
 #   Intended for options not supported by this role
 #   Whatever options you want can go here

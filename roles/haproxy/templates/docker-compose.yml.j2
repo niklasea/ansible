@@ -12,11 +12,12 @@ services:
       - 80:80
       - 443:443
     networks:
-      - reverse_proxy
+      reverse_proxy:
+        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}
     volumes:
       - {{ haproxy_configuration_dir }}:/usr/local/etc/haproxy:ro
 {% if haproxy_tls_certificate_path is defined %}
-      - {{ haproxy_tls_certificate_path }}:{{ haproxy_docker_internal_tls_certificate_path }}
+      - {{ haproxy_tls_certificate_path }}:{{ haproxy_docker_internal_tls_certificate_path }}:ro
 {% endif %}
 
 networks:
@@ -24,4 +25,4 @@ networks:
     name: reverse_proxy
     ipam:
       config:
-        - subnet: "{{ haproxy_docker_internal_network }}"
+        - subnet: {{ haproxy_docker_internal_network }}

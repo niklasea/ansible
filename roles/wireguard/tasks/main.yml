@@ -17,6 +17,7 @@
     group: root
     mode: '600'
   notify: Restart WireGuard
+  tags: update_config
 
 - name: Add Docker compose file
   become: true
