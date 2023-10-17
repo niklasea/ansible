@@ -32,5 +32,5 @@
   ansible.builtin.cron:
     name: "Prune unused docker resources"
     state: present
-    special: daily
+    special_time: daily
     job: docker system prune -f
