@@ -10,7 +10,7 @@ pihole_docker_internal_network: '172.16.0.0/24'
 pihole_query_logging: 'true'
 # Available options are: 'single', 'local', and 'all'. Respectively, these correspond to the dnsmasq options:
 # 'interface=<interface_name>', 'local-service', and 'except-interface=nonexisting'
-pihole_dnsmasq_listening: 'local'
+pihole_dnsmasq_listening: 'all'
 pihole_dns_fqdn_required: 'true'
 pihole_dns_bogus_priv: 'true'
 pihole_dnssec: 'false'
