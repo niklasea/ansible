@@ -5,12 +5,12 @@
 #     - import_role:
 #         name: stubby
 
-- name: Configure Pi-Hole servers
+- name: Configure DNS servers
   hosts: dnsservers
 
   tasks:
     - import_role:
-        name: pihole
+        name: dns
 
 # - name: Open DNS port
 #   hosts: dnsservers

@@ -1,5 +1,28 @@
 services:
+  stubby:
+    image: ghcr.io/niklasea/stubby:{{ stubby_version }}
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    cap_drop:
+      - ALL
+    cap_add:
+      - CAP_NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      pihole:
+        ipv4_address: {{ pihole_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}
+    environment:
+      LOG_LEVEL: {{ stubby_log_level }}
+    volumes:
+      - {{ stubby_config_path }}/stubby.yml:/etc/stubby.yml
+
   pihole:
+    depends_on:
+      - stubby
     image: pihole/pihole:{{ pihole_version }}
     restart: unless-stopped
     deploy:
@@ -14,7 +37,7 @@ services:
 {% endif %}
     networks:
       pihole:
-        ipv4_address: {{ pihole_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}
+        ipv4_address: {{ pihole_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}
       reverse_proxy:
         ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}
     environment:
@@ -25,7 +48,7 @@ services:
       TEMPERATUREUNIT: {{ pihole_temperatureunit }}
       WEBUIBOXEDLAYOUT: {{ pihole_webuiboxedlayout }}
       DNSMASQ_LISTENING: {{ pihole_dnsmasq_listening }}
-      PIHOLE_DNS_: {{ pihole_upstream_dns | join(';') }}
+      PIHOLE_DNS_: {{ pihole_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}#53
       DNSSEC: {{ pihole_dnssec }}
       DNS_BOGUS_PRIV: {{ pihole_dns_bogus_priv }}
       DNS_FQDN_REQUIRED: {{ pihole_dns_fqdn_required }}
@@ -37,7 +60,10 @@ services:
       DHCP_rapid_commit: {{ pihole_dhcp_rapid_commit }}
       DHCP_IPv6: {{ pihole_dhcp_ipv6 }}
     volumes:
-      - {{ pihole_config_path }}:/etc/pihole
+      - {{ pihole_config_path }}/adlists.list:/etc/pihole/adlists.list
+      - {{ pihole_config_path }}/regex.list:/etc/pihole/regex.list
+      - {{ pihole_config_path }}/blacklist.txt:/etc/pihole/blacklist.txt
+      - {{ pihole_config_path }}/whitelist.txt:/etc/pihole/whitelist.txt
       - {{ pihole_dnsmasq_config_path }}:/etc/dnsmasq.d
 
 networks:

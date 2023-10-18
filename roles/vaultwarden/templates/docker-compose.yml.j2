@@ -7,6 +7,10 @@ services:
       resources:
         limits:
           memory: 1G
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - {{ vaultwarden_data_dir }}:/data/
       - {{ vaultwarden_state_dir }}/web-vault/:/web_vault/

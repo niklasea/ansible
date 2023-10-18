@@ -8,10 +8,17 @@ on:
       - main
   schedule:
     - cron: '0 0 1 * *'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "getdns branch to use"
+        required: false
+        default: "tags/v1.7.3"
+        type: string
 
 jobs:
   build:
-    name: Build WireGuard docker image
+    name: Build Stubby docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +35,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.0.0
         with:
-          context: dockerfiles/wireguard
-          file: dockerfiles/wireguard/dockerfile
+          context: dockerfiles/stubby
+          file: dockerfiles/stubby/dockerfile
           tags: |
-            ghcr.io/niklasea/wireguard:latest
+            ghcr.io/niklasea/stubby:${{ inputs.branch || 'master' }}
           push: ${{ github.ref == 'refs/heads/main' }}
+          build-args:
+            GETDNS_RELEASE=${{ inputs.branch || 'master' }}

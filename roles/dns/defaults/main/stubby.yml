@@ -1,20 +1,16 @@
 ---
-stubby_force_build: false
-stubby_force_reinstall: false
-# Set to true to pull the most recent release from GitHub (rate limited).
-stubby_latest_release: false
-stubby_release: 1.7.0
+stubby_version: master
 
 # Loglevel 0-7, higher numbers log more messages
 stubby_log_level: 5
 
 stubby_listen_addresses:
-  - 127.0.0.1@53
-  - 0::1@53
+  - 0.0.0.0@53
+  - 0::@53
 
 stubby_opportunistic_tls: false
 # These options require double quotes in the config file so they get their own variables to make Ansible configuration simpler.
-stubby_appdata_dir: /var/cache/stubby
+stubby_appdata_dir: # /var/cache/stubby
 stubby_tls_ca_path: # /etc/ssl/certs/
 stubby_tls_cipher_list: # 'EECDH+AESGCM:EECDH+CHACHA20'
 stubby_tls_ciphersuites: # 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256'

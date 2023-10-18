@@ -1,6 +1,0 @@
----
-- name: Restart Stubby
-  become: true
-  service:
-    name: stubby
-    state: restarted

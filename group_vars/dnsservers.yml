@@ -1,10 +1,15 @@
 ---
+stubby_upstream: |
+  - address_data: 9.9.9.11
+    tls_auth_name: "dns.quad9.net"
+  - address_data: 149.112.112.11
+    tls_auth_name: "dns.quad9.net"
+stubby_options:
+  idle_timeout: 9000
+
 pihole_webpassword: "{{ vault_pihole_webpassword }}"
 pihole_gateway_address: "{{ gateway_address }}"
 pihole_domain: "{{ local_domain }}"
-pihole_upstream_dns:
-  - "{{ hosts.unbound.ipv4_address }}"
-  - "{{ ansible_default_ipv4.address }}#5353"  # local stubby instance
 pihole_dnssec: 'false'
 pihole_dnsmasq_conditional_fwd: 'true'
 pihole_dnsmasq_conditional_fwd_rules:
@@ -35,9 +40,3 @@ pihole_dnsmasq_custom: |
   strict-order
   min-cache-ttl=2
   max-cache-ttl=86400
-
-certbot_deploy_hook: |
-  #!/usr/bin/env bash
-
-  cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/cert.pem" > "$RENEWED_LINEAGE/lighttpd_combined.pem"
-  systemctl restart lighttpd

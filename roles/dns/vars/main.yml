@@ -1,0 +1,7 @@
+---
+dns_compose_path: /etc/compose/pihole
+
+pihole_config_path: "{{ dns_compose_path }}/pihole"
+pihole_dnsmasq_config_path: "{{ dns_compose_path }}/dnsmasq.d"
+
+stubby_config_path: "{{ dns_compose_path }}/stubby.d"

@@ -8,6 +8,10 @@ services:
       resources:
         limits:
           memory: 1G
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     ports:
       - 80:80
       - 443:443

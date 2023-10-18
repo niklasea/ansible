@@ -1,14 +1,14 @@
 ---
 # community.docker.docker_compose currently does not support docker-compose >= 2.0.0
-- name: Restart Pi-hole
+- name: Restart DNS
   become: true
   ansible.builtin.command:
     cmd: docker compose down
-    chdir: "{{ pihole_compose_path }}"
-  notify: Start Pi-hole
+    chdir: "{{ dns_compose_path }}"
+  notify: Start DNS
 
-- name: Start Pi-hole
+- name: Start DNS
   become: true
   ansible.builtin.command:
     cmd: docker compose up -d
-    chdir: "{{ pihole_compose_path }}"
+    chdir: "{{ dns_compose_path }}"

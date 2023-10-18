@@ -1,0 +1,58 @@
+---
+- name: Create directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: '755'
+  loop:
+    - path: "{{ pihole_config_path }}"
+    - path: "{{ pihole_dnsmasq_config_path }}"
+    - path: "{{ stubby_config_path }}"
+
+# TIP: Use a docker volume for /etc/pihole/adlists.list if you want to customize for first boot
+- name: Create Pi-hole lists
+  become: true
+  template:
+    src: list.j2
+    dest: "{{ pihole_config_path }}/{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '644'
+  loop:
+    - list: "{{ pihole_adlists }}"
+      dest: adlists.list
+    - list: "{{ pihole_regexlists }}"
+      dest: regex.list
+    - list: "{{ pihole_blacklists }}"
+      dest: blacklist.txt
+    - list: "{{ pihole_whitelists }}"
+      dest: whitelist.txt
+  loop_control:
+    label: "Created list: {{ item.dest }}"
+  notify: Restart DNS
+
+- name: Apply configuration
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '644'
+  loop:
+    - src: dnsmasq.conf.j2
+      dest: "{{ pihole_dnsmasq_config_path }}/ansible_settings.conf"
+    - src: dhcp_reservations.conf.j2
+      dest: "{{ pihole_dnsmasq_config_path }}/dhcp_reservations.conf"
+    - src: stubby.yml.j2
+      dest: "{{ stubby_config_path }}/stubby.yml"
+  notify: Restart DNS
+
+- name: Add Docker compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ dns_compose_path }}/docker-compose.yml"
+    mode: '640'
+  notify: Restart DNS

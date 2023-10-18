@@ -1,4 +1,0 @@
----
-pihole_compose_path: /etc/compose/pihole
-pihole_config_path: "{{ pihole_compose_path }}/pihole.d"
-pihole_dnsmasq_config_path: "{{ pihole_compose_path }}/dnsmasq.d"

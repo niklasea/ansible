@@ -4,12 +4,10 @@ pihole_ipv4_address: "{{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4
 pihole_ipv6_address: "{{ ansible_default_ipv6.address | default('') }}"
 
 pihole_version: latest
+pihole_docker_internal_network: '172.16.0.0/24'
 
 # setupVars.conf
 pihole_query_logging: 'true'
-pihole_upstream_dns:
-  - '1.1.1.1#53'
-  - '1.0.0.1#53'
 # Available options are: 'single', 'local', and 'all'. Respectively, these correspond to the dnsmasq options:
 # 'interface=<interface_name>', 'local-service', and 'except-interface=nonexisting'
 pihole_dnsmasq_listening: 'local'
