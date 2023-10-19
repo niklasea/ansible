@@ -1,9 +1,0 @@
-[Unit]
-Description=update of the root trust anchor for DNSSEC validation in Unbound
-Documentation=man:unbound-anchor(8)
-
-[Service]
-Type=oneshot
-User={{ unbound_user }}
-ExecStart={{ unbound_install_dir }}/sbin/unbound-anchor -r {{ unbound_root_hints_file }} -c {{ unbound_root_certificate }}
-SuccessExitStatus=1
