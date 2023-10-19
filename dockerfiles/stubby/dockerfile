@@ -15,11 +15,10 @@ ARG BUILD_DIR=/stubby_build
 ARG INSTALL_DIR=/opt/stubby
 WORKDIR ${BUILD_DIR}
 
-RUN git clone https://github.com/getdnsapi/getdns.git .
-RUN git checkout ${GETDNS_RELEASE}
-RUN git submodule update --init
+RUN git clone https://github.com/getdnsapi/getdns.git . \
+  && git checkout ${GETDNS_RELEASE} \
+  && git submodule update --init
 
-RUN ls -l ${BUILD_DIR}/stubby
 RUN cmake -D BUILD_TESTING=OFF -D CMAKE_BUILD_TYPE=Release \
   -D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} -D CMAKE_INSTALL_RUNSTATEDIR=${INSTALL_DIR}/run -D CMAKE_INSTALL_SYSCONFDIR=${INSTALL_DIR}/config \
   -D BUILD_STUBBY=ON -D USE_LIBIDN2=OFF -D ENABLE_STUB_ONLY=ON \
