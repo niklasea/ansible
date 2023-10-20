@@ -1,0 +1,29 @@
+services:
+  omada:
+    image: ghcr.io/niklasea/omada_controller:{{ omada_version }}
+    restart: unless-stopped
+    cpu_shares: 128
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      reverse_proxy:
+        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}
+    ports:
+      - {{ omada_http_port }}:{{ omada_http_port }}/tcp
+      - 27001:27001/udp
+      - 29810:29810/udp
+      - 29811:29811/tcp
+      - 29812:29812/tcp
+      - 29813:29813/tcp
+    environment:
+      HTTP_PORT: {{ omada_http_port }}
+
+networks:
+  reverse_proxy:
+    external: true

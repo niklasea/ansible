@@ -6,19 +6,20 @@ on:
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '0 0 1 */3 *'
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'getdns branch to use'
-        required: false
-        default: 'tags/v1.7.3'
+      omada_tar_url:
+        description: 'Omada EAP controller tar.gz download URL'
+        required: true
+        type: string
+      docker_tag:
+        description: 'Docker image tag'
+        required: true
         type: string
 
 jobs:
   build:
-    name: Build Stubby docker image
+    name: Build Omada EAP controller docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -35,10 +36,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.0.0
         with:
-          context: dockerfiles/stubby
-          file: dockerfiles/stubby/dockerfile
+          context: dockerfiles/omada_controller
+          file: dockerfiles/omada_controller/dockerfile
           tags: |
-            ghcr.io/niklasea/stubby:${{ inputs.branch || 'master' }}
+            ghcr.io/niklasea/omada_controller:${{ inputs.docker_tag || 'v5.12.7' }}
           push: ${{ github.ref == 'refs/heads/main' }}
           build-args: |
-            GETDNS_RELEASE=${{ inputs.branch || 'master' }}
+            OMADA_TAR_URL=${{ inputs.omada_tar_url || 'https://static.tp-link.com/upload/software/2023/202309/20230920/Omada_SDN_Controller_v5.12.7_linux_x64.tar.gz' }}

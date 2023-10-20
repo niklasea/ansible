@@ -28,6 +28,7 @@ frontend https_proxy
 
     use_backend vaultwarden if { hdr_dom(host) -i bitwarden.{{ local_domain }} }
     use_backend pihole if { hdr_dom(host) -i pihole.{{ local_domain }} }
+    use_backend omada if { hdr_dom(host) -i omada.{{ local_domain }} }
 
 backend vaultwarden
     cookie SERVERUSED insert indirect nocache
@@ -38,3 +39,8 @@ backend pihole
     cookie SERVERUSED insert indirect nocache
     default-server check inter 10000 fastinter 1000
     server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}:80
+
+backend omada
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}:8088

@@ -1,6 +1,6 @@
-ARG DEBIAN_IMAGE_VERSION=12-slim
+ARG DEBIAN_VERSION=12
 ARG GETDNS_RELEASE=master
-FROM debian:${DEBIAN_IMAGE_VERSION} AS build
+FROM debian:${DEBIAN_VERSION}-slim AS build
 
 RUN apt-get update \
   && apt-get install -y \
@@ -25,7 +25,7 @@ RUN cmake -D BUILD_TESTING=OFF -D CMAKE_BUILD_TYPE=Release \
   ${BUILD_DIR}
 RUN make -j2 install
 
-FROM debian:${DEBIAN_IMAGE_VERSION}
+FROM debian:${DEBIAN_VERSION}-slim
 ARG INSTALL_DIR=/opt/stubby
 COPY --from=build ${INSTALL_DIR} ${INSTALL_DIR}
 WORKDIR ${INSTALL_DIR}

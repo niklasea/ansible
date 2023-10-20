@@ -1,6 +1,14 @@
 ---
-- name: Restart service
+# community.docker.docker_compose currently does not support docker-compose >= 2.0.0
+- name: Restart Omada
   become: true
-  systemd:
-    name: tpeap
-    state: restarted
+  ansible.builtin.command:
+    cmd: docker compose down
+    chdir: "{{ omada_compose_dir }}"
+  notify: Start Omada
+
+- name: Start Omada
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ omada_compose_dir }}"

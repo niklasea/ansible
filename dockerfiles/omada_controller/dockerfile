@@ -1,0 +1,82 @@
+# Omada EAP controller expects MongoDB 4.x which was last available in Debian 10.
+ARG DEBIAN_VERSION=buster
+ARG KEY_RING_DIR=/usr/share/keyrings
+ARG APT_SOURCES_DIR=/etc/apt/sources.list.d
+ARG INSTALL_DIR=/opt/tplink
+
+FROM debian:${DEBIAN_VERSION}-slim AS build
+ARG DEBIAN_VERSION
+ARG KEY_RING_DIR
+ARG APT_SOURCES_DIR
+ARG INSTALL_DIR
+
+RUN apt-get update \
+  && apt-get install -y \
+    tar \
+    curl \
+    gpg
+
+ARG MONGO_DB_VERSION=4.4
+ARG MONGO_DB_REPO_KEY_PATH=${KEY_RING_DIR}/mongodb-server-${MONGO_DB_VERSION}.gpg
+RUN curl -fsSL https://pgp.mongodb.com/server-${MONGO_DB_VERSION}.asc \
+  | gpg -o ${MONGO_DB_REPO_KEY_PATH} --dearmor
+RUN echo "deb [signed-by=${MONGO_DB_REPO_KEY_PATH}] http://repo.mongodb.org/apt/debian ${DEBIAN_VERSION}/mongodb-org/${MONGO_DB_VERSION} main" \
+  | tee ${APT_SOURCES_DIR}/mongodb-org-${MONGO_DB_VERSION}.list
+
+ARG ADOPTIUM_REPO_KEY_PATH=${KEY_RING_DIR}/adoptium.asc
+RUN curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public \
+  | tee ${ADOPTIUM_REPO_KEY_PATH}
+RUN echo "deb [signed-by=${ADOPTIUM_REPO_KEY_PATH}] https://packages.adoptium.net/artifactory/deb ${DEBIAN_VERSION} main" \
+  | tee ${APT_SOURCES_DIR}/adoptium.list
+
+WORKDIR ${INSTALL_DIR}
+ARG OMADA_TAR_URL=https://static.tp-link.com/upload/software/2023/202309/20230920/Omada_SDN_Controller_v5.12.7_linux_x64.tar.gz
+RUN curl -fsSL ${OMADA_TAR_URL} | tar -xz -C . --strip-components=1
+RUN sed -i "/\${link_name} start/d" ./install.sh
+
+FROM debian:${DEBIAN_VERSION}-slim
+ARG KEY_RING_DIR
+ARG APT_SOURCES_DIR
+ARG INSTALL_DIR
+
+# Needed for adoptium repository.
+RUN apt-get update \
+  && apt-get install -y \
+    ca-certificates
+
+COPY --from=build ${KEY_RING_DIR} ${KEY_RING_DIR}
+COPY --from=build ${APT_SOURCES_DIR} ${APT_SOURCES_DIR}
+COPY --from=build ${INSTALL_DIR} ${INSTALL_DIR}
+
+RUN apt-get update \
+  && apt-get install -y \
+    procps \
+    curl \
+    mongodb-org \
+    temurin-8-jre \
+    jsvc \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install and confirm installation to current directory.
+RUN echo -e "y\n" | ${INSTALL_DIR}/install.sh
+
+# https://www.tp-link.com/us/support/faq/865/
+#   The Omada Controller does not seem to actually listen on port 27002.
+#   The MongoDB port should not be open to the network (the process only listens on localhost anyway).
+# Highly recommend using reverse proxy for TLS. Built-in web server uses weak encryption
+# and does not support user-configured HTTPS port nor user-configured TLS certificates.
+ENV HTTP_PORT=8088
+EXPOSE ${HTTP_PORT}
+# Omada controller discovery
+EXPOSE 27001/udp
+# Omada EAP discovery
+EXPOSE 29810/udp
+# Omada EAP management
+EXPOSE 29811
+# Omada EAP adoption
+EXPOSE 29812
+# Omada EAP firmware upgrade
+EXPOSE 29813
+
+WORKDIR ${INSTALL_DIR}
+CMD [ "./bin/control.sh", "start" ]
