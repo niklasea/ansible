@@ -2,7 +2,7 @@
 
 set -e
 
-for file in /config/*.conf
+for file in ${CONFIGURATION_DIR}/*.conf
 do
 	wg-quick up "$file"
 done

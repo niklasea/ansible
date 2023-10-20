@@ -31,7 +31,7 @@ COPY --from=build ${INSTALL_DIR} ${INSTALL_DIR}
 WORKDIR ${INSTALL_DIR}
 
 RUN apt-get update \
-  && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
     libssl3 \
     libyaml-0-2 \
     ca-certificates \

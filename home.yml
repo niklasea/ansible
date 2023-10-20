@@ -39,30 +39,11 @@
           - { chain: INPUT, rule: ACCEPT, proto: icmp, comment: Ping requests }
           - { chain: INPUT, rule: ACCEPT, port: 22, proto: tcp, comment: SSH }
 
-# TODO: Use reverse proxy
 - name: Install TP-Link Omada software controller
   hosts: omada
   tasks:
     - import_role:
         name: omada_controller
-
-    - import_role:
-        name: firewall
-      vars:
-        firewall_rules:
-          # https://www.tp-link.com/us/support/faq/865/
-          #   The Omada Controller does not seem to actually listen on port 27002.
-          #   The MongoDB port should not be open to the network (the process only listens on localhost anyway).
-          # Highly recommend using reverse proxy for TLS. Built-in web server uses weak encryption
-          # and does not support user-configured HTTPS port nor user-configured TLS certificates.
-          - { chain: INPUT, rule: ACCEPT, port: 8088, proto: tcp, comment: Omada web server HTTP }
-          - { chain: INPUT, rule: ACCEPT, port: 8043, proto: tcp, comment: Omada web server HTTPS }
-          - { chain: INPUT, rule: ACCEPT, port: 27001, proto: udp, comment: Omada controller discovery }
-          - { chain: INPUT, rule: ACCEPT, port: 29810, proto: udp, comment: Omada EAP discovery }
-          - { chain: INPUT, rule: ACCEPT, port: 29811, proto: tcp, comment: Omada EAP management }
-          - { chain: INPUT, rule: ACCEPT, port: 29812, proto: tcp, comment: Omada EAP adoption }
-          - { chain: INPUT, rule: ACCEPT, port: 29813, proto: tcp, comment: Omada EAP firmware upgrade }
-  tags: omada
 
 - import_playbook: dnsservers.yml
 - import_playbook: vpnservers.yml

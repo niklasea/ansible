@@ -9,8 +9,17 @@ services:
           memory: 1G
     cap_drop:
       - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - DAC_READ_SEARCH
     security_opt:
       - no-new-privileges:true
+    volumes:
+      - {{ omada_data_dir }}:/opt/tplink/data
     networks:
       reverse_proxy:
         ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}

@@ -3,7 +3,7 @@
 - name: Restart Omada
   become: true
   ansible.builtin.command:
-    cmd: docker compose down
+    cmd: docker compose down --timeout 30
     chdir: "{{ omada_compose_dir }}"
   notify: Start Omada
 

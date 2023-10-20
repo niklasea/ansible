@@ -1,4 +1,5 @@
 ---
 omada_compose_dir: /etc/compose/omada
+omada_data_dir: "{{ omada_compose_dir }}/data"
 omada_version: latest
 omada_http_port: 8088

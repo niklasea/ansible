@@ -2,7 +2,7 @@ ARG DEBIAN_VERSION=stable
 FROM debian:${DEBIAN_VERSION}-slim
 
 RUN apt-get update \
-  && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
     wireguard \
     iptables \
     iproute2 \
@@ -12,4 +12,5 @@ COPY init.sh /
 
 EXPOSE 51820/udp
 
+ENV CONFIGURATION_DIR=/config
 ENTRYPOINT [ "/init.sh" ]

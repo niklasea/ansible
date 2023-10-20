@@ -10,6 +10,8 @@ ARG KEY_RING_DIR
 ARG APT_SOURCES_DIR
 ARG INSTALL_DIR
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 RUN apt-get update \
   && apt-get install -y \
     tar \
@@ -41,24 +43,29 @@ ARG INSTALL_DIR
 
 # Needed for adoptium repository.
 RUN apt-get update \
-  && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
     ca-certificates
+
+# Create the user, but do not switch to it. The controller start script expects root.
+ENV OMADA_USER=omada
+RUN useradd --system -U --shell /usr/sbin/nologin ${OMADA_USER}
 
 COPY --from=build ${KEY_RING_DIR} ${KEY_RING_DIR}
 COPY --from=build ${APT_SOURCES_DIR} ${APT_SOURCES_DIR}
-COPY --from=build ${INSTALL_DIR} ${INSTALL_DIR}
+COPY --from=build --chown=${OMADA_USER}:${OMADA_USER} ${INSTALL_DIR} ${INSTALL_DIR}
 
 RUN apt-get update \
-  && apt-get install -y \
+  && apt-get install -y --no-install-recommends \
     procps \
     curl \
     mongodb-org \
     temurin-8-jre \
     jsvc \
+    libcap2-bin \
   && rm -rf /var/lib/apt/lists/*
 
-# Install and confirm installation to current directory.
-RUN echo -e "y\n" | ${INSTALL_DIR}/install.sh
+# Link mongod to the correct location for the controller startup script.
+RUN ln -sf $(which mongod) ${INSTALL_DIR}/bin/mongod
 
 # https://www.tp-link.com/us/support/faq/865/
 #   The Omada Controller does not seem to actually listen on port 27002.
@@ -79,4 +86,4 @@ EXPOSE 29812
 EXPOSE 29813
 
 WORKDIR ${INSTALL_DIR}
-CMD [ "./bin/control.sh", "start" ]
+CMD ./bin/control.sh start; sleep infinity;
