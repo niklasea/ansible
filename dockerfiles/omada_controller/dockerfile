@@ -65,7 +65,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Link mongod to the correct location for the controller startup script.
-RUN ln -sf $(which mongod) ${INSTALL_DIR}/bin/mongod
+RUN ln -sf "$(which mongod)" ${INSTALL_DIR}/bin/mongod
 
 # https://www.tp-link.com/us/support/faq/865/
 #   The Omada Controller does not seem to actually listen on port 27002.
@@ -86,4 +86,4 @@ EXPOSE 29812
 EXPOSE 29813
 
 WORKDIR ${INSTALL_DIR}
-CMD ./bin/control.sh start; sleep infinity;
+CMD [ "/bin/bash", "-c", "./bin/control.sh start; sleep infinity;" ]
