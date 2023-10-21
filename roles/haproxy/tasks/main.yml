@@ -21,5 +21,4 @@
     dest: "{{ haproxy_configuration_dir }}/haproxy.cfg"
     mode: '644'
   notify:
-    - Start haproxy
-    - Reload haproxy
+    - Restart haproxy

@@ -1,4 +1,8 @@
 {
   "log-driver": "{{ docker_daemon_logging.driver }}",
-  "log-opts": {{ docker_daemon_logging.options | ansible.builtin.to_json }}
+  "log-level": "{{ docker_daemon_logging.level }}",
+  "log-opts": {{ docker_daemon_logging.options | ansible.builtin.to_json }},
+  "live-restore": {{ docker_daemon_live_restore }},
+  "icc": {{ docker_daemon_icc }},
+  "default-ulimits": {{ docker_daemon_default_ulimits | ansible.builtin.to_json }}
 }
