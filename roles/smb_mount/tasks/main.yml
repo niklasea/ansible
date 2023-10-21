@@ -25,6 +25,7 @@
     group: root
     mode: '600'
   loop: "{{ smb_mounts.items() }}"
+  no_log: true
 
 - name: Mount volume
   become: true

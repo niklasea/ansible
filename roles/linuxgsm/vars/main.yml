@@ -1,7 +1,0 @@
----
-linuxgsm_role_dependencies:
-  - curl                      # For Ansible get_url module
-  - cronie                    # For Ansible cron module
-  - tar                       # Not listed as a dependency, but required in lgsm/functions/core_dl.sh
-
-linuxgsm_auto_install_dependencies: []
