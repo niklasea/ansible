@@ -1,0 +1,4 @@
+---
+jellyfin_compose_dir: "{{ docker_compose_dir }}/jellyfin"
+jellyfin_config_dir: "{{ jellyfin_compose_dir }}/config"
+jellyfin_version: latest

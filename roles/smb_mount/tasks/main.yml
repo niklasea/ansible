@@ -1,25 +1,37 @@
 ---
 - name: Install SMB tools
   become: true
-  package:
+  ansible.builtin.package:
     name: cifs-utils
     state: present
 
-- name: Add SMB credentials
+- name: Create directories
   become: true
-  template:
-    src: credentials.j2
-    dest: "{{ smb_credential_path }}"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
     owner: root
     group: root
     mode: '600'
+  loop:
+    - path: "{{ smb_credential_dir }}"
+
+- name: Add SMB credentials
+  become: true
+  ansible.builtin.template:
+    src: credentials.j2
+    dest: "{{ smb_credential_dir }}/{{ item.0 }}"
+    owner: root
+    group: root
+    mode: '600'
+  loop: "{{ smb_mounts.items() }}"
 
 - name: Mount volume
   become: true
-  mount:
-    path: "{{ item.local_path }}"
-    src: "{{ item.network_path }}"
+  ansible.builtin.mount:
+    path: "{{ item.1.local_path }}"
+    src: "{{ item.1.network_path }}"
     state: mounted
     fstype: cifs
-    opts: "{{ item.options }},credentials={{ smb_credential_path }}"
-  loop: "{{ smb_mounts }}"
+    opts: "{{ item.1.options }},credentials={{ smb_credential_dir }}/{{ item.0 }}"
+  loop: "{{ smb_mounts.items() }}"

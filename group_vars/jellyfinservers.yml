@@ -1,28 +1,16 @@
 ---
-smb_username: jellyfin
-smb_password: "{{ vault_smb_jellyfin_password }}"
+jellyfin_media_dir: /mnt/jellyfin
+
 smb_mounts:
-  - network_path: //DS216j/Videos
-    local_path: /mnt/jellyfin
+  backup:
+    network_path: //harkonnen.{{ local_domain }}/ServerBackup/jellyfin
+    local_path: "{{ smb_backup_dir }}"
     options: '_netdev,dir_mode=0555,file_mode=0444'
-  - network_path: //DS216j/ServerBackup/jellyfin
-    local_path: "{{ smb_backup_folder }}"
+    username: "{{ vault_smb_jellyfin_credentials.username }}"
+    password: "{{ vault_smb_jellyfin_credentials.password }}"
+  media:
+    network_path: //harkonnen.{{ local_domain }}/Media
+    local_path: "{{ jellyfin_media_dir }}"
     options: '_netdev,dir_mode=0555,file_mode=0444'
-
-jellyfin_pkcs_output_path: '/var/lib/jellyfin/tls_certificate.p12'
-jellyfin_pkcs_password: "{{ vault_jellyfin_pkcs_password }}"
-
-certbot_deploy_hook: |
-  #!/usr/bin/env bash
-
-  OUTPUT_FILE={{ jellyfin_pkcs_output_path }}
-  CERT_ENCKEY={{ jellyfin_pkcs_password }}
-
-  openssl pkcs12 -export \
-                  -out "$OUTPUT_FILE" \
-                  -inkey "$RENEWED_LINEAGE/privkey.pem" \
-                  -in "$RENEWED_LINEAGE/fullchain.pem" \
-                  -name "$RENEWED_LINEAGE" \
-                  -passout "pass:$CERT_ENCKEY"
-
-  systemctl restart jellyfin
+    username: "{{ vault_smb_jellyfin_credentials.username }}"
+    password: "{{ vault_smb_jellyfin_credentials.password }}"

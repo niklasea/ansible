@@ -2,7 +2,7 @@ services:
   omada:
     image: ghcr.io/niklasea/omada_controller:{{ omada_version }}
     restart: unless-stopped
-    cpu_shares: 128
+    cpu_shares: 16
     deploy:
       resources:
         limits:
