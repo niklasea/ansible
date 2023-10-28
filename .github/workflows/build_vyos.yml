@@ -1,4 +1,6 @@
 ---
+name: Build VyOS image
+
 on:
   workflow_dispatch:
     inputs:

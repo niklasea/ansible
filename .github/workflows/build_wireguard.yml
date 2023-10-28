@@ -1,4 +1,6 @@
 ---
+name: Build and publish WireGuard image
+
 on:
   push:
     branches:

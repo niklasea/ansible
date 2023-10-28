@@ -1,0 +1,13 @@
+ARG DEBIAN_VERSION=stable
+FROM debian:${DEBIAN_VERSION}-slim
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    iperf3 \
+  && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 5201
+
+ENV CONFIGURATION_DIR=/config
+ENTRYPOINT [ "iperf3", "-s" ]
+CMD [ "-p", "5201" ]

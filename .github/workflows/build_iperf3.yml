@@ -1,5 +1,5 @@
 ---
-name: Build and publish stubby image
+name: Build and publish iPerf3 image
 
 on:
   push:
@@ -10,17 +10,10 @@ on:
       - main
   schedule:
     - cron: '0 0 1 */3 *'
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'getdns branch to use'
-        required: false
-        default: 'tags/v1.7.3'
-        type: string
 
 jobs:
   build:
-    name: Build Stubby docker image
+    name: Build iPerf3 docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -37,10 +30,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5.0.0
         with:
-          context: dockerfiles/stubby
-          file: dockerfiles/stubby/dockerfile
+          context: dockerfiles/iperf3
+          file: dockerfiles/iperf3/dockerfile
           tags: |
-            ghcr.io/niklasea/stubby:${{ inputs.branch || 'master' }}
+            ghcr.io/niklasea/iperf3:latest
           push: ${{ github.ref == 'refs/heads/main' }}
-          build-args: |
-            GETDNS_RELEASE=${{ inputs.branch || 'master' }}

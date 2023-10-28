@@ -1,4 +1,6 @@
 ---
+name: Build and publish Omada EAP controller image
+
 on:
   push:
     branches:

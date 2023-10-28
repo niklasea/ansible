@@ -1,7 +1,14 @@
 ---
-#TODO: Reload while running
-- name: Restart webserver
+# community.docker.docker_compose currently does not support docker-compose >= 2.0.0
+- name: Restart Speedtest
   become: true
-  service:
-    name: "{{ speedtest_webserver }}"
-    state: restarted
+  ansible.builtin.command:
+    cmd: docker compose down
+    chdir: "{{ speedtest_compose_dir }}"
+  notify: Start Speedtest
+
+- name: Start Speedtest
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ speedtest_compose_dir }}"

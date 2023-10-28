@@ -31,6 +31,7 @@ frontend https_proxy
     use_backend omada if { hdr_dom(host) -i omada.{{ local_domain }} }
     use_backend jellyfin if { hdr_dom(host) -i jellyfin.{{ local_domain }} }
     use_backend gitea if { hdr_dom(host) -i gitea.{{ local_domain }} }
+    use_backend librespeed if { hdr_dom(host) -i speedtest.{{ local_domain }} }
 
 backend vaultwarden
     cookie SERVERUSED insert indirect nocache
@@ -56,3 +57,8 @@ backend gitea
     cookie SERVERUSED insert indirect nocache
     default-server check inter 10000 fastinter 1000
     server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('7') | ansible.utils.ipaddr('address') }}:3000
+
+backend librespeed
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('8') | ansible.utils.ipaddr('address') }}:80
