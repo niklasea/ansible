@@ -1,9 +1,7 @@
 ---
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
-wireguard_server_keys:
-  private: "{{ vault_wireguard_password }}"
-  public: 'xisgBBJA0+ANDJzTS1UN28KvPRfJCIB4+yabiddwxUo='
+wireguard_server_keys: "{{ vault_wireguard_server_keys }}"
 
 wireguard_addresses:
   - "{{ '192.168.179.0/24' | ansible.utils.ipaddr('1') }}"
