@@ -1,10 +1,4 @@
 ---
-gitea_force_reinstall: false
-gitea_user: gitea
-gitea_version: 1.19.3
-gitea_architecture: amd64
-
-# Only used on first install
-gitea_init_conf: |
-  [server]
-  DOMAIN              = {{ ansible_fqdn }}
+gitea_compose_dir: /etc/compose/gitea
+gitea_data_dir: "{{ gitea_compose_dir }}/data"
+gitea_version: latest

@@ -1,6 +1,14 @@
 ---
+# community.docker.docker_compose currently does not support docker-compose >= 2.0.0
 - name: Restart Gitea
   become: true
-  service:
-    name: gitea
-    state: restarted
+  ansible.builtin.command:
+    cmd: docker compose down
+    chdir: "{{ gitea_compose_dir }}"
+  notify: Start Gitea
+
+- name: Start Gitea
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ gitea_compose_dir }}"

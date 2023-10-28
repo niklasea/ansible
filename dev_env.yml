@@ -1,64 +1,19 @@
 ---
-# TODO: Make LetsEncrypt certs available to Gitea (deploy hook)
-
 - name: Configure Gitea server
   hosts: gitea
   tasks:
     - import_role:
         name: gitea
-      become: true
-
-    # TODO: Use reverse proxy instead. This is not customisable, not required, and not comprehensive.
-    - name: Configure HTTPS
-      become: true
-      lineinfile:
-        path: "{{ gitea_conf_dir }}/custom/conf/app.ini"
-        regexp: "{{ item.regexp }}"
-        line: "{{ item.line }}"
-        insertafter: '^\[server\]'
-        create: true
-        owner: "{{ gitea_user }}"
-        group: "{{ gitea_user }}"
-        mode: '640'
-      when: gitea_https_cert_dir is defined
-      loop:
-        - regexp: '^PROTOCOL'
-          line: 'PROTOCOL            = https'
-        - regexp: '^DOMAIN'
-          line: "DOMAIN              = {{ ansible_fqdn }}"
-        - regexp: '^HTTP_PORT'
-          line: 'HTTP_PORT           = 443'
-        - regexp: '^REDIRECT_OTHER_PORT'
-          line: 'REDIRECT_OTHER_PORT = true'
-        - regexp: '^PORT_TO_REDIRECT'
-          line: 'PORT_TO_REDIRECT    = 80'
-        - regexp: '^CERT_FILE'
-          line: "CERT_FILE           = {{ gitea_https_cert_dir }}/cert.pem"
-        - regexp: '^KEY_FILE'
-          line: "KEY_FILE            = {{ gitea_https_cert_dir }}/privkey.pem"
 
   post_tasks:
     - import_role:
         name: smb_mount
 
-    - name: Schedule Gitea backup
-      become: true
-      cron:
-        name: "Dump Gitea repositories to backup file"
-        job: >
-          /usr/bin/gitea
-          dump
-          --tempdir /tmp/
-          -c {{ gitea_conf_dir }}/custom/conf/app.ini
-        hour: '3'
-        minute: '0'
-        state: present
-
     - name: Schedule backup to network drive
       become: true
       cron:
         name: "Back up Gitea to network drive"
-        job: "mv /tmp/gitea-dump-* {{ smb_backup_folder }}/gitea-dump.zip"
+        job: "mv tar -czf {{ smb_backup_dir }}/gitea-dump.zip {{ gitea_data_dir }}"
         hour: '4'
         minute: '0'
         state: present
