@@ -1,5 +1,5 @@
 ---
-name: Build and publish iPerf3 image
+name: Build iPerf3 image
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    name: Build iPerf3 docker image
+    name: Build docker image
     runs-on: ubuntu-latest
 
     steps:

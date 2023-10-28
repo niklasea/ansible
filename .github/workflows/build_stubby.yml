@@ -1,5 +1,5 @@
 ---
-name: Build and publish Stubby image
+name: Build Stubby image
 
 on:
   push:
@@ -20,7 +20,7 @@ on:
 
 jobs:
   build:
-    name: Build Stubby docker image
+    name: Build docker image
     runs-on: ubuntu-latest
 
     steps:

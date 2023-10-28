@@ -1,5 +1,5 @@
 ---
-name: Build and publish Omada EAP controller image
+name: Build Omada EAP controller image
 
 on:
   push:
@@ -21,7 +21,7 @@ on:
 
 jobs:
   build:
-    name: Build Omada EAP controller docker image
+    name: Build docker image
     runs-on: ubuntu-latest
 
     steps:
