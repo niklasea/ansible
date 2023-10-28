@@ -33,17 +33,6 @@
 - ansible.builtin.include_tasks: standalone.yml
   when: not certbot_use_dns
 
-- name: Change existing certificate
-  become: true
-  throttle: 1
-  ansible.builtin.command: >
-    {{ certbot_path | quote }} certonly
-    --cert-name {{ ([certbot_domain] + certbot_subject_alt_names) | join (' -d ') }}
-  when:
-    - not ansible_check_mode
-    - "'Certificate Name: ' ~ certbot_domain in certbot_existing_certs.stdout"
-    - "'Domains: ' ~ ([certbot_domain] + certbot_subject_alt_names) | join (' ') not in certbot_existing_certs.stdout"
-
 # certbot hides this directory by default, presumably to avoid leaking which domains are hosted on the server
 # which is irrelevant if the server is not shared
 - name: Allow unprivileged users to read /etc/letsencrypt/live (but not the certificates)

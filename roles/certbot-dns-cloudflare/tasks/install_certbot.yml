@@ -45,7 +45,7 @@
         mode: '755'
 
     - name: Download PGP signature
-      get_url:
+      ansible.builtin.get_url:
         url: https://dl.eff.org/certbot-auto.asc
         dest: "{{ certbot_auto_signature_path }}"
         mode: '755'
@@ -66,7 +66,7 @@
 
     - name: Install Cloudflare DNS plugin
       become: true
-      pip:
+      ansible.builtin.pip:
         name: certbot-dns-cloudflare
         state: present
         virtualenv: /opt/eff.org/certbot/venv/
@@ -75,7 +75,7 @@
 # Newer Debian/Ubuntu versions configure auto-renewal automatically
 - name: (Non-Debian) Configure automatic renewal
   become: true
-  cron:
+  ansible.builtin.cron:
     name: 'Renew LetsEncrypt TLS certiticates'
     job: "{{ certbot_renew_cronjob }}"
     special_time: daily

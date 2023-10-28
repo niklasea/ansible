@@ -19,17 +19,20 @@ haproxy_docker_internal_network: '10.0.0.0/16'
 
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
+haproxy_tls_certificate_path: "{{ haproxy_compose_dir }}/certificate.pem"
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
-certbot_subject_alt_names:
-  - "{{ inventory_hostname_short }}.{{ home_domain }}"
 certbot_email: "{{ vault_certificate_notification_email }}"
 certbot_use_dns: true
 certbot_dns_plugin: cloudflare
 certbot_dns_credentials: |
   # https://certbot-dns-cloudflare.readthedocs.io/en/stable/#credentials
-  dns_{{ certbot_dns_plugin }}_email = {{ vault_cloudflare.email }}
-  dns_{{ certbot_dns_plugin }}_api_key = {{ vault_cloudflare.global_api_key }}
-certbot_dns_propagation: 10
+  dns_{{ certbot_dns_plugin }}_api_token = {{ vault_cloudflare.zone_key }}
+certbot_dns_propagation: 15
+certbot_deploy_hook: |
+  #!/usr/bin/env bash
+
+  cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/cert.pem" > "{{ haproxy_tls_certificate_path }}"
+  docker compose -f /etc/compose/haproxy/docker-compose.yml restart
 
 vpn_network_ipv4: '172.21.0.0/24'
 wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"

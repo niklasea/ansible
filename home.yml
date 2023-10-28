@@ -37,6 +37,8 @@
   hosts: internal-docker
   tasks:
     - ansible.builtin.import_role:
+        name: certbot-dns-cloudflare
+    - ansible.builtin.import_role:
         name: wireguard
     - ansible.builtin.import_role:
         name: dns

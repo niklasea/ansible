@@ -19,7 +19,7 @@ services:
       reverse_proxy:
         ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}
     volumes:
-      - {{ haproxy_configuration_dir }}:/usr/local/etc/haproxy:ro
+      - {{ haproxy_compose_dir }}:/usr/local/etc/haproxy:ro
 {% if haproxy_tls_certificate_path is defined %}
       - {{ haproxy_tls_certificate_path }}:{{ haproxy_docker_internal_tls_certificate_path }}:ro
 {% endif %}
