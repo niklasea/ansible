@@ -13,8 +13,8 @@
   ansible.builtin.template:
     src: wg.conf.j2
     dest: "{{ wireguard_compose_dir }}/{{ wireguard_interface_name }}.conf"
-    owner: root
-    group: root
+    owner: "{{ docker_remap_user }}"
+    group: "{{ docker_remap_user }}"
     mode: '600'
 
 - name: Add Docker compose file
@@ -29,3 +29,5 @@
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ wireguard_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

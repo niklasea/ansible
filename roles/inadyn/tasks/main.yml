@@ -14,6 +14,8 @@
     src: inadyn.conf.j2
     dest: "{{ inadyn_config_path }}"
     # Contains secrets, must not be world-readable
+    owner: "{{ docker_remap_user }}"
+    group: "{{ docker_remap_user }}"
     mode: '600'
 
 - name: Add Docker compose file
@@ -28,3 +30,5 @@
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ inadyn_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

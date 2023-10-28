@@ -25,6 +25,8 @@
   become: true
   ansible.builtin.unarchive:
     src: /tmp/bw_web_vault.tar.gz
-    dest: "{{ vaultwarden_state_dir }}"
+    dest: "{{ vaultwarden_compose_dir }}"
     remote_src: true
+    owner: "{{ docker_remap_user }}"
+    group: "{{ docker_remap_user }}"
     mode: '750'

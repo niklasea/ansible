@@ -37,4 +37,5 @@
         fstype: cifs
         opts: "{{ item.1.options }},credentials={{ smb_credential_dir }}/{{ item.0 }}"
       loop: "{{ smb_mounts.items() }}"
+      no_log: true
   when: smb_mounts is defined

@@ -13,7 +13,7 @@ services:
       - no-new-privileges:true
     volumes:
       - {{ vaultwarden_data_dir }}:/data/
-      - {{ vaultwarden_state_dir }}/web-vault/:/web_vault/
+      - {{ vaultwarden_web_vault_dir }}:/web_vault/
     networks:
       reverse_proxy:
         ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}

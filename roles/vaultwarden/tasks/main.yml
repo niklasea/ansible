@@ -5,16 +5,16 @@
     path: "{{ item.path }}"
     state: directory
     mode: '755'
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop:
     - path: "{{ vaultwarden_compose_dir }}"
     - path: "{{ vaultwarden_data_dir }}"
-
-- name: Reset settings override by admin
-  become: true
-  ansible.builtin.file:
-    path: "{{ vaultwarden_data_dir }}/config.json"
-    state: absent
-  when: vaultwarden_reset_admin_config
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
+    - path: "{{ vaultwarden_web_vault_dir }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
 
 - name: Add Docker compose file
   become: true
@@ -31,3 +31,5 @@
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ vaultwarden_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

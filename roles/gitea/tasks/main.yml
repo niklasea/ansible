@@ -21,3 +21,5 @@
   ansible.builtin.command:
     cmd: docker compose up -d
     chdir: "{{ gitea_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

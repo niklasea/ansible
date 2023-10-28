@@ -1,8 +1,8 @@
 ---
 vaultwarden_build_dir: "/tmp"
-vaultwarden_compose_dir: "{{ docker_compose_dir }}/vaultwarden/"
-vaultwarden_state_dir: /var/lib/vaultwarden
-vaultwarden_data_dir: "{{ vaultwarden_state_dir }}/data/"
+vaultwarden_compose_dir: "{{ docker_compose_dir }}/vaultwarden"
+vaultwarden_web_vault_dir: "{{ vaultwarden_compose_dir }}/web-vault"
+vaultwarden_data_dir: "{{ vaultwarden_compose_dir }}/data"
 
 vaultwarden_version: 'latest'
 # Automatically pull the most recent release from GitHub (rate limited).
