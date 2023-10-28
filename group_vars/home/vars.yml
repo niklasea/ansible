@@ -2,7 +2,7 @@
 internal_network_ipv4: '172.21.1.0/24'
 guest_network_ipv4: '172.21.9.0/24'
 
-gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('197') }}"
+gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('1') }}"
 
 home_domain: "{{ vault_home_domain }}"
 local_domain: "internal.{{ home_domain }}"
@@ -53,7 +53,7 @@ hosts:
   public-docker: # Public server.
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
   internal-docker: # Internal server.
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('138') }}"
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
 
 stubby_upstream: |
   - address_data: 9.9.9.11
