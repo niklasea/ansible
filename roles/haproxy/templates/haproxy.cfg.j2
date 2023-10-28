@@ -46,7 +46,7 @@ backend pihole
 backend omada
     cookie SERVERUSED insert indirect nocache
     default-server check inter 10000 fastinter 1000
-    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}:8043
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}:8043 ssl verify none
 
 backend jellyfin
     cookie SERVERUSED insert indirect nocache

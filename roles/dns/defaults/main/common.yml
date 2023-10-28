@@ -1,7 +1,7 @@
 ---
-dns_compose_path: /etc/compose/dns
+dns_compose_dir: /etc/compose/dns
 
-stubby_config_path: "{{ dns_compose_path }}/stubby.d"
+stubby_config_path: "{{ dns_compose_dir }}/stubby.d"
 
-pihole_config_path: "{{ dns_compose_path }}/pihole"
-pihole_dnsmasq_config_path: "{{ dns_compose_path }}/dnsmasq.d"
+pihole_config_path: "{{ dns_compose_dir }}/pihole"
+pihole_dnsmasq_config_path: "{{ dns_compose_dir }}/dnsmasq.d"
