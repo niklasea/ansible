@@ -21,13 +21,3 @@
   args:
     creates: /etc/letsencrypt/live/{{ certbot_domain }}
   register: certbot_get_cert
-
-# Just a sanity check, running this on every host would extend the runtime too much
-- name: Test automatic renewal
-  become: true
-  # throttle: 1
-  run_once: true
-  ansible.builtin.command: "{{ certbot_renew_cronjob }} --dry-run"
-  changed_when: false
-  ignore_errors: true
-  when: certbot_get_cert is not changed
