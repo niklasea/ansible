@@ -30,7 +30,6 @@
       dest: whitelist.txt
   loop_control:
     label: "Created list: {{ item.dest }}"
-  notify: Restart DNS
 
 - name: Apply configuration
   become: true
@@ -47,7 +46,6 @@
       dest: "{{ pihole_dnsmasq_config_path }}/dhcp_reservations.conf"
     - src: stubby.yml.j2
       dest: "{{ stubby_config_path }}/stubby.yml"
-  notify: Restart DNS
 
 - name: Add Docker compose file
   become: true
@@ -55,4 +53,9 @@
     src: docker-compose.yml.j2
     dest: "{{ dns_compose_path }}/docker-compose.yml"
     mode: '640'
-  notify: Restart DNS
+
+- name: Start DNS
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ dns_compose_path }}"
