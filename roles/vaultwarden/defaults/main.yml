@@ -1,12 +1,11 @@
 ---
-vaultwarden_build_dir: "/tmp"
 vaultwarden_compose_dir: "{{ docker_compose_dir }}/vaultwarden"
 vaultwarden_web_vault_dir: "{{ vaultwarden_compose_dir }}/web-vault"
 vaultwarden_data_dir: "{{ vaultwarden_compose_dir }}/data"
 
 vaultwarden_version: 'latest'
 # Automatically pull the most recent release from GitHub (rate limited).
-vaultwarden_web_vault_latest_release: true
+vaultwarden_web_vault_latest_release: false
 vaultwarden_web_vault_version: 'v2023.9.1'
 vaultwarden_web_vault_enabled: true
 
@@ -14,8 +13,6 @@ vaultwarden_web_vault_enabled: true
 # vaultwarden_admin_token:
 # Configuration in the admin page overrides the environment variables.
 # Enable to reset those overrides.
-vaultwarden_reset_admin_config: false
-
 vaultwarden_disable_icon_download: false
 vaultwarden_disable_2fa_remember: false
 vaultwarden_require_device_email: false

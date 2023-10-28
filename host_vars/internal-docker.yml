@@ -50,7 +50,6 @@ smb_mounts:
 
 jellyfin_media_dir: "{{ smb_mounts.media.local_path }}"
 
-vaultwarden_reset_admin_config: true
 vaultwarden_signups_allowed: false
 vaultwarden_admin_token: "{{ vault_vaultwarden.admin_token }}"
 vaultwarden_domain: "https://{{ certbot_domain }}"
