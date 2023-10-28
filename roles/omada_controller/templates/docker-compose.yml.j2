@@ -31,6 +31,8 @@ services:
       - 29812:29812/tcp
       - 29813:29813/tcp
     environment:
+      # Needed when using docker user remapping.
+      OMADA_USER: root
       HTTP_PORT: {{ omada_http_port }}
 
 networks:
