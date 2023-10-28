@@ -19,8 +19,6 @@ haproxy_docker_internal_network: '10.0.0.0/16'
 
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
-smb_backup_dir: /mnt/backup
-
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_subject_alt_names:
   - "{{ inventory_hostname_short }}.{{ home_domain }}"
@@ -33,7 +31,8 @@ certbot_dns_credentials: |
   dns_{{ certbot_dns_plugin }}_api_key = {{ vault_cloudflare.global_api_key }}
 certbot_dns_propagation: 10
 
-wireguard_network_ipv4: '172.21.0.0/24'
+vpn_network_ipv4: '172.21.0.0/24'
+wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"
 
 wifi_pass: "{{ vault_wifi_pass }}"
 
@@ -50,3 +49,45 @@ hosts:
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
   private: # Internal server.
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
+
+stubby_upstream: |
+  - address_data: 9.9.9.11
+    tls_auth_name: "dns.quad9.net"
+  - address_data: 149.112.112.11
+    tls_auth_name: "dns.quad9.net"
+stubby_options:
+  idle_timeout: 9000
+
+pihole_webpassword: "{{ vault_pihole_webpassword }}"
+pihole_gateway_address: "{{ gateway_address }}"
+pihole_domain: "{{ local_domain }}"
+pihole_dnssec: 'false'
+pihole_dnsmasq_conditional_fwd: 'true'
+pihole_dnsmasq_conditional_fwd_rules:
+  - server_ip: "{{ dhcp_address }}"
+    network: "{{ dhcp_address }}/{{ ansible_default_ipv4.netmask }}"
+    domain: "{{ pihole_domain }}"
+
+pihole_ignore_localhost: 'yes'
+pihole_maxdbdays: 2
+
+pihole_adlists:
+  - "{{ query('file', 'default_adlists.txt') }}"
+  - "{{ query('file', 'pihole_adlists.txt') }}"
+  - "{{ query('url', 'https://v.firebog.net/hosts/lists.php?type=tick') }}"
+pihole_regexlists:
+  - "{{ query('file', 'pihole_regexlist.txt') }}"
+  - "{{ query('url', 'https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list') }}"
+pihole_blacklists:
+  - "{{ query('file', 'pihole_blacklist.txt') }}"
+  - "{{ query('file', 'hpHosts_exp.txt') }}"
+  - "{{ query('file', 'hpHosts_grm.txt') }}"
+  - "{{ query('file', 'hpHosts_mmt.txt') }}"
+pihole_whitelists:
+  - "{{ query('file', 'pihole_whitelist.txt') }}"
+
+pihole_dnsmasq_custom: |
+  # --strict-order uses reverse order in dnsmasq conf files (see http://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2015q3/009816.html)
+  strict-order
+  min-cache-ttl=2
+  max-cache-ttl=86400

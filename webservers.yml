@@ -1,5 +1,0 @@
----
-- name: Configure speedtest
-  hosts: docker
-  roles:
-    - speedtest

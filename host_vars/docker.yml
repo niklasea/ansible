@@ -20,3 +20,91 @@ wireguard_peers:
   NinosWorkLaptop:
     PublicKey: 'k3x6G3OTimZpwDrD2RTAa3WVd3lq2fHginyFU7MfFWk='
     AllowedIPs: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('6') | ansible.utils.ipaddr('address') }}/32"
+
+smb_backup_dir: /mnt/backup
+smb_mounts:
+  backup_vaultwarden:
+    network_path: //harkonnen.{{ local_domain }}/ServerBackup/vaultwarden
+    local_path: "{{ smb_backup_dir }}/vaultwarden"
+    options: '_netdev,dir_mode=0555,file_mode=0444'
+    username: "{{ vault_smb_server_backup_credentials.username }}"
+    password: "{{ vault_smb_server_backup_credentials.password }}"
+  backup_jellyfin:
+    network_path: //harkonnen.{{ local_domain }}/ServerBackup/jellyfin
+    local_path: "{{ smb_backup_dir }}/jellyfin"
+    options: '_netdev,dir_mode=0555,file_mode=0444'
+    username: "{{ vault_smb_server_backup_credentials.username }}"
+    password: "{{ vault_smb_server_backup_credentials.password }}"
+  backup_gitea:
+    network_path: //harkonnen.{{ local_domain }}/ServerBackup/gitea
+    local_path: "{{ smb_backup_dir }}/gitea"
+    options: '_netdev,dir_mode=0555,file_mode=0444'
+    username: "{{ vault_smb_server_backup_credentials.username }}"
+    password: "{{ vault_smb_server_backup_credentials.password }}"
+  media:
+    network_path: //harkonnen.{{ local_domain }}/Media
+    local_path: "/mnt/media"
+    options: '_netdev,dir_mode=0555,file_mode=0444'
+    username: "{{ vault_smb_jellyfin_credentials.username }}"
+    password: "{{ vault_smb_jellyfin_credentials.password }}"
+
+jellyfin_media_dir: "{{ smb_mounts.media.local_path }}"
+
+vaultwarden_reset_admin_config: true
+vaultwarden_signups_allowed: false
+vaultwarden_admin_token: "{{ vault_vaultwarden.admin_token }}"
+vaultwarden_domain: "https://{{ certbot_domain }}"
+vaultwarden_smtp:
+  host: 'smtp.gmail.com'
+  from: "{{ vault_notification_email }}"
+vaultwarden_smtp_credentials:
+  username: "{{ vault_vaultwarden.smtp_username }}"
+  password: "{{ vault_vaultwarden.smtp_password }}"
+
+inadyn_period: 600
+inadyn_ddns_configurations:
+  provider:
+    - default@cloudflare.com:
+        username: 'n/a'
+        password: "{{ vault_cloudflare.zone }}"
+        hostname: "{{ vault_home_domain }}"
+
+linuxgsm_servers:
+  csgo:
+    image_version: csgo
+    ports:
+      - 27015:27015/tcp
+      - 27015:27015/udp
+      - 27020:27020/udp
+    instance_config:  |
+      gametype="3"
+      gamemode="0"
+      tickrate="128"
+      fn_parms(){
+      parms="-game csgo -usercon -strictportbind -ip 0.0.0.0 -port ${port} +clientport ${clientport} +tv_port ${sourcetvport} +sv_setsteamaccount ${gslt} -tickrate ${tickrate} +map ${defaultmap} +servercfgfile ${servercfg} -maxplayers_override ${maxplayers} +mapgroup ${mapgroup} +game_type ${gametype} +game_mode ${gamemode} +host_workshop_collection ${wscollectionid} +workshop_start_map ${wsstartmap} -authkey ${wsapikey} -nobreakpad"
+      }
+      gslt="{{ vault_csgo_gslt_token }}"
+    game_config:
+      path: "serverfiles/csgo/cfg/server.cfg"
+      config: |
+        hostname "Nino's Dungeon"
+        rcon_password "{{ vault_csgo_rcon_password }}"
+        sv_password "{{ vault_csgo_server_password | default('0') }}"
+        exec gamemode_competitive.cfg
+        sv_region 3
+        sv_pure 1
+        sv_pausable 1
+        sv_mincmdrate 128
+        sv_minupdaterate 128
+        bot_quota 2
+        bot_difficulty 3
+        mp_warmuptime 60
+        mp_warmuptime_allplayers_connected 30
+  valheim:
+    image_version: vh
+    ports:
+      - 2456-2458:2456-2458/udp
+    instance_config: |
+      servername="Hogs World"
+      # Minimum password length is 5.
+      serverpassword="{{ vault_valheim_server_password }}"
