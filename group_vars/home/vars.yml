@@ -64,11 +64,10 @@ pihole_webpassword: "{{ vault_pihole_webpassword }}"
 pihole_gateway_address: "{{ gateway_address }}"
 pihole_domain: "{{ local_domain }}"
 pihole_dnssec: 'false'
-pihole_dnsmasq_conditional_fwd: 'true'
-pihole_dnsmasq_conditional_fwd_rules:
-  - server_ip: "{{ dhcp_address }}"
-    network: "{{ dhcp_address }}/{{ ansible_default_ipv4.netmask }}"
-    domain: "{{ pihole_domain }}"
+pihole_dnsmasq_reverse_server:
+  server_ip: "{{ dhcp_address }}"
+  network: "{{ dhcp_address }}/{{ ansible_default_ipv4.netmask }}"
+  domain: "{{ pihole_domain }}"
 
 pihole_ignore_localhost: 'yes'
 pihole_maxdbdays: 2

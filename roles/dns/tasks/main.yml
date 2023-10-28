@@ -16,8 +16,6 @@
   ansible.builtin.template:
     src: list.j2
     dest: "{{ pihole_config_path }}/{{ item.dest }}"
-    owner: "{{ docker_remap_user }}"
-    group: "{{ docker_remap_user }}"
     mode: '644'
   loop:
     - list: "{{ pihole_adlists }}"

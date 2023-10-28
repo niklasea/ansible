@@ -4,19 +4,6 @@
 local=/{{ pihole_domain }}/
 {% endif %}
 
-{% if pihole_dnsmasq_conditional_fwd == 'true' %}
-{# The Pi-hole interface supports a single conditional forwarding rule and reverse DNS for /24 networks only.
-This supports both multiple conditional forwarding rules and reverse DNS for arbitrary network sizes. #}
-# Conditional forwarding rules (queries for hosts on the set domain will be sent to the set IP)
-{% for rule in pihole_dnsmasq_conditional_fwd_rules %}
-server=/{{ rule.domain }}/{{ rule.server_ip }}
-{% if rule.network is defined %}
-# Reverse DNS for {{ rule.domain }}
-rev-server={{ rule.network | ansible.utils.ipaddr('network/prefix') }},{{ rule.server_ip }}
-{% endif %}
-{% endfor %}
-{% endif %}
-
 {# Supports handing out multiple DNS servers via DHCP #}
 # Default DHCP provided DNS server(s)
 dhcp-option=option:dns-server,{{ pihole_dhcp_dns | ansible.utils.ipaddr('address') | join(',') }}

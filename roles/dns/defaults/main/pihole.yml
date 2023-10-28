@@ -105,14 +105,13 @@ pihole_ntp_redirect_requests:
 #   - 'time.nist.gov'
 pihole_ntp_exceptions:
   - 'www.pool.ntp.org'
-pihole_dnsmasq_conditional_fwd: 'false'
 # This supports both multiple conditional forwarding rules and reverse DNS for different network sizes.
 # server_ip is the IP of the DHCP server to query and domain is the local domain name it uses.
 # network is the network address in CIDR notation for which the rule applies.
-pihole_dnsmasq_conditional_fwd_rules:
-  - server_ip: "{{ pihole_gateway_address }}"
-    network: "{{ pihole_ipv4_address }}"
-    domain: "{{ pihole_domain }}"
+pihole_dnsmasq_reverse_server:
+  server_ip: "{{ pihole_gateway_address }}"
+  network: "{{ pihole_ipv4_address }}"
+  domain: "{{ pihole_domain }}"
 pihole_dnsmasq_custom: |
 #   Intended for options not supported by this role
 #   Whatever options you want can go here

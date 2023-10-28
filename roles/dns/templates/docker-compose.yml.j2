@@ -59,11 +59,14 @@ services:
       PIHOLE_DOMAIN: {{ pihole_domain }}
       DHCP_rapid_commit: {{ pihole_dhcp_rapid_commit }}
       DHCP_IPv6: {{ pihole_dhcp_ipv6 }}
+      REV_SERVER_DOMAIN: {{ pihole_dnsmasq_reverse_server.domain }}
+      REV_SERVER_CIDR: {{ pihole_dnsmasq_reverse_server.network }}
+      REV_SERVER_TARGET: {{ pihole_dnsmasq_reverse_server.server_ip }}
     volumes:
-      - {{ pihole_config_path }}/adlists.list:/etc/pihole/adlists.list
-      - {{ pihole_config_path }}/regex.list:/etc/pihole/regex.list
-      - {{ pihole_config_path }}/blacklist.txt:/etc/pihole/blacklist.txt
-      - {{ pihole_config_path }}/whitelist.txt:/etc/pihole/whitelist.txt
+      - {{ pihole_config_path }}/adlists.list:/etc/pihole/adlists.list:ro
+      - {{ pihole_config_path }}/regex.list:/etc/pihole/regex.list:ro
+      - {{ pihole_config_path }}/blacklist.txt:/etc/pihole/blacklist.txt:ro
+      - {{ pihole_config_path }}/whitelist.txt:/etc/pihole/whitelist.txt:ro
       - {{ pihole_dnsmasq_config_path }}:/etc/dnsmasq.d
 
 networks:
