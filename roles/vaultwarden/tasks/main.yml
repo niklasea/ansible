@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
-    mode: '755'
+    mode: "{{ item.mode | default('755') }}"
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
   loop:
@@ -15,6 +15,7 @@
     - path: "{{ vaultwarden_web_vault_dir }}"
       owner: "{{ docker_remap_user }}"
       group: "{{ docker_remap_user }}"
+      mode: '750'
 
 - name: Add Docker compose file
   become: true
