@@ -1,9 +1,7 @@
 ---
-inadyn_release: v2.10.0
-# Set to true to pull the most recent release from GitHub instead (rate limited).
-inadyn_latest_release: false
-inadyn_force_reinstall: false
-inadyn_ignore_unsupported_distro: false
+inadyn_compose_dir: "{{ docker_compose_dir }}/inadyn"
+inadyn_config_path: "{{ inadyn_compose_dir }}/inadyn.conf"
+inadyn_release: latest
 
 inadyn_period: 300
 inadyn_forced_update: 2592000

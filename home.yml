@@ -41,6 +41,8 @@
     - import_role:
         name: dns
     - import_role:
+        name: inadyn
+    - import_role:
         name: jellyfin
     - import_role:
         name: gitea

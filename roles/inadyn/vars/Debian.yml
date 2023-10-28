@@ -1,9 +1,0 @@
----
-inadyn_dependencies:
-  - git                       # Ansible git module
-  - build-essential
-  - pkg-config
-  - automake
-  - libtool
-  - libconfuse-dev
-  - gnutls-dev

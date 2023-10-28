@@ -1,0 +1,15 @@
+services:
+  inadyn:
+    image: troglobit/inadyn:{{ inadyn_release }}
+    restart: unless-stopped
+    cpu_shares: 16
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - {{ inadyn_config_path }}:/etc/inadyn.conf:ro
