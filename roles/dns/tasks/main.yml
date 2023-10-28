@@ -5,12 +5,17 @@
     path: "{{ item.path }}"
     state: directory
     mode: '755'
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop:
     - path: "{{ pihole_config_path }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
     - path: "{{ pihole_dnsmasq_config_path }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
     - path: "{{ stubby_config_path }}"
 
-# TIP: Use a docker volume for /etc/pihole/adlists.list if you want to customize for first boot
 - name: Create Pi-hole lists
   become: true
   ansible.builtin.template:
