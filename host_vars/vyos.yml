@@ -1,5 +1,5 @@
 ---
-vyos_wan_interface: eth1
+vyos_wan_interface: eth0
 vyos_wan_upload_bandwidth: 45mbit
 vyos_guest_network_address: "{{ guest_network_ipv4 | ansible.utils.ipaddr('1') }}"
 vyos_users:
@@ -9,11 +9,11 @@ vyos_users:
 vyos_dns_addresses: "{{ dhcp_dns_addresses }}"
 vyos_local_domain: "{{ local_domain }}"
 vyos_local_interfaces:
-  - device: eth0
+  - device: eth1
     name: NINO
     vlan: 10
     subnet: "{{ internal_network_ipv4 }}"
-  - device: eth0
+  - device: eth1
     name: GUEST
     vlan: 90
     subnet: "{{ guest_network_ipv4 }}"
@@ -63,24 +63,24 @@ vyos_nat_destination_rules:
     destination port: '51820'
     inbound-interface: "{{ vyos_wan_interface }}"
     protocol: 'udp'
-    translation address: "{{ hosts.public.ipv4_address | ansible.utils.ipaddr('address') }}"
+    translation address: "{{ hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
   # - description: 'NAT loopback Wireguard'
   #   destination address: '{{ wan_address_ipv4 }}'
   #   destination port: '51820'
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'udp'
-  #   translation address: '{{ hosts.public.ipv4_address }}'
-  - description: 'Port forward Jellyfin clients'
-    destination port: '32400'
-    inbound-interface: "{{ vyos_wan_interface }}"
-    protocol: 'tcp'
-    translation address: "{{ hosts.public.ipv4_address | ansible.utils.ipaddr('address') }}"
+  #   translation address: '{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
+  # - description: 'Port forward Jellyfin clients'
+  #   destination port: '32400'
+  #   inbound-interface: "{{ vyos_wan_interface }}"
+  #   protocol: 'tcp'
+  #   translation address: "{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
   # - description: 'NAT loopback Jellyfin'
   #   destination address: '{{ wan_address_ipv4 }}'
   #   destination port: '32400'
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'tcp'
-  #   translation address: '{{ hosts.public.ipv4_address }}'
+  #   translation address: '{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
 vyos_static_routes:
   - network: "{{ vpn_network_ipv4 }}"
     gateway: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"

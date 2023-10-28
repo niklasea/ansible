@@ -18,13 +18,13 @@
   ansible.builtin.get_url:
     url: "https://github.com/dani-garcia/bw_web_builds/releases/download/\
           {{ vaultwarden_web_vault_version }}/bw_web_{{ vaultwarden_web_vault_version }}.tar.gz"
-    dest: "{{ vaultwarden_web_vault_tarball }}/bw_web_vault.tar.gz"
+    dest: /tmp/bw_web_vault.tar.gz
     mode: '640'
 
 - name: Extract web-vault files into place
   become: true
   ansible.builtin.unarchive:
-    src: "{{ vaultwarden_web_vault_tarball }}/bw_web_vault.tar.gz"
+    src: /tmp/bw_web_vault.tar.gz
     dest: "{{ vaultwarden_state_dir }}"
     remote_src: true
     mode: '750'

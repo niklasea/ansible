@@ -26,6 +26,7 @@
       block: "{{ game_config.config | default(omit) }}"
       condition: "{{ game_config is defined }}"
   register: _linuxgsm_server_configuration_file
+  no_log: true
 
 - name: "Add Docker compose file {{ instance_name }}"
   become: true

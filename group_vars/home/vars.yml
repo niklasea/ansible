@@ -2,7 +2,7 @@
 internal_network_ipv4: '172.21.1.0/24'
 guest_network_ipv4: '172.21.9.0/24'
 
-gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('1') }}"
+gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('197') }}"
 
 home_domain: "{{ vault_home_domain }}"
 local_domain: "internal.{{ home_domain }}"
@@ -11,9 +11,9 @@ dhcp_range:
   start: "{{ internal_network_ipv4 | ansible.utils.ipaddr('50') }}"
   end: "{{ internal_network_ipv4 | ansible.utils.ipaddr('-2') }}"
 dhcp_dns_addresses:
-  - "{{ hosts.private.ipv4_address }}"
+  - "{{ hosts['internal-docker']['ipv4_address'] }}"
 dhcp_ntp_addresses:
-  - "{{ hosts.private.ipv4_address }}"
+  - "{{ hosts['internal-docker']['ipv4_address'] }}"
 
 haproxy_docker_internal_network: '10.0.0.0/16'
 
@@ -22,7 +22,7 @@ ansible_become_password: "{{ vault_ansible_become_password }}"
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_subject_alt_names:
   - "{{ inventory_hostname_short }}.{{ home_domain }}"
-certbot_email: "{{ vault_notification_email }}"
+certbot_email: "{{ vault_certificate_notification_email }}"
 certbot_use_dns: true
 certbot_dns_plugin: cloudflare
 certbot_dns_credentials: |
@@ -37,6 +37,8 @@ wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"
 wifi_pass: "{{ vault_wifi_pass }}"
 
 hosts:
+  vyos:
+    ipv4_address: "{{ gateway_address }}"
   ordos:
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('2') }}"
   arrakis: # Primary network switch.
@@ -45,10 +47,10 @@ hosts:
   arvon: # WiFi access point.
     hardware_address: '98:DA:C4:63:68:D6'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('6') }}"
-  public: # Public server.
+  public-docker: # Public server.
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
-  private: # Internal server.
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
+  internal-docker: # Internal server.
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('138') }}"
 
 stubby_upstream: |
   - address_data: 9.9.9.11
@@ -72,7 +74,6 @@ pihole_ignore_localhost: 'yes'
 pihole_maxdbdays: 2
 
 pihole_adlists:
-  - "{{ query('file', 'default_adlists.txt') }}"
   - "{{ query('file', 'pihole_adlists.txt') }}"
   - "{{ query('url', 'https://v.firebog.net/hosts/lists.php?type=tick') }}"
 pihole_regexlists:

@@ -23,8 +23,8 @@
         name: firewall
       vars:
         firewall_policies:
-          - { chain: INPUT, policy: REJECT }
-          - { chain: FORWARD, policy: REJECT }
+          - { chain: INPUT, policy: DROP }
+          - { chain: FORWARD, policy: DROP }
         firewall_rules:
           - { chain: INPUT, rule: ACCEPT, ctstate: [ ESTABLISHED, RELATED ] }
           - { chain: INPUT, rule: ACCEPT, in_interface: lo, comment: Localhost connections }
@@ -33,8 +33,8 @@
     - import_role:
         name: smb_mount
 
-- name: Common settings
-  hosts: docker
+- name: Internal docker server
+  hosts: internal-docker
   tasks:
     - import_role:
         name: wireguard
@@ -50,8 +50,6 @@
         name: speedtest
     - import_role:
         name: omada_controller
-    - import_role:
-        name: linuxgsm
   post_tasks:
     - name: Schedule backup to network drive
       become: true
@@ -105,3 +103,9 @@
           - { port: '8080', proto: 'tcp', comment: 'Remote control' }
     - import_role:
         name: wireguard
+
+- name: Public docker server
+  hosts: public-docker
+  tasks:
+    - import_role:
+        name: linuxgsm

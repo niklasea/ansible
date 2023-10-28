@@ -1,6 +1,6 @@
 ---
 smb_credential_dir: /root/smbcredentials
-smb_mounts:
+# smb_mounts:
 #   name:
 #     network_path:
 #     local_path:

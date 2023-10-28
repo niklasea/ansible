@@ -1,5 +1,5 @@
 ---
-wireguard_config_dir: "{{ docker_compose_dir }}/wireguard/"
+wireguard_compose_dir: "{{ docker_compose_dir }}/wireguard/"
 wireguard_version: latest
 
 # Make sure the key pair you provide is well-protected (ansible-vault)

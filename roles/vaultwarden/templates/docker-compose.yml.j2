@@ -43,9 +43,9 @@ services:
       SMTP_FROM_NAME: {{ vaultwarden_smtp_from_name }}
       SMTP_PORT: {{ vaultwarden_smtp_port }}
       SMTP_SECURITY: {{ vaultwarden_smtp_security }}
-{% if vaultwarden_smtp_credentials is defined %}
-      SMTP_USERNAME: {{ vaultwarden_smtp_credentials.username }}
-      SMTP_PASSWORD: {{ vaultwarden_smtp_credentials.password }}
+{% if vaultwarden_smtp.credentials is defined %}
+      SMTP_USERNAME: {{ vaultwarden_smtp.credentials.username }}
+      SMTP_PASSWORD: {{ vaultwarden_smtp.credentials.password }}
 {% endif %}
 {% if vaultwarden_smtp_auth_mechanism is defined %}
       SMTP_AUTH_MECHANISM: "{{ vaultwarden_smtp_auth_mechanism }}"

@@ -17,4 +17,4 @@ services:
     ports:
       - {{ wireguard_listenport }}:{{ wireguard_listenport }}/udp
     volumes:
-      - {{ wireguard_config_dir }}/{{ wireguard_interface_name }}.conf:/config/wg0.conf:ro
+      - {{ wireguard_compose_dir }}/{{ wireguard_interface_name }}.conf:/config/wg0.conf:ro

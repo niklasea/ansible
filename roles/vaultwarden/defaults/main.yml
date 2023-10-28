@@ -1,6 +1,6 @@
 ---
 vaultwarden_build_dir: "/tmp"
-vaultwarden_config_dir: "{{ docker_compose_dir }}/vaultwarden/"
+vaultwarden_compose_dir: "{{ docker_compose_dir }}/vaultwarden/"
 vaultwarden_state_dir: /var/lib/vaultwarden
 vaultwarden_data_dir: "{{ vaultwarden_state_dir }}/data/"
 
@@ -43,7 +43,7 @@ vaultwarden_smtp_from_name: 'Vaultwarden'
 vaultwarden_smtp_port: "{{ 465 if vaultwarden_smtp_security else 587 }}"
 # Setting force_tls would force the use of an explicit TLS connection, instead of upgrading an insecure one with STARTTLS.
 vaultwarden_smtp_security: starttls
-# vaultwarden_smtp_credentials:
+# vaultwarden_smtp.credentials:
 #   username:
 #   password:
 # vaultwarden_smtp_auth_mechanism: 'Plain'

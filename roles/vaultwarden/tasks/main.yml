@@ -6,7 +6,7 @@
     state: directory
     mode: '755'
   loop:
-    - path: "{{ vaultwarden_config_dir }}"
+    - path: "{{ vaultwarden_compose_dir }}"
     - path: "{{ vaultwarden_data_dir }}"
 
 - name: Reset settings override by admin
@@ -21,7 +21,7 @@
   become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: "{{ vaultwarden_config_dir }}/docker-compose.yml"
+    dest: "{{ vaultwarden_compose_dir }}/docker-compose.yml"
     mode: '640'
   notify: Restart Vaultwarden
 

@@ -6,13 +6,13 @@
     state: directory
     mode: '755'
   loop:
-    - path: "{{ wireguard_config_dir }}"
+    - path: "{{ wireguard_compose_dir }}"
 
 - name: Generate server config
   become: true
   template:
     src: wg.conf.j2
-    dest: "{{ wireguard_config_dir }}/{{ wireguard_interface_name }}.conf"
+    dest: "{{ wireguard_compose_dir }}/{{ wireguard_interface_name }}.conf"
     owner: root
     group: root
     mode: '600'
@@ -22,6 +22,6 @@
   become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: "{{ wireguard_config_dir }}/docker-compose.yml"
+    dest: "{{ wireguard_compose_dir }}/docker-compose.yml"
     mode: '640'
   notify: Restart WireGuard

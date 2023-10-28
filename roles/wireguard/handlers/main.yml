@@ -4,11 +4,11 @@
   become: true
   ansible.builtin.command:
     cmd: docker compose down
-    chdir: "{{ wireguard_config_dir }}"
+    chdir: "{{ wireguard_compose_dir }}"
   notify: Start WireGuard
 
 - name: Start WireGuard
   become: true
   ansible.builtin.command:
     cmd: docker compose up -d
-    chdir: "{{ wireguard_config_dir }}"
+    chdir: "{{ wireguard_compose_dir }}"
