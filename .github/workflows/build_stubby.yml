@@ -1,5 +1,5 @@
 ---
-name: Build and publish stubby image
+name: Build and publish Stubby image
 
 on:
   push:

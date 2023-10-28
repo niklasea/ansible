@@ -66,5 +66,5 @@ inadyn_ddns_configurations:
   provider:
     - default@cloudflare.com:
         username: 'n/a'
-        password: "{{ vault_cloudflare.zone }}"
+        password: "{{ vault_cloudflare.zone_key }}"
         hostname: "{{ vault_home_domain }}"
