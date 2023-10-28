@@ -86,4 +86,4 @@ EXPOSE 29812
 EXPOSE 29813
 
 WORKDIR ${INSTALL_DIR}
-CMD [ "/bin/bash", "-c", "./bin/control.sh start; sleep infinity;" ]
+CMD [ "/bin/bash", "-c", "set -e; ./bin/control.sh start; sleep infinity;" ]

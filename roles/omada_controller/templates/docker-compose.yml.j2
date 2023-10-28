@@ -19,7 +19,8 @@ services:
     security_opt:
       - no-new-privileges:true
     volumes:
-      - {{ omada_data_dir }}:/opt/tplink/data
+      # Cannot bind-mount a host directory as it will obscure the existing contents.
+      - omada_data:/opt/tplink/data/
     networks:
       reverse_proxy:
         ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}
@@ -31,9 +32,10 @@ services:
       - 29812:29812/tcp
       - 29813:29813/tcp
     environment:
-      # Needed when using docker user remapping.
-      OMADA_USER: root
       HTTP_PORT: {{ omada_http_port }}
+
+volumes:
+  omada_data:
 
 networks:
   reverse_proxy:
