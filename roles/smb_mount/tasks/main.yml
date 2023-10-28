@@ -30,7 +30,7 @@
 
     - name: Mount volume
       become: true
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ item.1.local_path }}"
         src: "{{ item.1.network_path }}"
         state: mounted

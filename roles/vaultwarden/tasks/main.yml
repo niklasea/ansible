@@ -25,5 +25,5 @@
     mode: '640'
   notify: Restart Vaultwarden
 
-- include_tasks: web_vault.yml
+- ansible.builtin.include_tasks: web_vault.yml
   when: vaultwarden_web_vault_enabled

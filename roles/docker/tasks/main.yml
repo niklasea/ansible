@@ -1,6 +1,6 @@
 ---
 - name: OS-specific configuration
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "{{ ansible_os_family }}.yml"
     apply:
       become: true
@@ -30,7 +30,7 @@
 - name: Schedule docker system prune
   become: true
   ansible.builtin.cron:
-    name: "Prune unused docker resources"
+    name: Prune unused docker resources
     state: present
     special_time: daily
     job: docker system prune -f

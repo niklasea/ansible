@@ -13,7 +13,7 @@
 # TIP: Use a docker volume for /etc/pihole/adlists.list if you want to customize for first boot
 - name: Create Pi-hole lists
   become: true
-  template:
+  ansible.builtin.template:
     src: list.j2
     dest: "{{ pihole_config_path }}/{{ item.dest }}"
     owner: root
@@ -34,7 +34,7 @@
 
 - name: Apply configuration
   become: true
-  template:
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: root

@@ -2,7 +2,7 @@
 # TODO: Deletes all iptables rules, but leaves policies in place
 # - name: (RedHat) Disable firewalld
 #   become: true
-#   service:
+#   ansible.builtin.service:
 #     name: firewalld
 #     enabled: false
 #     state: stopped
@@ -11,7 +11,7 @@
 # TODO: Saves service-managed rules (e.g. WireGuard). Write direct to config file and load that instead?
 - name: (RedHat) Save iptables rules
   become: true
-  command: service iptables save
+  ansible.builtin.command: service iptables save
   args:
     warn: false
   changed_when: false
@@ -20,7 +20,7 @@
 
 - name: (RedHat) Enable iptables
   become: true
-  service:
+  ansible.builtin.service:
     name: iptables
     state: started
     enabled: true

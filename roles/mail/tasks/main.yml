@@ -1,7 +1,7 @@
 ---
 - name: Install packages
   become: true
-  package:
+  ansible.builtin.package:
     name:
       - sqlite            # sqlite3 on Debian
       - dovecot
@@ -12,7 +12,7 @@
 
 - name: Create mailboxes folder
   become: true
-  file:
+  ansible.builtin.file:
     path: "{{ mail_root }}"
     state: directory
 
@@ -26,7 +26,7 @@
 
 - name: Apply configuration files
   become: true
-  template:
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   loop:
@@ -39,7 +39,7 @@
 
 - name: Configure Postfix database queries
   become: true
-  template:
+  ansible.builtin.template:
     src: postfix_db_query.cf.j2
     dest: "{{ item.dest }}"
   loop:

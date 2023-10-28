@@ -10,7 +10,7 @@
 
 - name: Generate server config
   become: true
-  template:
+  ansible.builtin.template:
     src: wg.conf.j2
     dest: "{{ wireguard_compose_dir }}/{{ wireguard_interface_name }}.conf"
     owner: root

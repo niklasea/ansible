@@ -2,12 +2,12 @@
 - block:
     - name: Restart sshd service
       become: true
-      service:
+      ansible.builtin.service:
         name: sshd
         state: restarted
   rescue:
     - name: Restart ssh service
       become: true
-      service:
+      ansible.builtin.service:
         name: ssh
         state: restarted

@@ -1,11 +1,11 @@
 ---
 - name: Install requirements
-  package:
+  ansible.builtin.package:
     name: ifenslave
     state: present
 
 - name: Configure linux bond and WiFi credentials
-  template:
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: root
@@ -16,7 +16,7 @@
     # - { src: wpa_supplicant.j2, dest: /etc/wpa_supplicant/wpa_supplicant.conf }
 
 - name: Add WiFi credentials
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ bonded_interface_wpa_conf_path }}"
     state: present
     create: true
@@ -36,7 +36,7 @@
   when: bonded_interface_wpa_ssid is defined
 
 - name: Disable DHCP for bonded interfaces
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/dhcpcd.conf
     regexp: '^denyinterfaces'
     state: present
