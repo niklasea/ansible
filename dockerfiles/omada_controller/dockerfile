@@ -73,17 +73,19 @@ RUN ln -sf "$(which mongod)" ${INSTALL_DIR}/bin/mongod
 # Highly recommend using reverse proxy for TLS. Built-in web server uses weak encryption
 # and does not support user-configured HTTPS port nor user-configured TLS certificates.
 ENV HTTP_PORT=8088
-EXPOSE ${HTTP_PORT}
+# Web interface
+EXPOSE ${HTTP_PORT}/tcp
+EXPOSE 8043/tcp
 # Omada controller discovery
 EXPOSE 27001/udp
 # Omada EAP discovery
 EXPOSE 29810/udp
 # Omada EAP management
-EXPOSE 29811
+EXPOSE 29811/tcp
 # Omada EAP adoption
-EXPOSE 29812
+EXPOSE 29812/tcp
 # Omada EAP firmware upgrade
-EXPOSE 29813
+EXPOSE 29813/tcp
 
 WORKDIR ${INSTALL_DIR}
 CMD [ "/bin/bash", "-c", "set -e; ./bin/control.sh start; sleep infinity;" ]
