@@ -14,11 +14,6 @@ on:
         required: false
         default: "amd64"
         type: string
-      release:
-        description: "VyOS release version"
-        required: false
-        default: "rolling"
-        type: string
 
 env:
   BUILD_DIR: vyos_build
@@ -49,5 +44,5 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: VyOS_${{ inputs.branch }}_${{ inputs.release }}_${{ inputs.architecture }}
+          name: VyOS_${{ inputs.branch }}_${{ inputs.architecture }}
           path: $BUILD_DIR/build/live-image-${{ inputs.architecture }}.hybrid.iso
