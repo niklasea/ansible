@@ -56,6 +56,13 @@ hosts:
   internal-docker: # Internal server.
     hardware_address: '56:A1:01:56:C6:BD'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
+    alternate_hostnames:
+      - bitwarden
+      - gitea
+      - pihole
+      - jellyfin
+      - omada
+      - speedtest
 
 stubby_upstream: |
   - address_data: 9.9.9.11

@@ -82,6 +82,10 @@ vyos_nat_destination_rules:
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'tcp'
   #   translation address: '{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
+vyos_static_host_mappings:
+  - hostname: internal-docker
+    address: "{{ hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
+    aliases: "{{ hosts['internal-docker']['alternate_hostnames'] }}"
 vyos_static_routes:
   - network: "{{ vpn_network_ipv4 }}"
     gateway: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"

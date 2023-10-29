@@ -21,6 +21,12 @@ set system domain-search domain '{{ vyos_local_domain }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} key '{{ user.ssh_public_key }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} type '{{ user.ssh_public_key_type }}'
 {% endfor %}
+{% for item in vyos_static_host_mappings %}
+set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' inet '{{ item.address }}'
+{% for alias in item.aliases %}
+set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' alias '{{ alias }}.{{ vyos_local_domain }}'
+{% endfor %}
+{% endfor %}
 
 # Configure SSH
 
@@ -243,6 +249,6 @@ set interfaces ethernet {{ interface.device }} vif {{ interface.vlan }} firewall
 set interfaces ethernet {{ interface.device }} vif {{ interface.vlan }} firewall local name '{{ interface.name }}-LOCAL-v4'
 {% endfor %}
 
-# Commit changes and wait up to 1 minute for confirmation
+# Commit changes and wait for confirmation
 
-commit-confirm 1
+commit-confirm 2
