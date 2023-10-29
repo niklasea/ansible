@@ -17,11 +17,11 @@ on:
   workflow_dispatch:
     inputs:
       omada_tar_url:
-        description: 'Omada EAP controller tar.gz download URL'
+        description: Omada EAP controller tar.gz download URL.
         required: true
         type: string
       docker_tag:
-        description: 'Docker image tag'
+        description: Docker image tag.
         required: true
         type: string
 
