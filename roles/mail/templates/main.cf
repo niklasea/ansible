@@ -9,7 +9,7 @@ mydestination = $myhostname localhost.$mydomain localhost $mydomain
 inet_interfaces = all
 
 # Client IP addresses authorized to relay their mail through this machine into the Internet.
-mynetworks = {{ local_network_ipv4 }}, {{ wireguard_network }}, {{ openvpn_network }}, 127.0.0.0/8
+mynetworks = {{ internal_network_ipv4 }}, {{ vpn_network_ipv4 }}, {{ openvpn_network }}, 127.0.0.0/8
 
 # Relay mail for untrusted networks
 #relay_domains =

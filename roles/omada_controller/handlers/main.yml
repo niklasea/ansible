@@ -1,6 +1,0 @@
----
-- name: Restart service
-  become: true
-  systemd:
-    name: tpeap
-    state: restarted

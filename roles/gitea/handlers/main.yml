@@ -1,6 +1,0 @@
----
-- name: Restart Gitea
-  become: true
-  service:
-    name: gitea
-    state: restarted

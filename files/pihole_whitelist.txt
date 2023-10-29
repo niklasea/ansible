@@ -113,6 +113,7 @@ dev.virtualearth.net
 ecn.dev.virtualearth.net
 t0.ssl.ak.dynamic.tiles.virtualearth.net
 t0.ssl.ak.tiles.virtualearth.net
+maps.windows.com
 
 # Captive portal check / network status
 www.msftconnecttest.com
@@ -149,11 +150,12 @@ mobile.pipe.aria.microsoft.com
 nexus.officeapps.live.com
 nexusrules.officeapps.live.com
 
-# Windows update (https://docs.microsoft.com/en-us/windows/privacy/windows-endpoints-1903-non-enterprise-editions)
+# Windows update (https://learn.microsoft.com/en-us/windows/privacy/manage-windows-11-endpoints)
 dl.delivery.mp.microsoft.com
 ctldl.windowsupdate.com
-download.windowsupdate.com
-au.download.windowsupdate.com
+
+# Edge updates
+msedge.api.cdp.microsoft.com
 
 ############ Services / Functionality #############
 ########## Sorted by second-level domain ##########
@@ -232,6 +234,9 @@ tracking.bring.dk
 
 # User file hosting
 files.catbox.moe
+
+# CIS cyber security
+learn.cisecurity.org
 
 # Dansk Metal email link tracking
 elinkeu.clickdimensions.com
@@ -646,6 +651,9 @@ s1.wp.com
 # Third-party WordPress CDN
 hb.wpmucdn.com
 
+# lokalavisen.dk stylesheet
+vjs.zencdn.net
+
 # Kraken.com support chat
 widget-mediator.zopim.com
 # Hiper.dk support chat
@@ -692,6 +700,10 @@ click.pstmrk.it
 
 # TechRepublic.com video
 #s0.2mdn.net
+
+# airbnb redirect
+bnc.lt
+www.bnc.lt
 
 ##################### Betting #####################
 

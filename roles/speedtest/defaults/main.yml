@@ -1,4 +1,5 @@
 ---
-speedtest_html_directory: /var/www/html
-speedtest_release: '5.2.5'
-speedtest_set_overhead_compensation: 1
+speedtest_compose_dir: /etc/compose/speedtest
+librespeed_version: latest
+iperf3_version: latest
+iperf3_port: 5201

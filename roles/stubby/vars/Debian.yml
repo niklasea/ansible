@@ -1,9 +1,0 @@
----
-stubby_build_dependencies:
-  - git                       # Ansible module
-  - tar                       # Ansible module
-  - build-essential
-  - cmake
-  - libssl-dev                # Version 1.0.2 required
-  - libyaml-dev               # stubby configuration file format dependency
-  # - libunbound-dev            # not needed with --enable-stub-only

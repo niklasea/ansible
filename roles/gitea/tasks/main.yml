@@ -1,54 +1,25 @@
 ---
-# https://docs.gitea.io/en-us/install-from-binary/
-
-- include_tasks: prepare.yml
-
-- name: Install dependencies
-  package:
-    name: git
-    state: present
-
-- name: Create user
-  user:
-    name: "{{ gitea_user }}"
-    state: present
-    system: true
-    home: "{{ gitea_working_dir }}"
-    shell: /usr/sbin/nologin
-
+# https://docs.gitea.com/installation/install-with-docker
 - name: Create directories
-  file:
-    path: "{{ item.dest }}"
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
     state: directory
-    owner: "{{ item.owner | default(gitea_user) }}"
-    group: "{{ item.owner | default(gitea_user) }}"
-    mode: '750'
+    mode: '755'
   loop:
-    - dest: "{{ gitea_working_dir }}"
-    - dest: "{{ gitea_working_dir }}/custom/conf"
-    - dest: "{{ gitea_working_dir }}/data"
-    - dest: "{{ gitea_working_dir }}/log"
-    - dest: "{{ gitea_conf_dir }}"
-      owner: root
+    - path: "{{ gitea_compose_dir }}"
 
-- name: Create a symbolic link to conf dir
-  file:
-    src: "{{ gitea_working_dir }}/custom"
-    dest: "{{ gitea_conf_dir }}/custom"
-    state: link
+- name: Add Docker compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ gitea_compose_dir }}/docker-compose.yml"
+    mode: '640'
 
-- name: Install new version of Gitea
-  include_tasks: install.yml
-  when: gitea_force_reinstall
-
-- name: Create systemd service
-  template:
-    src: gitea.service.j2
-    dest: /lib/systemd/system/gitea.service
-    mode: '644'
-
-- name: Enable service
-  service:
-    name: gitea
-    enabled: true
-    daemon_reload: true
+- name: Start Gitea
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ gitea_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

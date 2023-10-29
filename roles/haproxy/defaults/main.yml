@@ -1,0 +1,3 @@
+---
+haproxy_version: lts
+haproxy_compose_dir: "{{ docker_compose_dir }}/haproxy/"

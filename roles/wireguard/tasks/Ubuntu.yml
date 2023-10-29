@@ -1,8 +1,0 @@
----
-- name: (Ubuntu) Add WireGuard repository
-  become: true
-  apt_repository:
-    repo: ppa:wireguard/wireguard
-  ignore_errors: true
-  when:
-    - ansible_distribution_version is version('19.04', '<=')

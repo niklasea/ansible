@@ -1,0 +1,43 @@
+services:
+  omada:
+    image: ghcr.io/niklasea/omada_controller:{{ omada_version }}
+    restart: unless-stopped
+    cpu_shares: 16
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - DAC_OVERRIDE
+      - NET_BIND_SERVICE
+      - DAC_READ_SEARCH
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - {{ omada_autobackup_dir }}:/opt/tplink/autobackup/
+      # Cannot bind-mount host directory as it will obscure the existing contents.
+      - omada_data:/opt/tplink/data/
+    networks:
+      reverse_proxy:
+        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}
+    ports:
+      - 27001:27001/udp
+      - 29810:29810/udp
+      - 29811:29811/tcp
+      - 29812:29812/tcp
+      - 29813:29813/tcp
+    environment:
+      HTTP_PORT: {{ omada_http_port }}
+      AUTOBACKUP_DIR: /opt/tplink/autobackup/
+
+volumes:
+  omada_data:
+
+networks:
+  reverse_proxy:
+    external: true

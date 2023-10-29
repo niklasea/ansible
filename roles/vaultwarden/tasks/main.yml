@@ -1,54 +1,36 @@
 ---
-- include_tasks: prepare.yml
-
-- block:
-    - name: Download Rust installer
-      get_url:
-        url: https://sh.rustup.rs
-        dest: /var/tmp/rustup.sh
-        mode: '750'
-
-    - name: Install Rust
-      command: /var/tmp/rustup.sh --default-toolchain none -y
-      args:
-        creates: "{{ ansible_user_dir }}/.rustup"
-
-    - include_tasks: build.yml
-    - include_tasks: web_vault.yml
-  when: not vaultwarden_existing_install.stat.exists | default(true)
-        or vaultwarden_force_rebuild
-
-- name: Reset settings override by admin
+- name: Create directories
   become: true
-  file:
-    path: "{{ vaultwarden_state_dir }}/{{ vaultwarden_data_folder }}/config.json"
-    state: absent
-  when: vaultwarden_reset_admin_config
-  tags: update_config
-
-- name: Apply configuration
-  become: true
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.owner }}"
-    mode: "{{ item.mode }}"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: "{{ item.mode | default('755') }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
   loop:
-    - src: vaultwarden.service.j2
-      dest: "{{ vaultwarden_service_path }}"
-      owner: root
-      mode: '644'
-    - src: vaultwarden.env.j2
-      dest: "{{ vaultwarden_env_path }}"
-      owner: "{{ vaultwarden_system_user }}"
-      mode: '640'
-  notify: Restart vaultwarden
-  tags: update_config
+    - path: "{{ vaultwarden_compose_dir }}"
+    - path: "{{ vaultwarden_data_dir }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
+    - path: "{{ vaultwarden_web_vault_dir }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
+      mode: '750'
 
-- name: Enable Vaultwarden service
+- name: Add Docker compose file
   become: true
-  service:
-    daemon_reload: true
-    name: vaultwarden
-    enabled: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ vaultwarden_compose_dir }}/docker-compose.yml"
+    mode: '640'
+
+- ansible.builtin.include_tasks: web_vault.yml
+  when: vaultwarden_web_vault_enabled
+
+- name: Start Vaultwarden
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ vaultwarden_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

@@ -1,10 +1,10 @@
 ---
-- include_tasks: install_certbot.yml
+- ansible.builtin.include_tasks: install_certbot.yml
 
 - block:
     - name: Create deploy hook dir
       become: true
-      file:
+      ansible.builtin.file:
         path: "{{ certbot_deploy_hook_dir }}"
         state: directory
         owner: root
@@ -14,7 +14,7 @@
     - name: Add deploy hook
       become: true
       # The first line of the file is reserved for a shebang so blockinfile cannot work
-      template:
+      ansible.builtin.template:
         src: deploy_hook.sh.j2
         dest: "{{ certbot_deploy_hook_dir }}/ansible_hook.sh"
         owner: root
@@ -24,30 +24,19 @@
 
 - name: Find existing certificates
   become: true
-  command: "{{ certbot_path | quote }} certificates"
+  ansible.builtin.command: "{{ certbot_path | quote }} certificates"
   register: certbot_existing_certs
   changed_when: false
 
-- include_tasks: dns.yml
+- ansible.builtin.include_tasks: dns.yml
   when: certbot_use_dns
-- include_tasks: standalone.yml
+- ansible.builtin.include_tasks: standalone.yml
   when: not certbot_use_dns
-
-- name: Change existing certificate
-  become: true
-  throttle: 1
-  command: >
-    {{ certbot_path | quote }} certonly
-    --cert-name {{ ([certbot_domain] + certbot_subject_alt_names) | join (' -d ') }}
-  when:
-    - not ansible_check_mode
-    - "'Certificate Name: ' ~ certbot_domain in certbot_existing_certs.stdout"
-    - "'Domains: ' ~ ([certbot_domain] + certbot_subject_alt_names) | join (' ') not in certbot_existing_certs.stdout"
 
 # certbot hides this directory by default, presumably to avoid leaking which domains are hosted on the server
 # which is irrelevant if the server is not shared
 - name: Allow unprivileged users to read /etc/letsencrypt/live (but not the certificates)
   become: true
-  file:
+  ansible.builtin.file:
     path: /etc/letsencrypt/live
     mode: '755'

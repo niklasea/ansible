@@ -1,0 +1,64 @@
+global
+    maxconn 50000
+    log stdout local0
+    user haproxy
+    group haproxy
+
+    ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    ssl-default-bind-options prefer-client-ciphers ssl-min-ver TLSv1.3 no-tls-tickets
+
+    ssl-default-server-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    ssl-default-server-options ssl-min-ver TLSv1.3 no-tls-tickets
+
+defaults
+    timeout connect 5s
+    timeout client 30s
+    timeout server 30s
+    log global
+    mode http
+    option httplog
+
+frontend https_proxy
+    mode    http
+    bind    :80
+{% if haproxy_tls_certificate_path is defined %}
+    bind    :443 ssl crt {{ haproxy_docker_internal_tls_certificate_path }} alpn h2,http/1.1
+    redirect scheme https code 301 if !{ ssl_fc }
+{% endif %}
+
+    use_backend vaultwarden if { hdr_dom(host) -i bitwarden.{{ local_domain }} }
+    use_backend pihole if { hdr_dom(host) -i pihole.{{ local_domain }} }
+    use_backend omada if { hdr_dom(host) -i omada.{{ local_domain }} }
+    use_backend jellyfin if { hdr_dom(host) -i jellyfin.{{ local_domain }} }
+    use_backend gitea if { hdr_dom(host) -i gitea.{{ local_domain }} }
+    use_backend librespeed if { hdr_dom(host) -i speedtest.{{ local_domain }} }
+
+backend vaultwarden
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}:80
+
+backend pihole
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}:80
+
+backend omada
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}:8043 ssl verify none
+
+backend jellyfin
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('6') | ansible.utils.ipaddr('address') }}:8096
+
+backend gitea
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('7') | ansible.utils.ipaddr('address') }}:3000
+
+backend librespeed
+    cookie SERVERUSED insert indirect nocache
+    default-server check inter 10000 fastinter 1000
+    server server1 {{ haproxy_docker_internal_network | ansible.utils.ipaddr('8') | ansible.utils.ipaddr('address') }}:80

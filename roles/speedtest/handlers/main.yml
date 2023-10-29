@@ -1,7 +1,0 @@
----
-#TODO: Reload while running
-- name: Restart webserver
-  become: true
-  service:
-    name: "{{ speedtest_webserver }}"
-    state: restarted

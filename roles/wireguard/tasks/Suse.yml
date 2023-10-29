@@ -1,9 +1,0 @@
----
-# TODO: python(3)-xml required by zypper_repository
-- name: (OpenSUSE Leap) Add WireGuard repository
-  become: true
-  zypper_repository:
-    name: wireguard-repo
-    repo: obs://network:vpn:wireguard wireguard
-    state: present
-  when: ansible_distribution_version is version('15.1', '<=')

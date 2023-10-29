@@ -1,0 +1,74 @@
+---
+- name: Create directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: '755'
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+  loop:
+    - path: "{{ pihole_config_path }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
+    - path: "{{ pihole_dnsmasq_config_path }}"
+      owner: "{{ docker_remap_user }}"
+      group: "{{ docker_remap_user }}"
+    - path: "{{ stubby_config_path }}"
+
+- name: Create Pi-hole lists
+  become: true
+  ansible.builtin.template:
+    src: list.j2
+    dest: "{{ pihole_config_path }}/{{ item.dest }}"
+    mode: '644'
+  loop:
+    - list: "{{ pihole_adlists }}"
+      dest: adlists.list
+    - list: "{{ pihole_regexlists }}"
+      dest: regex.list
+    - list: "{{ pihole_blacklists }}"
+      dest: blacklist.txt
+    - list: "{{ pihole_whitelists }}"
+      dest: whitelist.txt
+  loop_control:
+    label: "Created list: {{ item.dest }}"
+
+- name: Apply configuration
+  become: true
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '644'
+  loop:
+    - src: dnsmasq.conf.j2
+      dest: "{{ pihole_dnsmasq_config_path }}/ansible_settings.conf"
+    - src: dhcp_reservations.conf.j2
+      dest: "{{ pihole_dnsmasq_config_path }}/dhcp_reservations.conf"
+    - src: stubby.yml.j2
+      dest: "{{ stubby_config_path }}/stubby.yml"
+  register: _configuration_files
+
+- name: Add Docker compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ dns_compose_dir }}/docker-compose.yml"
+    mode: '640'
+
+- name: Stop docker services
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose down
+    chdir: "{{ inadyn_compose_dir }}"
+  when: _configuration_files is changed
+
+- name: Start DNS
+  become: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ dns_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

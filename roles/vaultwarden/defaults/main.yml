@@ -1,57 +1,23 @@
 ---
-# Build and install even if an existing version is found. Can be used to upgrade vaultwarden.
-vaultwarden_force_rebuild: false
+vaultwarden_compose_dir: "{{ docker_compose_dir }}/vaultwarden"
+vaultwarden_web_vault_dir: "{{ vaultwarden_compose_dir }}/web-vault"
+vaultwarden_data_dir: "{{ vaultwarden_compose_dir }}/data"
+
+vaultwarden_version: 'latest'
 # Automatically pull the most recent release from GitHub (rate limited).
-vaultwarden_latest_release: false
-# Removes Rust toolchains installed for use with previous versions of vaultwarden.
-vaultwarden_remove_old_toolchains: true
-vaultwarden_src_dir: "{{ ansible_user_dir }}/.cache/vaultwarden_src"
-vaultwarden_version: '1.28.1'
-vaultwarden_web_vault_version: 'v2023.4.2'
-
+vaultwarden_web_vault_latest_release: false
+vaultwarden_web_vault_version: 'v2023.9.1'
 vaultwarden_web_vault_enabled: true
-
-vaultwarden_database: sqlite
-vaultwarden_database_url: data/db.sqlite3
-# Name of the database systemd service, e.g. 'mariadb.service'. Not applicable when using sqlite.
-vaultwarden_database_service_name: "{{ vaultwarden_database }}.service"
-
-vaultwarden_limitnofile: 2048
-vaultwarden_limitnproc: 64
 
 # Set an admin token (password) to enable the admin page.
 # vaultwarden_admin_token:
 # Configuration in the admin page overrides the environment variables.
 # Enable to reset those overrides.
-vaultwarden_reset_admin_config: false
-
-vaultwarden_reload_templates: false
-vaultwarden_ip_header: 'X-Client-IP'
-vaultwarden_icon_cache_ttl: 2592000
-vaultwarden_icon_cache_negttl: 259200
-
-vaultwarden_websocket_enabled: false
-vaultwarden_websocket_address: '0.0.0.0'
-vaultwarden_websocket_port: 3012
-
-vaultwarden_extended_logging: true
-vaultwarden_use_syslog: false
-vaultwarden_log_level: 'warn'
-
-vaultwarden_enable_db_wal: true
-
 vaultwarden_disable_icon_download: false
-vaultwarden_icon_download_timeout: 10
-# vaultwarden_icon_blacklist_regex: '^192\.168\.1\.\d{1,3}$'
-vaultwarden_icon_blacklist_non_global_ips: true
-
 vaultwarden_disable_2fa_remember: false
 vaultwarden_require_device_email: false
 vaultwarden_signups_allowed: true
 vaultwarden_signups_verify: false
-vaultwarden_signups_verify_resend_time: 3600
-vaultwarden_signups_verify_resend_limit: 6
-vaultwarden_signups_domains_whitelist: ''
 vaultwarden_invitations_allowed: true
 vaultwarden_password_iterations: 2000000
 vaultwarden_show_password_hint: false
@@ -66,10 +32,6 @@ vaultwarden_domain: "{{ 'https' if vaultwarden_tls is defined else 'http'}}://{{
 
 vaultwarden_authenticator_disable_time_drift: false
 
-vaultwarden_rocket_address: 127.0.0.1
-vaultwarden_rocket_port: 8000
-vaultwarden_workers: 10
-
 # vaultwarden_smtp:
 #   host: smtp.example.com
 #   from: vaultwarden@example.com
@@ -78,7 +40,7 @@ vaultwarden_smtp_from_name: 'Vaultwarden'
 vaultwarden_smtp_port: "{{ 465 if vaultwarden_smtp_security else 587 }}"
 # Setting force_tls would force the use of an explicit TLS connection, instead of upgrading an insecure one with STARTTLS.
 vaultwarden_smtp_security: starttls
-# vaultwarden_smtp_credentials:
+# vaultwarden_smtp.credentials:
 #   username:
 #   password:
 # vaultwarden_smtp_auth_mechanism: 'Plain'
@@ -86,15 +48,3 @@ vaultwarden_smtp_timeout: 15
 
 # HaveIBeenPwned API Key, request it here: https://haveibeenpwned.com/API/Key
 # vaultwarden_hibp_api_key:
-
-# TLS in Rocket, which vaultwarden is built on, is not production ready.
-# https://rocket.rs/v0.4/guide/configuration/#configuring-tls
-# Use a known-good proxy instead unless you know what you are doing.
-# Note that the Android app requires the full chain certificate.
-# vaultwarden_tls:
-#   certs: /path/to/cert
-#   key: /path/to/key
-
-# Intended for vaultwarden variables not supported directly by this role (e.g. Rocket settings).
-vaultwarden_env_custom: |
-# EMAIL_EXPIRATION_TIME=1200

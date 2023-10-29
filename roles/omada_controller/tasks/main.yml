@@ -1,143 +1,24 @@
 ---
-# https://static.tp-link.com/2019/201907/20190708/1910012624-Omada%20Controler-3.2.1-UG.pdf
-# Omada SDN controller requires Java 8, using the wrong Java version can corrupt the files in {{ omada_controller_dir }}/data/db
-
-- include_tasks: "{{ lookup('first_found', params) }}"
-  vars:
-    params:
-      files:
-        - "{{ ansible_distribution }}.yml"
-        - "{{ ansible_os_family }}.yml"
-      paths:
-        - 'tasks'
-
-- name: Install dependencies
-  become: true
-  package:
-    name: "{{ omada_deps }}"
-    state: present
-
-- name: Install Python dependencies
-  become: true
-  pip:
-    name:
-      - setuptools
-      - pexpect
-    state: present
-
-- name: Create system user
-  become: true
-  user:
-    name: "{{ omada_user }}"
-    state: present
-    system: true
-    create_home: false
-    shell: /usr/sbin/nologin
-
 - name: Create directories
   become: true
-  file:
-    path: "{{ item }}"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
     state: directory
-    owner: "{{ omada_user }}"
-    group: "{{ omada_user }}"
     mode: '755'
   loop:
-    - "{{ omada_install_dir }}"
+    - path: "{{ omada_compose_dir }}"
 
-- name: Download archive
-  get_url:
-    url: "{{ omada_archive_url }}"
-    dest: /var/tmp
-  register: omada_archive_download
-
-- name: Extract files
+- name: Add Docker compose file
   become: true
-  unarchive:
-    src: "{{ omada_archive_download.dest }}"
-    dest: "{{ omada_install_dir }}"
-    remote_src: true
-    owner: "{{ omada_user }}"
-    group: "{{ omada_user }}"
-    list_files: true
-  register: omada_archive_extract
-  when: not ansible_check_mode
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ omada_compose_dir }}/docker-compose.yml"
+    mode: '640'
 
-- name: Make scripts executable
+- name: Start Omada
   become: true
-  file:
-    path: "{{ omada_install_dir }}/{{ item }}"
-    mode: u+x
-  when: item is regex('.\.sh$')
-  loop: "{{ omada_archive_extract.files }}"
-
-- name: Do not run software after install
-  become: true
-  lineinfile:
-    path: "{{ omada_install_dir }}/{{ item }}"
-    regexp: "\\${link_name} start"
-    state: absent
-  when: item is regex('install\.sh$')
-  loop: "{{ omada_archive_extract.files }}"
-
-# TODO: Only install when new version available. Version number can be found in:
-#       ./work/omada-web/webapp/META-INF/maven/com.tplink.omada/omada-web/pom.properties
-#       ./work/omada-web/webapp/META-INF/maven/com.tplink.omada/omada-web/pom.xml
-- name: Run install script
-  become: true
-  expect:
-    chdir: "{{ omada_install_dir }}/{{ omada_archive_extract.files | first }}"
-    command: ./install.sh
-    responses:
-      'will be installed in': 'y'
-      'An incompatible controller version has been detected.': 'y'
-      'detects that you have backup': 'y'
-    echo: true
-    creates: "{{ omada_controller_dir }}/bin/control.sh"
-    # bin/control.sh times out after attempting startup for 300 seconds.
-    timeout: 305
-  notify: Restart service
-
-- name: Restrict file permissions
-  become: true
-  file:
-    path: "{{ item }}"
-    state: directory
-    recurse: true
-    mode: o-r
-  loop:
-    - "{{ omada_controller_dir }}/keystore"
-    - "{{ omada_controller_dir }}/properties"
-
-- name: Set HTTPS port
-  become: true
-  lineinfile:
-    path: "{{ omada_controller_dir }}/properties/omada.properties"
-    regexp: "^manage.https.port="
-    line: "manage.https.port={{ omada_https_port }}"
-    state: present
-
-# Uses systemd instead to isolate the service from the rest of the system.
-- name: Rename SysV init file to avoid name collision with systemd service
-  become: true
-  command: mv tpeap tpeap.conflict
-  args:
-    chdir: /etc/init.d
-    removes: /etc/init.d/tpeap
-
-- name: Create systemd service
-  become: true
-  template:
-    src: tpeap.service.j2
-    dest: /lib/systemd/system/tpeap.service
-    owner: root
-    group: root
-    mode: '644'
-
-- name: Enable service
-  become: true
-  systemd:
-    name: tpeap
-    masked: false
-    enabled: true
-    daemon_reload: true
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ omada_compose_dir }}"
+  register: _docker_compose_up_result
+  changed_when: "'Running' not in _docker_compose_up_result.stderr"

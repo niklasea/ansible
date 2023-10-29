@@ -1,7 +1,7 @@
 ---
 - name: (RedHat) Install packages
   become: true
-  package:
+  ansible.builtin.package:
     name:
       - iptables-services
       - cronie
@@ -19,7 +19,7 @@
 
 - name: (RedHat) Limit automatic updates to security patches
   become: true
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/dnf/automatic.conf
     regexp: '^upgrade_type ='
     line: 'upgrade_type = security'
@@ -27,28 +27,28 @@
 
 - name: (RedHat) Enable automatic updates
   become: true
-  service:
+  ansible.builtin.service:
     name: dnf-automatic-install.timer
     enabled: true
     state: started
 
 - name: (RedHat) Create timer for automatic reboots every month (for updates that may require it)
   become: true
-  copy:
+  ansible.builtin.copy:
     src: automatic_reboot.timer
     dest: /lib/systemd/system/automatic_reboot.timer
     mode: '644'
 
 - name: (RedHat) Enable automatic reboots
   become: true
-  service:
+  ansible.builtin.service:
     daemon_reload: true
     name: automatic_reboot.timer
     enabled: true
     state: started
 
 - name: (RedHat) Set default text editor
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.bash_profile
     regexp: '^export EDITOR='
     line: 'export EDITOR="nano"'

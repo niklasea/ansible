@@ -1,10 +1,10 @@
 ---
 - name: OS-specific configuration
-  include_tasks: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
 - name: Install virtualisation guest agents
   become: true
-  package:
+  ansible.builtin.package:
     name:
       - qemu-guest-agent        # KVM
       - open-vm-tools           # VMware
@@ -13,9 +13,9 @@
 
 - name: Configure SSH
   become: true
-  import_tasks: ssh_hardening.yml
+  ansible.builtin.import_tasks: ssh_hardening.yml
 
 - name: Set timezone
   become: true
-  timezone:
+  community.general.timezone:
     name: Europe/Copenhagen

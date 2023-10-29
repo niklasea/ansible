@@ -8,20 +8,20 @@
     # TODO: Might save service-managed rules (e.g. WireGuard). Write direct to config file and load that instead?
     - name: (Debian) Get iptables rules
       become: true
-      command: iptables-save
+      ansible.builtin.command: iptables-save
       register: firewall_iptables_save
       changed_when: false
 
     - name: (Debian) Create iptables conf dir
       become: true
-      file:
+      ansible.builtin.file:
         path: /etc/iptables
         state: directory
         mode: '755'
 
     - name: (Debian) Save iptables rules
       become: true
-      copy:
+      ansible.builtin.copy:
         content: "{{ firewall_iptables_save.stdout }}"
         dest: /etc/iptables/rules.v4
       # iptables-save output includes a timestamp, not idempotent
@@ -30,7 +30,7 @@
 
 - name: (Debian) Load iptables rules at boot
   become: true
-  copy:
+  ansible.builtin.copy:
     src: iptables-preup
     dest: /etc/network/if-pre-up.d/iptables
     mode: '755'

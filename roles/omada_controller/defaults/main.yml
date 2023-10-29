@@ -1,6 +1,5 @@
 ---
-omada_archive_url: https://static.tp-link.com/upload/software/2022/202208/20220822/Omada_SDN_Controller_v5.5.6_Linux_x64.tar.gz
-omada_user: omada
-# TLS cert is not customisable, a reverse proxy is recommended for secure access
+omada_compose_dir: /etc/compose/omada
+omada_autobackup_dir: "{{ omada_compose_dir }}/autobackup"
+omada_version: latest
 omada_http_port: 8088
-omada_https_port: 8043

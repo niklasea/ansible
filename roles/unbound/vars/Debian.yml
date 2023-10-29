@@ -1,9 +1,0 @@
----
-unbound_build_dependencies:
-  - git                       # Ansible git module
-  - cron                      # Ansible cron module
-  - build-essential
-  - libexpat1-dev
-  - libssl-dev
-  - libevent-dev
-  - byacc

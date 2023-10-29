@@ -1,0 +1,46 @@
+ARG DEBIAN_VERSION=12
+ARG GETDNS_RELEASE=master
+FROM debian:${DEBIAN_VERSION}-slim AS build
+
+RUN apt-get update \
+  && apt-get install -y \
+    git \
+    tar \
+    build-essential \
+    cmake \
+    libssl-dev \
+    libyaml-dev
+
+ARG BUILD_DIR=/stubby_build
+ARG INSTALL_DIR=/opt/stubby
+WORKDIR ${BUILD_DIR}
+
+RUN git clone https://github.com/getdnsapi/getdns.git . \
+  && git checkout ${GETDNS_RELEASE} \
+  && git submodule update --init
+
+RUN cmake -D BUILD_TESTING=OFF -D CMAKE_BUILD_TYPE=Release \
+  -D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} -D CMAKE_INSTALL_RUNSTATEDIR=${INSTALL_DIR}/run -D CMAKE_INSTALL_SYSCONFDIR=${INSTALL_DIR}/config \
+  -D BUILD_STUBBY=ON -D USE_LIBIDN2=OFF -D ENABLE_STUB_ONLY=ON \
+  ${BUILD_DIR}
+RUN make -j2 install
+
+FROM debian:${DEBIAN_VERSION}-slim
+ARG INSTALL_DIR=/opt/stubby
+COPY --from=build ${INSTALL_DIR} ${INSTALL_DIR}
+WORKDIR ${INSTALL_DIR}
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    libssl3 \
+    libyaml-0-2 \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 53/tcp
+EXPOSE 53/udp
+
+ENV LOG_LEVEL=5
+ENV CONFIG_FILE=/etc/stubby.yml
+
+CMD [ "/bin/bash", "-c", "bin/stubby -v ${LOG_LEVEL} -C ${CONFIG_FILE}" ]
