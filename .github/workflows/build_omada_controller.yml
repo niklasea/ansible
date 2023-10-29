@@ -5,17 +5,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/build_omada_controller.yml
+      - dockerfiles/omada_controller/**
   pull_request:
     branches:
       - main
+    paths:
+      - .github/workflows/build_omada_controller.yml
+      - dockerfiles/omada_controller/**
   workflow_dispatch:
     inputs:
       omada_tar_url:
-        description: 'Omada EAP controller tar.gz download URL'
+        description: Omada EAP controller tar.gz download URL.
         required: true
         type: string
       docker_tag:
-        description: 'Docker image tag'
+        description: Docker image tag.
         required: true
         type: string
 

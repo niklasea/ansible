@@ -5,17 +5,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/build_stubby.yml
+      - dockerfiles/stubby/**
   pull_request:
     branches:
       - main
+    paths:
+      - .github/workflows/build_stubby.yml
+      - dockerfiles/stubby/**
   schedule:
-    - cron: '0 0 1 */3 *'
+    - cron: 0 0 1 */3 *
   workflow_dispatch:
     inputs:
       branch:
-        description: 'getdns branch to use'
+        description: getdns branch to use, e.g. 'tags/v1.7.3'.
         required: false
-        default: 'tags/v1.7.3'
+        default: tags/v1.7.3
         type: string
 
 jobs:
