@@ -10,7 +10,7 @@ on:
         default: "current"
         type: string
       release_tag:
-        description: "Build a specific release, e.g. '1.3.4'. This needs to match the given branch if provided."
+        description: "Build a specific release, e.g. '1.3.4'. This needs to match the given branch name if provided."
         required: false
         type: string
       architecture:
