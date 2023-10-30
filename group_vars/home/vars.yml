@@ -31,7 +31,7 @@ certbot_dns_propagation: 15
 certbot_deploy_hook: |
   #!/usr/bin/env bash
 
-  cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/cert.pem" > "{{ haproxy_tls_certificate_path }}"
+  cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/fullchain.pem" > "{{ haproxy_tls_certificate_path }}"
   docker compose -f /etc/compose/haproxy/docker-compose.yml restart
 
 vpn_network_ipv4: '172.21.0.0/24'
