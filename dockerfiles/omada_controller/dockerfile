@@ -86,6 +86,10 @@ EXPOSE 29811/tcp
 EXPOSE 29812/tcp
 # Omada EAP firmware upgrade
 EXPOSE 29813/tcp
+# Omada EAP device management?
+EXPOSE 29814/tcp
+EXPOSE 29815/tcp
+EXPOSE 29816/tcp
 
 WORKDIR ${INSTALL_DIR}
 CMD [ "/bin/bash", "-c", "set -e; ./bin/control.sh start; sleep infinity;" ]
