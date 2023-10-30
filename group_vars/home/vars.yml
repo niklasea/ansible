@@ -76,9 +76,9 @@ pihole_webpassword: "{{ vault_pihole_webpassword }}"
 pihole_gateway_address: "{{ gateway_address }}"
 pihole_domain: "{{ local_domain }}"
 pihole_dnssec: 'false'
-pihole_dnsmasq_reverse_server:
+pihole_reverse_server:
   server_ip: "{{ dhcp_address }}"
-  network: "{{ dhcp_address }}/{{ ansible_default_ipv4.netmask }}"
+  network_cidr: "{{ dhcp_address }}"
   domain: "{{ pihole_domain }}"
 
 pihole_ignore_localhost: 'yes'
