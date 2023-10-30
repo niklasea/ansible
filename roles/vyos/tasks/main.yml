@@ -12,6 +12,8 @@
       ansible.builtin.shell:
         cmd: yes | ./commands.sh
         executable: /bin/vbash
+      register: _vyos_commands_result
+      failed_when: "'Commit failed' in _vyos_commands_result.stdout"
 
     - name: Save changes
       ansible.builtin.shell:

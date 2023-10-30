@@ -21,6 +21,12 @@ set system domain-search domain '{{ vyos_local_domain }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} key '{{ user.ssh_public_key }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} type '{{ user.ssh_public_key_type }}'
 {% endfor %}
+{% for item in vyos_static_host_mappings %}
+set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' inet '{{ item.address }}'
+{% for alias in item.aliases %}
+set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' alias '{{ alias }}.{{ vyos_local_domain }}'
+{% endfor %}
+{% endfor %}
 
 # Configure SSH
 
@@ -49,17 +55,31 @@ comment service ssh mac 'Uses Mozilla OpenSSH modern recommendations (Feb-2020)'
 
 # Configure DHCP server
 
+set service dhcp-server hostfile-update
 {% for interface in vyos_local_interfaces %}
 {% set current_interface_gateway = interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') %}
 set service dhcp-server shared-network-name {{ interface.name }} authoritative
-set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' range CLIENTS start '{{ interface.dhcp_range.start | default(interface.subnet | ansible.utils.ipaddr('50'))  | ansible.utils.ipaddr('address') }}'
-set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' range CLIENTS stop '{{ interface.dhcp_range.stop | default(interface.subnet | ansible.utils.ipaddr('-2'))  | ansible.utils.ipaddr('address') }}'
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' range CLIENTS start '{{ interface.dhcp_range.start | default(interface.subnet | ansible.utils.ipaddr('50')) | ansible.utils.ipaddr('address') }}'
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' range CLIENTS stop '{{ interface.dhcp_range.stop | default(interface.subnet | ansible.utils.ipaddr('-2')) | ansible.utils.ipaddr('address') }}'
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' default-router '{{ current_interface_gateway }}'
+set service dhcp-server shared-network-name {{ interface.name }} domain-name '{{ vyos_local_domain }}'
+set service dhcp-server shared-network-name {{ interface.name }} domain-search '{{ vyos_local_domain }}'
 set service dhcp-server shared-network-name {{ interface.name }} ntp-server '{{ current_interface_gateway }}'
 {% for address in vyos_dns_addresses %}
 set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
+{% if interface.static_leases is defined %}
+{% for client_name, values in interface.static_leases.items() %}
+{% if values.hardware_address is defined %}
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' ip-address '{{ values.ipv4_address | ansible.utils.ipaddr('address') }}'
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' mac-address '{{ values.hardware_address }}'
+{% endif %}
 {% endfor %}
+{% endif %}
+set service dns forwarding listen-address '{{ current_interface_gateway }}'
+set service dns forwarding allow-from '{{ interface.subnet }}'
+{% endfor %}
+set service dns forwarding system
 
 # Configure NTP server
 
@@ -229,6 +249,6 @@ set interfaces ethernet {{ interface.device }} vif {{ interface.vlan }} firewall
 set interfaces ethernet {{ interface.device }} vif {{ interface.vlan }} firewall local name '{{ interface.name }}-LOCAL-v4'
 {% endfor %}
 
-# Commit changes and wait up to 1 minute for confirmation
+# Commit changes and wait for confirmation
 
-commit-confirm 1
+commit-confirm 2

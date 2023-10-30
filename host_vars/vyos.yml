@@ -13,6 +13,7 @@ vyos_local_interfaces:
     name: NINO
     vlan: 10
     subnet: "{{ internal_network_ipv4 }}"
+    static_leases: "{{ hosts }}"
   - device: eth1
     name: GUEST
     vlan: 90
@@ -36,7 +37,7 @@ vyos_local_interfaces:
         set firewall name GUEST-IN-v4 rule 20 state new 'enable'
         set firewall name GUEST-IN-v4 rule 100 action 'accept'
         set firewall name GUEST-IN-v4 rule 100 description 'Allow guests to use local DNS servers'
-        set firewall name GUEST-IN-v4 rule 100 destination group network-group 'LOCAL-DNS'
+        set firewall name GUEST-IN-v4 rule 100 destination group address-group 'LOCAL-DNS'
         set firewall name GUEST-IN-v4 rule 100 protocol 'tcp_udp'
         set firewall name GUEST-IN-v4 rule 100 state new 'enable'
       local: |
@@ -81,6 +82,10 @@ vyos_nat_destination_rules:
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'tcp'
   #   translation address: '{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
+vyos_static_host_mappings:
+  - hostname: internal-docker
+    address: "{{ hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
+    aliases: "{{ hosts['internal-docker']['alternate_hostnames'] }}"
 vyos_static_routes:
   - network: "{{ vpn_network_ipv4 }}"
     gateway: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"

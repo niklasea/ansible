@@ -1,5 +1,5 @@
 ---
 omada_compose_dir: /etc/compose/omada
 omada_autobackup_dir: "{{ omada_compose_dir }}/autobackup"
-omada_version: latest
+omada_version: v5.12.7
 omada_http_port: 8088

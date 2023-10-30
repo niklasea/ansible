@@ -62,7 +62,7 @@
   become: true
   ansible.builtin.command:
     cmd: docker compose down
-    chdir: "{{ inadyn_compose_dir }}"
+    chdir: "{{ dns_compose_dir }}"
   when: _configuration_files is changed
 
 - name: Start DNS
