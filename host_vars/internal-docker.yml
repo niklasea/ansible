@@ -52,7 +52,7 @@ jellyfin_media_dir: "{{ smb_mounts.media.local_path }}"
 
 vaultwarden_signups_allowed: false
 vaultwarden_admin_token: "{{ vault_vaultwarden.admin_token }}"
-vaultwarden_domain: "https://{{ certbot_domain }}"
+vaultwarden_domain: "https://bitwarden.{{ local_domain }}"
 vaultwarden_smtp:
   host: "{{ vault_vaultwarden.smtp.host }}"
   from: "{{ vault_vaultwarden.smtp.username }}"
