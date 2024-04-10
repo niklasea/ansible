@@ -9,7 +9,7 @@ wireguard_peers:
     PublicKey: 'HcqY+vyuCP00we+DWbv0GL5oeupHrhVE7GnAbDKuvn8='
     AllowedIPs: "{{ vpn_network_ipv4['network'] | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}/32"
   NinosDesktop:
-    PublicKey: 'KfWraMr/u5fsN3DCG10k7fUAbDH8cInJ9aVuMq/IlTI='
+    PublicKey: 'R6/Ec6iMXw/VL5uayuYRWCGKRtNyrR1XZSFeRvczAzU='
     AllowedIPs: "{{ vpn_network_ipv4['network'] | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}/32"
   NinosOP8T:
     PublicKey: 'NX95oJKZjkx7GfmbkkcfFUWeULqGIRsFTGrJj8b5mjo='
@@ -18,7 +18,7 @@ wireguard_peers:
     PublicKey: 'sPerTiUos9AYtwcdEbStPLz33mitT6mSR0kugC2/4Hg='
     AllowedIPs: "{{ vpn_network_ipv4['network'] | ansible.utils.ipaddr('5') | ansible.utils.ipaddr('address') }}/32"
   NinosWorkLaptop:
-    PublicKey: 'k3x6G3OTimZpwDrD2RTAa3WVd3lq2fHginyFU7MfFWk='
+    PublicKey: '4mjMzPorMHAjNpK29Z3FkcNy5dOKxj4H/V4Ie0csIlo='
     AllowedIPs: "{{ vpn_network_ipv4['network'] | ansible.utils.ipaddr('6') | ansible.utils.ipaddr('address') }}/32"
   AsusSingapore:
     PublicKey: 'ru4nKI499VFdKoS0YMHEZuq5wrgnDBDD3dovsHtDYnU='
