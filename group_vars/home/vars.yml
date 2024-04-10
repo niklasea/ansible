@@ -34,7 +34,9 @@ certbot_deploy_hook: |
   cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/fullchain.pem" > "{{ haproxy_tls_certificate_path }}"
   docker compose -f /etc/compose/haproxy/docker-compose.yml restart
 
-vpn_network_ipv4: '172.21.0.0/24'
+vpn_network_ipv4:
+  network: '172.21.0.0/24'
+  local_address: "{{ hosts['internal-docker']['ipv4_address'] }}"
 wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"
 
 wifi_pass: "{{ vault_wifi_pass }}"
