@@ -53,7 +53,7 @@ set service ssh mac 'hmac-sha2-256'
 set service ssh mac 'umac-128@openssh.com'
 comment service ssh mac 'Uses Mozilla OpenSSH modern recommendations (Feb-2020)'
 
-# Configure DHCP server
+# Configure DHCP and DNS server
 
 set service dhcp-server hostfile-update
 {% for interface in vyos_local_interfaces %}
@@ -80,6 +80,7 @@ set service dns forwarding listen-address '{{ current_interface_gateway }}'
 set service dns forwarding allow-from '{{ interface.subnet }}'
 {% endfor %}
 set service dns forwarding system
+set service dns forwarding dnssec process
 
 # Configure NTP server
 
