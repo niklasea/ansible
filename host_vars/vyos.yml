@@ -1,6 +1,6 @@
 ---
 vyos_wan_interface: eth0
-vyos_wan_upload_bandwidth: 45mbit
+vyos_wan_upload_bandwidth: 200mbit
 vyos_guest_network_address: "{{ guest_network_ipv4 | ansible.utils.ipaddr('1') }}"
 vyos_users:
   - username: vyos
