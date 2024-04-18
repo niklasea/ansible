@@ -20,12 +20,10 @@ wireguard_postup:
   - "iptables -A INPUT -p udp --dport {{ wireguard_listenport }} -j ACCEPT"
   - "iptables -A FORWARD -i %i -j ACCEPT"
   - "iptables -A FORWARD -o %i -j ACCEPT"
-  - "iptables -t nat -A POSTROUTING -s {{ wireguard_addresses | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 wireguard_postdown:
   - "iptables -D INPUT -p udp --dport {{ wireguard_listenport }} -j ACCEPT"
   - "iptables -D FORWARD -i %i -j ACCEPT"
   - "iptables -D FORWARD -o %i -j ACCEPT"
-  - "iptables -t nat -D POSTROUTING -s {{ wireguard_addresses | ansible.utils.ipaddr('network/prefix') | join(',') }} -j MASQUERADE"
 
 # Peers are provided as a mapping from name to the options as key-value pairs.
 # PublicKey and AllowedIPs are required.
