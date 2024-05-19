@@ -26,30 +26,11 @@ on:
 
 jobs:
   build:
-    name: Build docker image
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5.0.0
-        with:
-          context: dockerfiles/stubby
-          file: dockerfiles/stubby/dockerfile
-          tags: |
-            ghcr.io/niklasea/stubby:${{ inputs.branch || 'master' }}
-          push: ${{ github.ref == 'refs/heads/main' }}
-          build-args: |
-            GETDNS_RELEASE=${{ inputs.branch || 'master' }}
+    uses: ./.github/workflows/push_docker_image.yml
+    with:
+      image_name: ghcr.io/niklasea/stubby
+      custom_tag: ${{ inputs.branch || 'master' }}
+      context: dockerfiles/stubby
+      file: dockerfiles/stubby/dockerfile
+      build-args: |
+        GETDNS_RELEASE=${{ inputs.branch || 'master' }}
