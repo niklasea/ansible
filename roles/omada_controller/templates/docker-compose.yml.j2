@@ -28,9 +28,7 @@ services:
     ports:
       - 27001:27001/udp
       - 29810:29810/udp
-      - 29811:29811/tcp
-      - 29812:29812/tcp
-      - 29813:29813/tcp
+      - 29811-29816:29811-29816/tcp
     environment:
       HTTP_PORT: {{ omada_http_port }}
       AUTOBACKUP_DIR: /opt/tplink/autobackup/

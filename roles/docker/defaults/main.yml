@@ -16,4 +16,7 @@ docker_daemon_default_ulimits:
       Name: nofile
       Soft: 2048
       Hard: 131072
+docker_daemon_address_pools:
+  - base: "10.0.0.0/8"
+    size: 26
 docker_remap_user: 165536

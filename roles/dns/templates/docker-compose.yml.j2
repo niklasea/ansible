@@ -59,9 +59,10 @@ services:
       PIHOLE_DOMAIN: {{ pihole_domain }}
       DHCP_rapid_commit: {{ pihole_dhcp_rapid_commit }}
       DHCP_IPv6: {{ pihole_dhcp_ipv6 }}
-      REV_SERVER_DOMAIN: {{ pihole_dnsmasq_reverse_server.domain }}
-      REV_SERVER_CIDR: {{ pihole_dnsmasq_reverse_server.network }}
-      REV_SERVER_TARGET: {{ pihole_dnsmasq_reverse_server.server_ip }}
+      REV_SERVER: {{ pihole_reverse_server_enabled }}
+      REV_SERVER_DOMAIN: {{ pihole_reverse_server.domain }}
+      REV_SERVER_CIDR: {{ pihole_reverse_server.network_cidr | ansible.utils.ipaddr('network/prefix') }}
+      REV_SERVER_TARGET: {{ pihole_reverse_server.server_ip | ansible.utils.ipaddr('address') }}
     volumes:
       - {{ pihole_dnsmasq_config_path }}:/etc/dnsmasq.d
       - {{ pihole_config_path }}:/etc/pihole
