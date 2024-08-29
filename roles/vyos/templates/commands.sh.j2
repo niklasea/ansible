@@ -52,6 +52,8 @@ set service ssh mac 'hmac-sha2-512'
 set service ssh mac 'hmac-sha2-256'
 set service ssh mac 'umac-128@openssh.com'
 comment service ssh mac 'Uses Mozilla OpenSSH modern recommendations (Feb-2020)'
+set service ssh disable-host-validation
+comment service ssh disable-host-validation 'Host validation causes unnecessary DNS traffic for no clear benefit'
 
 # Configure DHCP and DNS server
 
