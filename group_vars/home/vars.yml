@@ -19,6 +19,8 @@ haproxy_docker_internal_network: '10.0.0.0/16'
 
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
+docker_compose_dir: /etc/compose
+haproxy_compose_dir: "{{ docker_compose_dir }}/haproxy"
 haproxy_tls_certificate_path: "{{ haproxy_compose_dir }}/certificate.pem"
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_email: "{{ vault_certificate_notification_email }}"
