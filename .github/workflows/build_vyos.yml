@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: vyos/vyos-build
           ref: ${{ inputs.release_tag || inputs.branch }}
