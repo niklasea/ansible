@@ -37,8 +37,11 @@ RUN apt-get update \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 53/tcp
-EXPOSE 53/udp
+RUN useradd application
+USER application
+
+EXPOSE 5353/tcp
+EXPOSE 5353/udp
 
 ENV LOG_LEVEL=5
 ENV CONFIG_FILE=/etc/stubby.yml

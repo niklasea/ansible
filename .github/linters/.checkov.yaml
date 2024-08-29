@@ -1,5 +1,7 @@
 ---
+quiet: true # Do not report passed checks in output.
 skip-check:
   - CKV_DOCKER_2 # Health check is not relevant on all images.
   - CKV2_ANSIBLE_3 # Blocks are not just for error-handling.
   - CKV2_GHA_1 # Set to read-only in repository settings.
+  - CKV_GHA_7 # Workflow_dispatch inputs are useful.

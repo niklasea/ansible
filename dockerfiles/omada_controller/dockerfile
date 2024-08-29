@@ -49,6 +49,7 @@ RUN apt-get update \
 # Create the user, but do not switch to it. The controller start script expects root.
 ENV OMADA_USER=omada
 RUN useradd --system -U --shell /usr/sbin/nologin ${OMADA_USER}
+USER root
 
 COPY --from=build ${KEY_RING_DIR} ${KEY_RING_DIR}
 COPY --from=build ${APT_SOURCES_DIR} ${APT_SOURCES_DIR}
