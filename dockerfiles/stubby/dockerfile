@@ -3,7 +3,7 @@ ARG GETDNS_RELEASE=master
 FROM debian:${DEBIAN_VERSION}-slim AS build
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
+  && apt-get install -y \
     git \
     tar \
     build-essential \
