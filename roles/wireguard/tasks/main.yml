@@ -23,17 +23,11 @@
     dest: "{{ wireguard_compose_dir }}/docker-compose.yml"
     mode: '640'
 
-- name: Stop docker services
-  become: true
-  ansible.builtin.command:
-    cmd: docker compose down
-    chdir: "{{ wireguard_compose_dir }}"
-  when: _configuration_files is changed
-
 - name: Start WireGuard
   become: true
-  ansible.builtin.command:
-    cmd: docker compose up -d
-    chdir: "{{ wireguard_compose_dir }}"
-  register: _docker_compose_up_result
-  changed_when: "'Running' not in _docker_compose_up_result.stderr"
+  community.docker.docker_compose_v2:
+    project_src: "{{ wireguard_compose_dir }}"
+    state: "present"
+    pull: "always"
+    recreate: "{{ 'always' if _configuration_files is changed else 'auto' }}"
+    remove_orphans: true
