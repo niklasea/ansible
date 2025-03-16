@@ -6,8 +6,10 @@ RUN apt-get update \
     iperf3 \
   && rm -rf /var/lib/apt/lists/*
 
+RUN useradd application
+USER application
+
 EXPOSE 5201
 
-ENV CONFIGURATION_DIR=/config
 ENTRYPOINT [ "iperf3", "-s" ]
 CMD [ "-p", "5201" ]

@@ -1,6 +1,6 @@
 ---
 vyos_wan_interface: eth0
-vyos_wan_upload_bandwidth: 45mbit
+vyos_wan_upload_bandwidth: 200mbit
 vyos_guest_network_address: "{{ guest_network_ipv4 | ansible.utils.ipaddr('1') }}"
 vyos_users:
   - username: vyos
@@ -64,7 +64,7 @@ vyos_nat_destination_rules:
     destination port: '51820'
     inbound-interface: "{{ vyos_wan_interface }}"
     protocol: 'udp'
-    translation address: "{{ hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
+    translation address: "{{ vpn_network_ipv4['local_address'] | ansible.utils.ipaddr('address') }}"
   # - description: 'NAT loopback Wireguard'
   #   destination address: '{{ wan_address_ipv4 }}'
   #   destination port: '51820'
@@ -87,5 +87,5 @@ vyos_static_host_mappings:
     address: "{{ hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
     aliases: "{{ hosts['internal-docker']['alternate_hostnames'] }}"
 vyos_static_routes:
-  - network: "{{ vpn_network_ipv4 }}"
-    gateway: "{{ vpn_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+  - network: "{{ vpn_network_ipv4['network'] }}"
+    gateway: "{{ vpn_network_ipv4['local_address'] | ansible.utils.ipaddr('address') }}"

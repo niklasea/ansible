@@ -44,11 +44,13 @@ ARG INSTALL_DIR
 # Needed for adoptium repository.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    ca-certificates
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 # Create the user, but do not switch to it. The controller start script expects root.
 ENV OMADA_USER=omada
 RUN useradd --system -U --shell /usr/sbin/nologin ${OMADA_USER}
+USER root
 
 COPY --from=build ${KEY_RING_DIR} ${KEY_RING_DIR}
 COPY --from=build ${APT_SOURCES_DIR} ${APT_SOURCES_DIR}
@@ -86,6 +88,10 @@ EXPOSE 29811/tcp
 EXPOSE 29812/tcp
 # Omada EAP firmware upgrade
 EXPOSE 29813/tcp
+# Omada EAP device management?
+EXPOSE 29814/tcp
+EXPOSE 29815/tcp
+EXPOSE 29816/tcp
 
 WORKDIR ${INSTALL_DIR}
 CMD [ "/bin/bash", "-c", "set -e; ./bin/control.sh start; sleep infinity;" ]

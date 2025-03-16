@@ -17,8 +17,9 @@
 
 - name: Start Omada
   become: true
-  ansible.builtin.command:
-    cmd: docker compose up -d
-    chdir: "{{ omada_compose_dir }}"
-  register: _docker_compose_up_result
-  changed_when: "'Running' not in _docker_compose_up_result.stderr"
+  community.docker.docker_compose_v2:
+    project_src: "{{ omada_compose_dir }}"
+    state: "present"
+    pull: "always"
+    recreate: "auto"
+    remove_orphans: true

@@ -19,6 +19,8 @@ haproxy_docker_internal_network: '10.0.0.0/16'
 
 ansible_become_password: "{{ vault_ansible_become_password }}"
 
+docker_compose_dir: /etc/compose
+haproxy_compose_dir: "{{ docker_compose_dir }}/haproxy"
 haproxy_tls_certificate_path: "{{ haproxy_compose_dir }}/certificate.pem"
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_email: "{{ vault_certificate_notification_email }}"
@@ -31,10 +33,12 @@ certbot_dns_propagation: 15
 certbot_deploy_hook: |
   #!/usr/bin/env bash
 
-  cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/cert.pem" > "{{ haproxy_tls_certificate_path }}"
+  cat "$RENEWED_LINEAGE/privkey.pem" "$RENEWED_LINEAGE/fullchain.pem" > "{{ haproxy_tls_certificate_path }}"
   docker compose -f /etc/compose/haproxy/docker-compose.yml restart
 
-vpn_network_ipv4: '172.21.0.0/24'
+vpn_network_ipv4:
+  network: '172.21.0.0/24'
+  local_address: "{{ hosts['internal-docker']['ipv4_address'] }}"
 wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"
 
 wifi_pass: "{{ vault_wifi_pass }}"
@@ -76,9 +80,9 @@ pihole_webpassword: "{{ vault_pihole_webpassword }}"
 pihole_gateway_address: "{{ gateway_address }}"
 pihole_domain: "{{ local_domain }}"
 pihole_dnssec: 'false'
-pihole_dnsmasq_reverse_server:
+pihole_reverse_server:
   server_ip: "{{ dhcp_address }}"
-  network: "{{ dhcp_address }}/{{ ansible_default_ipv4.netmask }}"
+  network_cidr: "{{ dhcp_address }}"
   domain: "{{ pihole_domain }}"
 
 pihole_ignore_localhost: 'yes'

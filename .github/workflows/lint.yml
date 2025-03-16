@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Lint Code Base
-        uses: super-linter/super-linter/slim@v5
+        uses: super-linter/super-linter/slim@v7
         env:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
@@ -31,3 +31,5 @@ jobs:
           LOG_LEVEL: WARN
           VALIDATE_GITLEAKS: false
           VALIDATE_NATURAL_LANGUAGE: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_YAML_PRETTIER: false

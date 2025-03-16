@@ -10,6 +10,9 @@ RUN apt-get update \
 
 COPY init.sh /
 
+RUN useradd application
+USER application
+
 EXPOSE 51820/udp
 
 ENV CONFIGURATION_DIR=/config

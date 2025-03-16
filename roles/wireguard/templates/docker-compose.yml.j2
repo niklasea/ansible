@@ -2,8 +2,6 @@ services:
   wireguard:
     image: ghcr.io/niklasea/wireguard:{{ wireguard_version }}
     restart: unless-stopped
-    sysctls:
-      net.ipv4.conf.all.src_valid_mark: 1
     cap_drop:
       - ALL
     cap_add:
@@ -14,7 +12,7 @@ services:
       resources:
         limits:
           memory: 1G
-    ports:
-      - {{ wireguard_listenport }}:{{ wireguard_listenport }}/udp
+    userns_mode: host
+    network_mode: host
     volumes:
       - {{ wireguard_compose_dir }}/{{ wireguard_interface_name }}.conf:/config/wg0.conf:ro
