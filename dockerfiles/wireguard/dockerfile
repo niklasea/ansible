@@ -2,7 +2,7 @@ ARG DEBIAN_VERSION=stable
 FROM debian:${DEBIAN_VERSION}-slim
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
+  && apt-get install -y \
     wireguard \
     iptables \
     iproute2 \
