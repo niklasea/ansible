@@ -63,5 +63,4 @@ jobs:
           file: ${{ inputs.file }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          push: ${{ github.ref == 'refs/heads/main' }}
           build-args: ${{ inputs.build-args }}
