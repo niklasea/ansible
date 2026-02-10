@@ -1,5 +1,6 @@
 ---
 internal_network_ipv4: '172.21.1.0/24'
+public_network_ipv4: '172.21.2.0/24'
 guest_network_ipv4: '172.21.9.0/24'
 
 gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('1') }}"
@@ -54,9 +55,6 @@ hosts:
   arvon: # WiFi access point.
     hardware_address: '98:DA:C4:63:68:D6'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('6') }}"
-  public-docker: # Public server.
-    hardware_address: 'CE:CC:FD:16:0E:BC'
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
   internal-docker: # Internal server.
     hardware_address: '56:A1:01:56:C6:BD'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
@@ -67,6 +65,9 @@ hosts:
       - jellyfin
       - omada
       - speedtest
+  public-docker: # Public server.
+    hardware_address: 'CE:CC:FD:16:0E:BC'
+    ipv4_address: "{{ public_network_ipv4 | ansible.utils.ipaddr('2') }}"
 
 stubby_upstream: |
   - address_data: 8.8.8.8
