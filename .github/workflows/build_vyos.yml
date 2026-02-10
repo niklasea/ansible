@@ -22,15 +22,21 @@ on:
 env:
   BUILD_DIR: vyos_build
 
+permissions: {}
+
 jobs:
   build:
     name: Build system image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           repository: vyos/vyos-build
           ref: ${{ inputs.release_tag || inputs.branch }}
           path: $BUILD_DIR
@@ -42,8 +48,10 @@ jobs:
           options: --privileged -v ${{ github.workspace }}/$BUILD_DIR:/vyos -w /vyos
           shell: bash
           run: |
-            ./configure --architecture ${{ inputs.architecture }} --build-type release --build-by mail@niklasea.dk
+            ./configure --architecture "${ARCHITECTURE}" --build-type release --build-by mail@niklasea.dk
             make iso
+        env:
+          ARCHITECTURE: ${{ inputs.architecture }}
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4

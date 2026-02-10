@@ -30,7 +30,9 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Docker meta
         id: meta
@@ -59,9 +61,11 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ${{ inputs.context }}
+          context: ${CONTEXT_PATH}
           file: ${{ inputs.file }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           build-args: ${{ inputs.build-args }}
+        env:
+          CONTEXT_PATH: ${{ inputs.context }}
