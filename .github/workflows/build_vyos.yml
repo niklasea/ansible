@@ -22,10 +22,15 @@ on:
 env:
   BUILD_DIR: vyos_build
 
+permissions: {}
+
 jobs:
   build:
     name: Build system image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout source code
