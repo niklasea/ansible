@@ -3,7 +3,7 @@ pihole_gateway_address: "{{ ansible_default_ipv4.gateway }}"
 pihole_ipv4_address: "{{ ansible_default_ipv4.address }}/{{ ansible_default_ipv4.netmask }}"
 pihole_ipv6_address: "{{ ansible_default_ipv6.address | default('') }}"
 
-pihole_version: latest
+pihole_version: v5.8.1
 pihole_docker_internal_network: '172.16.0.0/24'
 
 # setupVars.conf
