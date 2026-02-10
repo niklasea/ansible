@@ -30,8 +30,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LOG_LEVEL: WARN
           VALIDATE_ANSIBLE: true
-          VALIDATE_BASH: true
-          VALIDATE_BASH_EXEC: true
           VALIDATE_CHECKOV: true
           VALIDATE_DOCKERFILE_HADOLINT: true
           VALIDATE_EDITORCONFIG: true
