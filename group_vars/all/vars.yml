@@ -1,5 +1,6 @@
 ---
 internal_network_ipv4: '172.21.1.0/24'
+public_network_ipv4: '172.21.2.0/24'
 guest_network_ipv4: '172.21.9.0/24'
 
 gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('1') }}"
@@ -59,6 +60,7 @@ wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"
 wifi_pass: "{{ vault_wifi_pass }}"
 
 infrastructure_hosts:
+  # PRIVATE SUBNET
   vyos:
     ipv4_address: "{{ gateway_address }}"
   atreides:
@@ -72,7 +74,7 @@ infrastructure_hosts:
   dns: # Internal DNS.
     hardware_address: 'BC:24:11:2D:9E:C5'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
-  internal-docker: # Internal server.
+  internal-docker:
     hardware_address: '56:A1:01:56:C6:BD'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
     alternate_hostnames:
@@ -81,6 +83,10 @@ infrastructure_hosts:
       - jellyfin
       - omada
       - speedtest
+  # PUBLIC SUBNET
+  public-docker:
+    hardware_address: 'CE:CC:FD:16:0E:BC'
+    ipv4_address: "{{ public_network_ipv4 | ansible.utils.ipaddr('2') }}"
 
 stubby_upstream: |
   - address_data: 8.8.8.8

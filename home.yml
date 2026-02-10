@@ -39,6 +39,18 @@
         create_vm_proxmox_tags:
           - docker
     - ansible.builtin.import_role:
+        name: create_vm_proxmox
+      vars:
+        create_vm_proxmox_node: atreides
+        create_vm_proxmox_name: public-docker
+        create_vm_proxmox_cores: 4
+        create_vm_proxmox_memory_mb: 4096
+        create_vm_proxmox_disk_size: 50G
+        create_vm_proxmox_net:
+          net0: "virtio={{ infrastructure_hosts[create_vm_proxmox_name]['hardware_address'] }},bridge=vmbr0,tag=20"
+        create_vm_proxmox_tags:
+          - docker
+    - ansible.builtin.import_role:
         name: create_vm_hetzner
       vars:
         create_vm_hetzner_name: "kubernetes-{{ create_vm_hetzner_location }}"
