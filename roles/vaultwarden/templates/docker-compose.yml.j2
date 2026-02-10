@@ -36,7 +36,7 @@ services:
       YUBICO_SERVER: {{ vaultwarden_yubico.server }}
 {% endif %}
 {% endif %}
-      AUTHENTICATOR_DISABLE_TIME_DRIFT :  {{ vaultwarden_authenticator_disable_time_drift }}
+      AUTHENTICATOR_DISABLE_TIME_DRIFT:  {{ vaultwarden_authenticator_disable_time_drift }}
 {% if vaultwarden_smtp is defined %}
       SMTP_HOST: {{ vaultwarden_smtp.host }}
       SMTP_FROM: {{ vaultwarden_smtp.from }}
