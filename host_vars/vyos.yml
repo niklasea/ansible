@@ -16,6 +16,51 @@ vyos_local_interfaces:
     subnet: "{{ internal_network_ipv4 }}"
     static_leases: "{{ infrastructure_hosts }}"
   - device: eth1
+    name: PUBLIC
+    vlan: 20
+    subnet: "{{ public_network_ipv4 }}"
+    firewall_rules_ipv4:
+      in: |
+        set firewall name PUBLIC-IN-v4 default-action 'reject'
+        set firewall name PUBLIC-IN-v4 enable-default-log
+        set firewall name PUBLIC-IN-v4 rule 10 action 'accept'
+        set firewall name PUBLIC-IN-v4 rule 10 state established 'enable'
+        set firewall name PUBLIC-IN-v4 rule 10 state related 'enable'
+        set firewall name PUBLIC-IN-v4 rule 11 action 'accept'
+        set firewall name PUBLIC-IN-v4 rule 11 description 'Allow public servers to use the internet'
+        set firewall name PUBLIC-IN-v4 rule 11 destination group network-group '!LOCAL-NETWORKS'
+        set firewall name PUBLIC-IN-v4 rule 11 protocol 'tcp_udp'
+        set firewall name PUBLIC-IN-v4 rule 11 state new 'enable'
+        set firewall name PUBLIC-IN-v4 rule 20 action 'accept'
+        set firewall name PUBLIC-IN-v4 rule 20 description 'Allow ICMP for diagnostic purposes'
+        set firewall name PUBLIC-IN-v4 rule 20 destination group network-group '!LOCAL-NETWORKS'
+        set firewall name PUBLIC-IN-v4 rule 20 protocol 'icmp'
+        set firewall name PUBLIC-IN-v4 rule 20 state new 'enable'
+        set firewall name PUBLIC-IN-v4 rule 100 action 'accept'
+        set firewall name PUBLIC-IN-v4 rule 100 description 'Allow public servers to use local DNS servers'
+        set firewall name PUBLIC-IN-v4 rule 100 destination group address-group 'LOCAL-DNS'
+        set firewall name PUBLIC-IN-v4 rule 100 protocol 'tcp_udp'
+        set firewall name PUBLIC-IN-v4 rule 100 state new 'enable'
+      local: |
+        set firewall name PUBLIC-LOCAL-v4 default-action 'reject'
+        set firewall name PUBLIC-LOCAL-v4 enable-default-log
+        set firewall name PUBLIC-LOCAL-v4 rule 10 action 'accept'
+        set firewall name PUBLIC-LOCAL-v4 rule 10 state established 'enable'
+        set firewall name PUBLIC-LOCAL-v4 rule 10 state related 'enable'
+        set firewall name PUBLIC-LOCAL-v4 rule 20 action 'accept'
+        set firewall name PUBLIC-LOCAL-v4 rule 20 icmp type-name 'echo-request'
+        set firewall name PUBLIC-LOCAL-v4 rule 20 protocol 'icmp'
+        set firewall name PUBLIC-LOCAL-v4 rule 100 action 'accept'
+        set firewall name PUBLIC-LOCAL-v4 rule 100 description 'Allow public servers to use local DNS service'
+        set firewall name PUBLIC-LOCAL-v4 rule 100 destination port '53'
+        set firewall name PUBLIC-LOCAL-v4 rule 100 protocol 'tcp_udp'
+        set firewall name PUBLIC-LOCAL-v4 rule 100 state new 'enable'
+        set firewall name PUBLIC-LOCAL-v4 rule 110 action 'accept'
+        set firewall name PUBLIC-LOCAL-v4 rule 110 description 'Allow public servers to use local NTP service'
+        set firewall name PUBLIC-LOCAL-v4 rule 110 destination port '123'
+        set firewall name PUBLIC-LOCAL-v4 rule 110 protocol 'udp'
+        set firewall name PUBLIC-LOCAL-v4 rule 110 state new 'enable'
+  - device: eth1
     name: GUEST
     vlan: 90
     subnet: "{{ guest_network_ipv4 }}"
@@ -61,6 +106,11 @@ vyos_local_interfaces:
         set firewall name GUEST-LOCAL-v4 rule 110 protocol 'udp'
         set firewall name GUEST-LOCAL-v4 rule 110 state new 'enable'
 vyos_nat_destination_rules:
+  - description: 'Port forward HTTPS'
+    destination port: '443'
+    inbound-interface: "{{ vyos_wan_interface }}"
+    protocol: 'udp'
+    translation address: "{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
   - description: 'Port forward WireGuard'
     destination port: '51820'
     inbound-interface: "{{ vyos_wan_interface }}"
@@ -83,10 +133,7 @@ vyos_nat_destination_rules:
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'tcp'
   #   translation address: '{{ infrastructure_hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
-vyos_static_host_mappings:
-  - hostname: internal-docker
-    address: "{{ infrastructure_hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
-    aliases: "{{ infrastructure_hosts['internal-docker']['alternate_hostnames'] }}"
+vyos_static_host_mappings: []
 vyos_static_routes:
   - network: "{{ vpn_network_ipv4['network'] }}"
     gateway: "{{ vpn_network_ipv4['local_address'] | ansible.utils.ipaddr('address') }}"
