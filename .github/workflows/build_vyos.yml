@@ -2,6 +2,9 @@
 name: Build VyOS image
 
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       branch:
@@ -38,14 +41,18 @@ jobs:
         with:
           persist-credentials: false
           repository: vyos/vyos-build
-          ref: ${{ inputs.release_tag || inputs.branch }}
+          ref: '1.3.8'
           path: $BUILD_DIR
 
       - name: Run the build process with Docker
         run: >
-          docker run --privileged -v ${{ github.workspace }}/$BUILD_DIR:/vyos -w /vyos
+          docker run
+          --privileged
+          -v ${{ github.workspace }}/$BUILD_DIR:/vyos
+          -w /vyos
+          vyos/vyos-build:equuleus
           ./configure
-          --architecture "${ARCHITECTURE}"
+          --architecture "amd64"
           --build-type release
           --build-by mail@niklasea.dk
           make iso
@@ -55,5 +62,5 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: VyOS_${{ inputs.branch }}${{ inputs.release_tag || '' }}_${{ inputs.architecture }}
-          path: $BUILD_DIR/build/live-image-${{ inputs.architecture }}.hybrid.iso
+          name: VyOS_equuleus1.3.8_amd64
+          path: $BUILD_DIR/build/live-image-amd64.hybrid.iso
