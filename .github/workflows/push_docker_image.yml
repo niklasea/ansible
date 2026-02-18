@@ -61,11 +61,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: "${CONTEXT_PATH}"
+          context: ${{ inputs.context }}
           file: ${{ inputs.file }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           push: true
           build-args: ${{ inputs.build-args }}
-        env:
-          CONTEXT_PATH: ${{ inputs.context }}
