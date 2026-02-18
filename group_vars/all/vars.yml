@@ -11,9 +11,7 @@ dhcp_range:
   start: "{{ internal_network_ipv4 | ansible.utils.ipaddr('50') }}"
   end: "{{ internal_network_ipv4 | ansible.utils.ipaddr('-2') }}"
 dhcp_dns_addresses:
-  - "{{ infrastructure_hosts['internal-docker']['ipv4_address'] }}"
-dhcp_ntp_addresses:
-  - "{{ infrastructure_hosts['internal-docker']['ipv4_address'] }}"
+  - "{{ infrastructure_hosts['dns']['ipv4_address'] }}"
 
 haproxy_docker_internal_network: '10.0.0.0/16'
 
@@ -71,8 +69,8 @@ infrastructure_hosts:
   arvon: # WiFi access point.
     hardware_address: '98:DA:C4:63:68:D6'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('6') }}"
-  public-docker: # Public server.
-    hardware_address: 'CE:CC:FD:16:0E:BC'
+  dns: # Internal DNS.
+    hardware_address: 'BC:24:11:2D:9E:C5'
     ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
   internal-docker: # Internal server.
     hardware_address: '56:A1:01:56:C6:BD'

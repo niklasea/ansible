@@ -12,7 +12,7 @@ set system time-zone 'Europe/Copenhagen'
 set system ntp server 0.pool.ntp.org
 set system ntp server 1.pool.ntp.org
 set system ntp server 2.pool.ntp.org
-{% for address in vyos_dns_addresses %}
+{% for address in vyos_system_dns_addresses %}
 set system name-server '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
 set system domain-name '{{ vyos_local_domain }}'
@@ -69,7 +69,7 @@ set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ inte
 set service dhcp-server shared-network-name {{ interface.name }} domain-name '{{ vyos_local_domain }}'
 set service dhcp-server shared-network-name {{ interface.name }} domain-search '{{ vyos_local_domain }}'
 set service dhcp-server shared-network-name {{ interface.name }} ntp-server '{{ current_interface_gateway }}'
-{% for address in vyos_dns_addresses %}
+{% for address in vyos_dhcp_dns_addresses %}
 set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
 {% if interface.static_leases is defined %}
@@ -99,7 +99,7 @@ set firewall all-ping 'enable'
 comment firewall all-ping 'Process IPv4 ICMP echo requests - must be enabled in order for the router to respond when pinged'
 set firewall broadcast-ping 'disable'
 set firewall config-trap 'disable'
-{% for address in vyos_dns_addresses %}
+{% for address in vyos_dhcp_dns_addresses %}
 set firewall group address-group LOCAL-DNS address '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
 set firewall group network-group LOCAL-NETWORKS network '10.0.0.0/8'

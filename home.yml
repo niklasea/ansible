@@ -15,12 +15,21 @@
         name: create_vm_proxmox
       vars:
         create_vm_proxmox_node: atreides
+        create_vm_proxmox_name: dns
+        create_vm_proxmox_net:
+          net0: "virtio={{ infrastructure_hosts[create_vm_proxmox_name]['hardware_address'] }},bridge=vmbr0,tag=10"
+        create_vm_proxmox_tags:
+          - dns
+    - ansible.builtin.import_role:
+        name: create_vm_proxmox
+      vars:
+        create_vm_proxmox_node: atreides
         create_vm_proxmox_name: internal-docker
         create_vm_proxmox_cores: 8
         create_vm_proxmox_memory_mb: 8192
         create_vm_proxmox_disk_size: 100G
         create_vm_proxmox_net:
-          net0: "virtio={{ infrastructure_hosts['internal-docker']['hardware_address'] }},bridge=vmbr0,tag=10"
+          net0: "virtio={{ infrastructure_hosts[create_vm_proxmox_name]['hardware_address'] }},bridge=vmbr0,tag=10"
         create_vm_proxmox_tags:
           - docker
     - ansible.builtin.import_role:
@@ -65,6 +74,12 @@
     - ansible.builtin.import_role:
         name: smb_mount
 
+- name: Configure internal DNS server
+  hosts: dns
+  tasks:
+    - ansible.builtin.import_role:
+        name: dns
+
 - name: Internal docker server
   hosts: internal-docker
   tasks:
@@ -72,8 +87,6 @@
         name: certbot-dns-cloudflare
     - ansible.builtin.import_role:
         name: wireguard
-    - ansible.builtin.import_role:
-        name: dns
     - ansible.builtin.import_role:
         name: inadyn
     - ansible.builtin.import_role:
