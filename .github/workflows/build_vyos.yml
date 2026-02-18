@@ -42,11 +42,16 @@ jobs:
           persist-credentials: false
           repository: vyos/vyos-build
           ref: '1.3.8'
+          path: $BUILD_DIR
 
       - name: Run the build process with Docker
-        run: |
-          docker run --privileged -v ${{ github.workspace }}:/vyos -w /vyos vyos/vyos-build:equuleus ./configure --architecture "amd64" --build-type release --build-by mail@niklasea.dk
-          make iso
+        run: >
+          docker run
+          --privileged
+          -v ${{ github.workspace }}/$BUILD_DIR:/vyos -w /vyos
+          vyos/vyos-build:equuleus
+          ./configure --architecture "amd64" --build-type release --build-by mail@niklasea.dk
+          && sudo make iso
         env:
           ARCHITECTURE: ${{ inputs.architecture }}
 
