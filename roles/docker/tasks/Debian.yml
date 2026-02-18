@@ -7,15 +7,15 @@
       - gnupg
     state: present
 
-- name: (Debian) Add the Docker apt key
-  ansible.builtin.apt_key:
-    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-    state: present
-
 - name: (Debian) Add the Docker repository
-  ansible.builtin.apt_repository:
-    repo: "deb https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-    state: present
+  deb822_repository:
+    name: docker
+    types: deb
+    uris: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
+    suites: "{{ ansible_distribution_release }}"
+    components: stable
+    architectures: amd64
+    signed_by: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
   register: docker_repository
 
 - name: (Debian) Install Docker
