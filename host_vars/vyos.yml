@@ -3,9 +3,9 @@ vyos_wan_interface: eth0
 vyos_wan_upload_bandwidth: 200mbit
 vyos_guest_network_address: "{{ guest_network_ipv4 | ansible.utils.ipaddr('1') }}"
 vyos_users:
-  - username: vyos
-    ssh_public_key: AAAAC3NzaC1lZDI1NTE5AAAAII0R2wlTuIwLKiehwg/fk4JXwcWi9RDUpZUFVBKB7JzU
-    ssh_public_key_type: ssh-ed25519
+  - username: "{{ vault_deployment_credentials.username }}"
+    ssh_public_key: "{{ ansible_ssh_public_key | ansible.builtin.split[1] }}"
+    ssh_public_key_type: "{{ ansible_ssh_public_key | ansible.builtin.split[0] }}"
 vyos_dns_addresses: "{{ dhcp_dns_addresses }}"
 vyos_local_domain: "{{ local_domain }}"
 vyos_local_interfaces:
@@ -70,22 +70,22 @@ vyos_nat_destination_rules:
   #   destination port: '51820'
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'udp'
-  #   translation address: '{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
+  #   translation address: '{{ infrastructure_hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
   # - description: 'Port forward Jellyfin clients'
   #   destination port: '32400'
   #   inbound-interface: "{{ vyos_wan_interface }}"
   #   protocol: 'tcp'
-  #   translation address: "{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
+  #   translation address: "{{ infrastructure_hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
   # - description: 'NAT loopback Jellyfin'
   #   destination address: '{{ wan_address_ipv4 }}'
   #   destination port: '32400'
   #   inbound-interface: "{{ vyos_lan_interface }}.10"
   #   protocol: 'tcp'
-  #   translation address: '{{ hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
+  #   translation address: '{{ infrastructure_hosts['public-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}'
 vyos_static_host_mappings:
   - hostname: internal-docker
-    address: "{{ hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
-    aliases: "{{ hosts['internal-docker']['alternate_hostnames'] }}"
+    address: "{{ infrastructure_hosts['internal-docker']['ipv4_address'] | ansible.utils.ipaddr('address') }}"
+    aliases: "{{ infrastructure_hosts['internal-docker']['alternate_hostnames'] }}"
 vyos_static_routes:
   - network: "{{ vpn_network_ipv4['network'] }}"
     gateway: "{{ vpn_network_ipv4['local_address'] | ansible.utils.ipaddr('address') }}"

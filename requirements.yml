@@ -1,0 +1,6 @@
+---
+collections:
+  - name: community.proxmox
+    version: ">=1.5.0"
+  - name: hetzner.hcloud
+    version: ">=5.1.0"
