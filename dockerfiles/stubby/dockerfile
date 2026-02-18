@@ -1,4 +1,4 @@
-ARG DEBIAN_VERSION=12
+ARG DEBIAN_VERSION=13
 ARG GETDNS_RELEASE=master
 FROM debian:${DEBIAN_VERSION}-slim AS build
 
@@ -39,9 +39,6 @@ RUN apt-get update \
 
 RUN useradd application
 USER application
-
-EXPOSE 5353/tcp
-EXPOSE 5353/udp
 
 ENV LOG_LEVEL=5
 ENV CONFIG_FILE=/etc/stubby.yml

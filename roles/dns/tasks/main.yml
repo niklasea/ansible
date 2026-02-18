@@ -8,31 +8,7 @@
     owner: "{{ item.owner | default('root') }}"
     group: "{{ item.group | default('root') }}"
   loop:
-    - path: "{{ pihole_config_path }}"
-      owner: "{{ docker_remap_user }}"
-      group: "{{ docker_remap_user }}"
-    - path: "{{ pihole_dnsmasq_config_path }}"
-      owner: "{{ docker_remap_user }}"
-      group: "{{ docker_remap_user }}"
     - path: "{{ stubby_config_path }}"
-
-- name: Create Pi-hole lists
-  become: true
-  ansible.builtin.template:
-    src: list.j2
-    dest: "{{ pihole_config_path }}/{{ item.dest }}"
-    mode: '644'
-  loop:
-    - list: "{{ pihole_adlists }}"
-      dest: adlists.list
-    - list: "{{ pihole_regexlists }}"
-      dest: regex.list
-    - list: "{{ pihole_blacklists }}"
-      dest: blacklist.txt
-    - list: "{{ pihole_whitelists }}"
-      dest: whitelist.txt
-  loop_control:
-    label: "Created list: {{ item.dest }}"
 
 - name: Apply configuration
   become: true
@@ -43,22 +19,38 @@
     group: root
     mode: '644'
   loop:
-    - src: dnsmasq.conf.j2
-      dest: "{{ pihole_dnsmasq_config_path }}/ansible_settings.conf"
-    - src: dhcp_reservations.conf.j2
-      dest: "{{ pihole_dnsmasq_config_path }}/dhcp_reservations.conf"
     - src: stubby.yml.j2
       dest: "{{ stubby_config_path }}/stubby.yml"
+    - src: docker-compose.yml.j2
+      dest: "{{ dns_compose_dir }}/docker-compose.yml"
   register: _configuration_files
 
-- name: Add Docker compose file
+- name: Check if systemd-resolved is running
   become: true
-  ansible.builtin.template:
-    src: docker-compose.yml.j2
-    dest: "{{ dns_compose_dir }}/docker-compose.yml"
-    mode: '640'
+  ansible.builtin.systemd_service:
+    name: systemd-resolved
+  register: _dns_stub_listener_active
 
-- name: Start DNS
+- name: Disable systemd-resolved stub resolver
+  become: true
+  when: _dns_stub_listener_active.status.ActiveState == 'active'
+  ansible.builtin.blockinfile:
+    path: /etc/systemd/resolved.conf.d/disable-stub.conf
+    state: present
+    create: true
+    block: |
+      [Resolve]
+      DNSStubListener=no
+  register: _dns_stub_listener_config
+
+- name: Restart systemd-resolved
+  become: true
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+  when: _dns_stub_listener_config is changed
+
+- name: Start DNS server
   become: true
   community.docker.docker_compose_v2:
     project_src: "{{ dns_compose_dir }}"
