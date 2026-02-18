@@ -12,66 +12,10 @@ services:
       - NET_BIND_SERVICE
     security_opt:
       - no-new-privileges:true
-    networks:
-      pihole:
-        ipv4_address: {{ pihole_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
     environment:
       LOG_LEVEL: {{ stubby_log_level }}
     volumes:
       - {{ stubby_config_path }}/stubby.yml:/etc/stubby.yml
-
-  pihole:
-    depends_on:
-      - stubby
-    image: pihole/pihole:{{ pihole_version }}
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-    ports:
-      - 53:53/tcp
-      - 53:53/udp
-{% if pihole_dhcp == 'true' %}
-      - 67:67/udp # Only required if you are using Pi-hole as your DHCP server
-{% endif %}
-    networks:
-      pihole:
-        ipv4_address: {{ pihole_docker_internal_network | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}
-      reverse_proxy:
-        ipv4_address: {{ haproxy_docker_internal_network | ansible.utils.ipaddr('4') | ansible.utils.ipaddr('address') }}
-    environment:
-{% if pihole_webpassword is defined %}
-      WEBPASSWORD: {{ pihole_webpassword }}
-{% endif %}
-      QUERY_LOGGING: {{ pihole_query_logging }}
-      TEMPERATUREUNIT: {{ pihole_temperatureunit }}
-      WEBUIBOXEDLAYOUT: {{ pihole_webuiboxedlayout }}
-      DNSMASQ_LISTENING: {{ pihole_dnsmasq_listening }}
-      PIHOLE_DNS_: {{ pihole_docker_internal_network | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}#53
-      DNSSEC: {{ pihole_dnssec }}
-      DNS_BOGUS_PRIV: {{ pihole_dns_bogus_priv }}
-      DNS_FQDN_REQUIRED: {{ pihole_dns_fqdn_required }}
-      DHCP_ACTIVE: {{ pihole_dhcp }}
-      DHCP_START: {{ pihole_dhcp_range.start }}
-      DHCP_END: {{ pihole_dhcp_range.end }}
-      DHCP_LEASETIME: {{ pihole_dhcp_leasetime }}
-      PIHOLE_DOMAIN: {{ pihole_domain }}
-      DHCP_rapid_commit: {{ pihole_dhcp_rapid_commit }}
-      DHCP_IPv6: {{ pihole_dhcp_ipv6 }}
-      REV_SERVER: {{ pihole_reverse_server_enabled }}
-      REV_SERVER_DOMAIN: {{ pihole_reverse_server.domain }}
-      REV_SERVER_CIDR: {{ pihole_reverse_server.network_cidr | ansible.utils.ipaddr('network/prefix') }}
-      REV_SERVER_TARGET: {{ pihole_reverse_server.server_ip | ansible.utils.ipaddr('address') }}
-    volumes:
-      - {{ pihole_dnsmasq_config_path }}:/etc/dnsmasq.d
-      - {{ pihole_config_path }}:/etc/pihole
-
-networks:
-  pihole:
-    name: pihole
-    ipam:
-      config:
-        - subnet: {{ pihole_docker_internal_network }}
-  reverse_proxy:
-    external: true
