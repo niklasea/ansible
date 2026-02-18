@@ -70,12 +70,12 @@ set service dhcp-server shared-network-name {{ interface.name }} domain-name '{{
 set service dhcp-server shared-network-name {{ interface.name }} domain-search '{{ vyos_local_domain }}'
 set service dhcp-server shared-network-name {{ interface.name }} ntp-server '{{ current_interface_gateway }}'
 {% for address in vyos_dhcp_dns_addresses %}
-set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ address | ansible.utils.ipaddr('address') }}'
+set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ address }}'
 {% endfor %}
 {% if interface.static_leases is defined %}
 {% for client_name, values in interface.static_leases.items() %}
 {% if values.hardware_address is defined %}
-set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' ip-address '{{ values.ipv4_address | ansible.utils.ipaddr('address') }}'
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' ip-address '{{ values.ipv4_address }}'
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' mac-address '{{ values.hardware_address }}'
 {% endif %}
 {% if values.ipv4_address is in vyos_dhcp_dns_addresses %}
@@ -103,7 +103,7 @@ comment firewall all-ping 'Process IPv4 ICMP echo requests - must be enabled in 
 set firewall broadcast-ping 'disable'
 set firewall config-trap 'disable'
 {% for address in vyos_dhcp_dns_addresses %}
-set firewall group address-group LOCAL-DNS address '{{ address | ansible.utils.ipaddr('address') }}'
+set firewall group address-group LOCAL-DNS address '{{ address }}'
 {% endfor %}
 set firewall group network-group LOCAL-NETWORKS network '10.0.0.0/8'
 set firewall group network-group LOCAL-NETWORKS network '172.16.0.0/12'
