@@ -18,9 +18,11 @@ set system name-server '{{ address | ansible.utils.ipaddr('address') }}'
 set system domain-name '{{ vyos_local_domain }}'
 set system domain-search domain '{{ vyos_local_domain }}'
 {% for user in vyos_users %}
+set system login user {{ user.username }} authentication plaintext-password '{{ user.password }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} key '{{ user.ssh_public_key }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} type '{{ user.ssh_public_key_type }}'
 {% endfor %}
+delete system login user vyos
 {% for item in vyos_static_host_mappings %}
 set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' inet '{{ item.address }}'
 {% for alias in item.aliases %}

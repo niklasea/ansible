@@ -4,8 +4,9 @@ vyos_wan_upload_bandwidth: 200mbit
 vyos_guest_network_address: "{{ guest_network_ipv4 | ansible.utils.ipaddr('1') }}"
 vyos_users:
   - username: "{{ vault_deployment_credentials.username }}"
-    ssh_public_key: "{{ ansible_ssh_public_key | ansible.builtin.split[1] }}"
-    ssh_public_key_type: "{{ ansible_ssh_public_key | ansible.builtin.split[0] }}"
+    password: "{{ vault_deployment_credentials.password }}"
+    ssh_public_key: "{{ (ansible_ssh_public_key | ansible.builtin.split(' '))[1] }}"
+    ssh_public_key_type: "{{ (ansible_ssh_public_key | ansible.builtin.split(' '))[0] }}"
 vyos_dns_addresses: "{{ dhcp_dns_addresses }}"
 vyos_local_domain: "{{ local_domain }}"
 vyos_local_interfaces:
@@ -13,7 +14,7 @@ vyos_local_interfaces:
     name: NINO
     vlan: 10
     subnet: "{{ internal_network_ipv4 }}"
-    static_leases: "{{ hosts }}"
+    static_leases: "{{ infrastructure_hosts }}"
   - device: eth1
     name: GUEST
     vlan: 90
