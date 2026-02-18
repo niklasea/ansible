@@ -42,14 +42,13 @@ jobs:
           path: $BUILD_DIR
 
       - name: Run the build process with Docker
-        uses: addnab/docker-run-action@v3
-        with:
-          image: vyos/vyos-build:${{ inputs.branch }}
-          options: --privileged -v ${{ github.workspace }}/$BUILD_DIR:/vyos -w /vyos
-          shell: bash
-          run: |
-            ./configure --architecture "${ARCHITECTURE}" --build-type release --build-by mail@niklasea.dk
-            make iso
+        run: >
+          docker run --privileged -v ${{ github.workspace }}/$BUILD_DIR:/vyos -w /vyos
+          ./configure
+          --architecture "${ARCHITECTURE}"
+          --build-type release
+          --build-by mail@niklasea.dk
+          make iso
         env:
           ARCHITECTURE: ${{ inputs.architecture }}
 
