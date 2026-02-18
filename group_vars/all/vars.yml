@@ -1,15 +1,12 @@
 ---
 internal_network_ipv4: '172.21.1.0/24'
+public_network_ipv4: '172.21.2.0/24'
 guest_network_ipv4: '172.21.9.0/24'
 
-gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('1') }}"
+gateway_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
 
 home_domain: "{{ vault_home_domain }}"
 local_domain: "internal.{{ home_domain }}"
-dhcp_address: "{{ gateway_address }}"
-dhcp_range:
-  start: "{{ internal_network_ipv4 | ansible.utils.ipaddr('50') }}"
-  end: "{{ internal_network_ipv4 | ansible.utils.ipaddr('-2') }}"
 dhcp_dns_addresses:
   - "{{ infrastructure_hosts['dns']['ipv4_address'] }}"
 
@@ -59,28 +56,33 @@ wireguard_client_dns_servers: "{{ dhcp_dns_addresses }}"
 wifi_pass: "{{ vault_wifi_pass }}"
 
 infrastructure_hosts:
+  # PRIVATE SUBNET
   vyos:
     ipv4_address: "{{ gateway_address }}"
   atreides:
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('2') }}"
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}"
   arrakis: # Primary network switch.
     hardware_address: '08:BD:43:75:B3:B9'
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('3') }}"
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('3') | ansible.utils.ipaddr('address') }}"
   arvon: # WiFi access point.
     hardware_address: '98:DA:C4:63:68:D6'
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('6') }}"
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('6') | ansible.utils.ipaddr('address') }}"
   dns: # Internal DNS.
     hardware_address: 'BC:24:11:2D:9E:C5'
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') }}"
-  internal-docker: # Internal server.
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('20') | ansible.utils.ipaddr('address') }}"
+  internal-docker:
     hardware_address: '56:A1:01:56:C6:BD'
-    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') }}"
+    ipv4_address: "{{ internal_network_ipv4 | ansible.utils.ipaddr('21') | ansible.utils.ipaddr('address') }}"
     alternate_hostnames:
       - bitwarden
       - gitea
       - jellyfin
       - omada
       - speedtest
+  # PUBLIC SUBNET
+  public-docker:
+    hardware_address: 'CE:CC:FD:16:0E:BC'
+    ipv4_address: "{{ public_network_ipv4 | ansible.utils.ipaddr('2') | ansible.utils.ipaddr('address') }}"
 
 stubby_upstream: |
   - address_data: 8.8.8.8
@@ -93,35 +95,3 @@ stubby_upstream: |
     tls_auth_name: "cloudflare-dns.com"
 stubby_options:
   idle_timeout: 9000
-
-pihole_webpassword: "{{ vault_pihole_webpassword }}"
-pihole_gateway_address: "{{ gateway_address }}"
-pihole_domain: "{{ local_domain }}"
-pihole_dnssec: 'false'
-pihole_reverse_server:
-  server_ip: "{{ dhcp_address }}"
-  network_cidr: "{{ dhcp_address }}"
-  domain: "{{ pihole_domain }}"
-
-pihole_ignore_localhost: 'yes'
-pihole_maxdbdays: 2
-
-pihole_adlists:
-  - "{{ query('file', 'pihole_adlists.txt') }}"
-  - "{{ query('url', 'https://v.firebog.net/hosts/lists.php?type=tick') }}"
-pihole_regexlists:
-  - "{{ query('file', 'pihole_regexlist.txt') }}"
-  - "{{ query('url', 'https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list') }}"
-pihole_blacklists:
-  - "{{ query('file', 'pihole_blacklist.txt') }}"
-  - "{{ query('file', 'hpHosts_exp.txt') }}"
-  - "{{ query('file', 'hpHosts_grm.txt') }}"
-  - "{{ query('file', 'hpHosts_mmt.txt') }}"
-pihole_whitelists:
-  - "{{ query('file', 'pihole_whitelist.txt') }}"
-
-pihole_dnsmasq_custom: |
-  # --strict-order uses reverse order in dnsmasq conf files (see http://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2015q3/009816.html)
-  strict-order
-  min-cache-ttl=2
-  max-cache-ttl=86400
