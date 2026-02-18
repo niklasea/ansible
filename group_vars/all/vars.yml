@@ -95,26 +95,3 @@ stubby_upstream: |
     tls_auth_name: "cloudflare-dns.com"
 stubby_options:
   idle_timeout: 9000
-
-pihole_ignore_localhost: 'yes'
-pihole_maxdbdays: 2
-
-pihole_adlists:
-  - "{{ query('file', 'pihole_adlists.txt') }}"
-  - "{{ query('url', 'https://v.firebog.net/hosts/lists.php?type=tick') }}"
-pihole_regexlists:
-  - "{{ query('file', 'pihole_regexlist.txt') }}"
-  - "{{ query('url', 'https://raw.githubusercontent.com/mmotti/pihole-regex/master/regex.list') }}"
-pihole_blacklists:
-  - "{{ query('file', 'pihole_blacklist.txt') }}"
-  - "{{ query('file', 'hpHosts_exp.txt') }}"
-  - "{{ query('file', 'hpHosts_grm.txt') }}"
-  - "{{ query('file', 'hpHosts_mmt.txt') }}"
-pihole_whitelists:
-  - "{{ query('file', 'pihole_whitelist.txt') }}"
-
-pihole_dnsmasq_custom: |
-  # --strict-order uses reverse order in dnsmasq conf files (see http://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2015q3/009816.html)
-  strict-order
-  min-cache-ttl=2
-  max-cache-ttl=86400

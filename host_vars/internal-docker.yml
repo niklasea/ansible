@@ -73,7 +73,6 @@ inadyn_ddns_configurations:
 
 certbot_subject_alt_names:
   - "bitwarden.{{ local_domain }}"
-  - "pihole.{{ local_domain }}"
   - "omada.{{ local_domain }}"
   - "jellyfin.{{ local_domain }}"
   - "gitea.{{ local_domain }}"
