@@ -45,16 +45,8 @@ jobs:
           path: $BUILD_DIR
 
       - name: Run the build process with Docker
-        run: >
-          docker run
-          --privileged
-          -v ${{ github.workspace }}/$BUILD_DIR:/vyos
-          -w /vyos
-          vyos/vyos-build:equuleus
-          ./configure
-          --architecture "amd64"
-          --build-type release
-          --build-by mail@niklasea.dk
+        run: |
+          docker run --privileged -v ${{ github.workspace }}/$BUILD_DIR:/vyos -w /vyos vyos/vyos-build:equuleus ./configure --architecture "amd64" --build-type release --build-by mail@niklasea.dk
           make iso
         env:
           ARCHITECTURE: ${{ inputs.architecture }}
