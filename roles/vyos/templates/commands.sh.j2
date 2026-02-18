@@ -78,6 +78,9 @@ set service dhcp-server shared-network-name {{ interface.name }} name-server '{{
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' ip-address '{{ values.ipv4_address | ansible.utils.ipaddr('address') }}'
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' mac-address '{{ values.hardware_address }}'
 {% endif %}
+{% if values.ipv4_address is in vyos_dhcp_dns_addresses %}
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' static-mapping-parameters "option domain-name-servers {{ current_interface_gateway }}"
+{% endif %}
 {% endfor %}
 {% endif %}
 set service dns forwarding listen-address '{{ current_interface_gateway }}'
@@ -203,12 +206,6 @@ set firewall ipv6-name WAN-OUT-v6 rule 20 description 'Block outgoing email (SMT
 set firewall ipv6-name WAN-OUT-v6 rule 20 destination port '25'
 set firewall ipv6-name WAN-OUT-v6 rule 20 protocol 'tcp'
 set firewall ipv6-name WAN-OUT-v6 rule 20 log 'enable'
-set firewall ipv6-name WAN-OUT-v6 rule 21 action 'reject'
-set firewall ipv6-name WAN-OUT-v6 rule 21 description 'Block outgoing plaintext DNS except from DNS servers'
-set firewall ipv6-name WAN-OUT-v6 rule 21 destination port '53'
-set firewall ipv6-name WAN-OUT-v6 rule 21 protocol 'tcp_udp'
-set firewall ipv6-name WAN-OUT-v6 rule 21 source group address-group '!LOCAL-DNS'
-set firewall ipv6-name WAN-OUT-v6 rule 21 log 'enable'
 set firewall receive-redirects 'disable'
 set firewall send-redirects 'enable'
 set firewall source-validation 'strict'

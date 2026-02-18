@@ -7,6 +7,12 @@
 # TODO: nftables module
 # TODO: Email server with SMTP relay (Mailgun/SendGrid)
 
+- name: VyOS router config
+  hosts: vyos
+  tasks:
+    - ansible.builtin.import_role:
+        name: vyos
+
 - name: Provision infrastructure
   hosts: localhost
   connection: local
@@ -48,12 +54,6 @@
         create_vm_hetzner_location: sin
         create_vm_hetzner_labels:
           role: kubernetes
-
-- name: VyOS router config
-  hosts: vyos
-  tasks:
-    - ansible.builtin.import_role:
-        name: vyos
 
 - name: Common settings
   hosts: all,!vyos,!localhost

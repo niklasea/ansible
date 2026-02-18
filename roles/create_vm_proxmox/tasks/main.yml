@@ -44,6 +44,12 @@
     onboot: true
     agent: true
     state: present
+  register: _create_vm_proxmox_creation
+
+- name: Wait for VM creation
+  ansible.builtin.pause:
+    seconds: 3
+  when: _create_vm_proxmox_creation is changed
 
 - name: Import boot disk from image
   community.proxmox.proxmox_disk:
