@@ -43,9 +43,10 @@ jobs:
         run: >
           docker run
           -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
-          vyos/vyos-build:${{ inputs.branch }}
+          vyos/vyos-build:${BRANCH}
           ./configure --architecture "${ARCHITECTURE}" --build-type release --build-by mail@niklasea.dk
         env:
+          BRANCH: ${{ inputs.branch }}
           ARCHITECTURE: ${{ inputs.architecture }}
 
       - name: Run the build process with Docker
@@ -54,9 +55,10 @@ jobs:
           docker run
           --privileged
           -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
-          vyos/vyos-build:${{ inputs.branch }}
+          vyos/vyos-build:${BRANCH}
           sudo make iso
         env:
+          BRANCH: ${{ inputs.branch }}
           ARCHITECTURE: ${{ inputs.architecture }}
 
       - name: Archive production artifacts
