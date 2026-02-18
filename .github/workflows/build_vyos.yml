@@ -2,9 +2,6 @@
 name: Build VyOS image
 
 on:
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       branch:
@@ -13,7 +10,7 @@ on:
         default: current
         type: string
       release_tag:
-        description: Build a specific release, e.g. '1.3.4'. This needs to match the given branch name if provided.
+        description: Build a specific release, e.g. '1.3.8'. This needs to match the given branch name if provided.
         required: false
         type: string
       architecture:
@@ -21,9 +18,6 @@ on:
         required: true
         default: amd64
         type: string
-
-env:
-  BUILD_DIR: vyos_build
 
 permissions: {}
 
@@ -41,7 +35,7 @@ jobs:
         with:
           persist-credentials: false
           repository: vyos/vyos-build
-          ref: '1.3.8'
+          ref: ${{ inputs.release_tag || inputs.branch }}
           path: vyos_build
 
       - name: Prepare the build process with Docker
@@ -49,8 +43,8 @@ jobs:
         run: >
           docker run
           -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
-          vyos/vyos-build:equuleus
-          ./configure --architecture "amd64" --build-type release --build-by mail@niklasea.dk
+          vyos/vyos-build:${{ inputs.branch }}
+          ./configure --architecture "${ARCHITECTURE}" --build-type release --build-by mail@niklasea.dk
         env:
           ARCHITECTURE: ${{ inputs.architecture }}
 
@@ -60,7 +54,7 @@ jobs:
           docker run
           --privileged
           -v ${{ github.workspace }}/vyos_build:/vyos -w /vyos
-          vyos/vyos-build:equuleus
+          vyos/vyos-build:${{ inputs.branch }}
           sudo make iso
         env:
           ARCHITECTURE: ${{ inputs.architecture }}
@@ -68,5 +62,5 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: VyOS_equuleus1.3.8_amd64
-          path: $BUILD_DIR/build/live-image-amd64.hybrid.iso
+          name: VyOS_${{ inputs.branch }}${{ inputs.release_tag || '' }}_${{ inputs.architecture }}
+          path: $BUILD_DIR/build/live-image-${{ inputs.architecture }}.hybrid.iso
