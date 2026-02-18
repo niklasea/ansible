@@ -12,15 +12,17 @@ set system time-zone 'Europe/Copenhagen'
 set system ntp server 0.pool.ntp.org
 set system ntp server 1.pool.ntp.org
 set system ntp server 2.pool.ntp.org
-{% for address in vyos_dns_addresses %}
+{% for address in vyos_system_dns_addresses %}
 set system name-server '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
 set system domain-name '{{ vyos_local_domain }}'
 set system domain-search domain '{{ vyos_local_domain }}'
 {% for user in vyos_users %}
+set system login user {{ user.username }} authentication plaintext-password '{{ user.password }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} key '{{ user.ssh_public_key }}'
 set system login user {{ user.username }} authentication public-keys {{ user.username }} type '{{ user.ssh_public_key_type }}'
 {% endfor %}
+delete system login user vyos
 {% for item in vyos_static_host_mappings %}
 set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' inet '{{ item.address }}'
 {% for alias in item.aliases %}
@@ -67,7 +69,7 @@ set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ inte
 set service dhcp-server shared-network-name {{ interface.name }} domain-name '{{ vyos_local_domain }}'
 set service dhcp-server shared-network-name {{ interface.name }} domain-search '{{ vyos_local_domain }}'
 set service dhcp-server shared-network-name {{ interface.name }} ntp-server '{{ current_interface_gateway }}'
-{% for address in vyos_dns_addresses %}
+{% for address in vyos_dhcp_dns_addresses %}
 set service dhcp-server shared-network-name {{ interface.name }} name-server '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
 {% if interface.static_leases is defined %}
@@ -75,6 +77,9 @@ set service dhcp-server shared-network-name {{ interface.name }} name-server '{{
 {% if values.hardware_address is defined %}
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' ip-address '{{ values.ipv4_address | ansible.utils.ipaddr('address') }}'
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' mac-address '{{ values.hardware_address }}'
+{% endif %}
+{% if values.ipv4_address is in vyos_dhcp_dns_addresses %}
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' static-mapping-parameters "option domain-name-servers {{ current_interface_gateway }};"
 {% endif %}
 {% endfor %}
 {% endif %}
@@ -97,7 +102,7 @@ set firewall all-ping 'enable'
 comment firewall all-ping 'Process IPv4 ICMP echo requests - must be enabled in order for the router to respond when pinged'
 set firewall broadcast-ping 'disable'
 set firewall config-trap 'disable'
-{% for address in vyos_dns_addresses %}
+{% for address in vyos_dhcp_dns_addresses %}
 set firewall group address-group LOCAL-DNS address '{{ address | ansible.utils.ipaddr('address') }}'
 {% endfor %}
 set firewall group network-group LOCAL-NETWORKS network '10.0.0.0/8'
@@ -201,12 +206,6 @@ set firewall ipv6-name WAN-OUT-v6 rule 20 description 'Block outgoing email (SMT
 set firewall ipv6-name WAN-OUT-v6 rule 20 destination port '25'
 set firewall ipv6-name WAN-OUT-v6 rule 20 protocol 'tcp'
 set firewall ipv6-name WAN-OUT-v6 rule 20 log 'enable'
-set firewall ipv6-name WAN-OUT-v6 rule 21 action 'reject'
-set firewall ipv6-name WAN-OUT-v6 rule 21 description 'Block outgoing plaintext DNS except from DNS servers'
-set firewall ipv6-name WAN-OUT-v6 rule 21 destination port '53'
-set firewall ipv6-name WAN-OUT-v6 rule 21 protocol 'tcp_udp'
-set firewall ipv6-name WAN-OUT-v6 rule 21 source group address-group '!LOCAL-DNS'
-set firewall ipv6-name WAN-OUT-v6 rule 21 log 'enable'
 set firewall receive-redirects 'disable'
 set firewall send-redirects 'enable'
 set firewall source-validation 'strict'

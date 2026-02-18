@@ -1,0 +1,3 @@
+---
+create_vm_hetzner_image: debian-13
+create_vm_hetzner_server_type: cpx11
