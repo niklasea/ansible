@@ -79,7 +79,7 @@ set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ inte
 set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' mac-address '{{ values.hardware_address }}'
 {% endif %}
 {% if values.ipv4_address is in vyos_dhcp_dns_addresses %}
-set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' static-mapping-parameters "option domain-name-servers {{ current_interface_gateway }}"
+set service dhcp-server shared-network-name {{ interface.name }} subnet '{{ interface.subnet }}' static-mapping '{{ client_name }}' static-mapping-parameters "option domain-name-servers {{ current_interface_gateway }};"
 {% endif %}
 {% endfor %}
 {% endif %}
