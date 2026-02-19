@@ -32,7 +32,7 @@ create_vm_hetzner_api_credentials:
   api_token: "{{ vault_hetzner.api_token }}"
 
 docker_compose_dir: /etc/compose
-haproxy_compose_dir: "{{ docker_compose_dir }}/haproxy"
+notification_email: "{{ vault_notification_email }}"
 haproxy_tls_certificate_path: "{{ haproxy_compose_dir }}/certificate.pem"
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_email: "{{ vault_notification_email }}"
@@ -53,9 +53,9 @@ netbird:
   management_port: 8080
   dashboard_port: 8081
   stun_port: 3478
-  relay_auth_secret: ""
-  oidc_client_secret: ""
-  database_encryption_key: ""
+  relay_auth_secret: "{{ vault_netbird.relay_auth_secret }}"
+  oidc_client_secret: "{{ vault_netbird.oidc_client_secret }}"
+  database_encryption_key: "{{ vault_netbird.database_encryption_key }}"
 vpn_network_ipv4:
   network: '172.21.0.0/24'
   local_address: "{{ infrastructure_hosts['internal-docker']['ipv4_address'] }}"
