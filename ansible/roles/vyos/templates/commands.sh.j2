@@ -23,10 +23,10 @@ set system login user {{ user.username }} authentication public-keys {{ user.use
 set system login user {{ user.username }} authentication public-keys {{ user.username }} type '{{ user.ssh_public_key_type }}'
 {% endfor %}
 delete system login user vyos
-{% for item in vyos_static_host_mappings %}
-set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' inet '{{ item.address }}'
-{% for alias in item.aliases %}
-set system static-host-mapping host-name '{{ item.hostname }}.{{ vyos_local_domain }}' alias '{{ alias }}.{{ vyos_local_domain }}'
+{% for client_name, values in vyos_static_host_mappings.items() %}
+set system static-host-mapping host-name '{{ client_name }}.{{ vyos_local_domain }}' inet '{{ values.ipv4_address }}'
+{% for alias in values.alternate_hostnames %}
+set system static-host-mapping host-name '{{ client_name }}.{{ vyos_local_domain }}' alias '{{ alias }}.{{ vyos_local_domain }}'
 {% endfor %}
 {% endfor %}
 
