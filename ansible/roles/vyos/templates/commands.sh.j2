@@ -60,6 +60,7 @@ comment service ssh disable-host-validation 'Host validation causes unnecessary 
 # Configure DHCP and DNS server
 
 set service dhcp-server hostfile-update
+set service dhcp-server host-decl-name
 {% for interface in vyos_local_interfaces %}
 {% set current_interface_gateway = interface.gateway | default(interface.subnet | ansible.utils.ipaddr('1')) | ansible.utils.ipaddr('address') %}
 set service dhcp-server shared-network-name {{ interface.name }} authoritative

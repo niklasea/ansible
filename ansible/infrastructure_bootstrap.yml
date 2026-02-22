@@ -1,0 +1,93 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Configure local networking
+  ansible.builtin.import_playbook: local_networking.yml
+
+- name: Bootstrap local agents for deployments
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Create VMs
+      ansible.builtin.include_role:
+        name: proxmox_vm
+      vars:
+        create_vm_proxmox_node: atreides
+        create_vm_proxmox_name: "{{ item }}"
+        create_vm_proxmox_net:
+          net0: "virtio,bridge=vmbr0,tag=10"
+        create_vm_proxmox_tags:
+          - infrastructure_bootstrap
+      loop:
+        - terraform-agent
+        - github-actions-agent
+
+    - name: Refresh inventory to ensure new instances exist in inventory
+      ansible.builtin.meta: refresh_inventory
+
+- name: Common settings
+  hosts: infrastructure_bootstrap
+  tasks:
+    - ansible.builtin.include_role:
+        name: common
+    - ansible.builtin.include_role:
+        name: firewall
+      vars:
+        firewall_policies:
+          - { chain: INPUT, policy: DROP }
+          - { chain: FORWARD, policy: DROP }
+        firewall_rules:
+          - { chain: INPUT, rule: ACCEPT, ctstate: [ ESTABLISHED, RELATED ] }
+          - { chain: INPUT, rule: ACCEPT, in_interface: lo, comment: Localhost connections }
+          - { chain: INPUT, rule: ACCEPT, proto: icmp, comment: Ping requests }
+          - { chain: INPUT, rule: ACCEPT, port: 22, proto: tcp, comment: SSH }
+
+- name: Deploy Terraform agent
+  hosts: terraform-agent
+  tasks:
+    - ansible.builtin.include_role:
+        name: docker
+
+    - name: Start agent
+      community.docker.docker_container:
+        image: hashicorp/tfc-agent:latest
+        state: started
+        platform: linux/amd64
+        env:
+          TFC_AGENT_NAME: proxmox-terraform-agent
+          TFC_AGENT_TOKEN: "{{ vault_terraform_agent_token }}"
+
+- name: Deploy GitHub Actions runner
+  hosts: github-actions-agent
+  tasks:
+    - name: Download installer
+      ansible.builtin.get_url:
+        url: 'https://github.com/actions/runner/releases/download/v2.331.0/actions-runner-linux-x64-2.331.0.tar.gz'
+        dest: /tmp/
+      register: _github_actions_installer
+
+    - name: Calculate the checksum
+      ansible.builtin.stat:
+        path: "{{ _github_actions_installer.dest }}"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _github_actions_installer_checksum
+      failed_when: file_info.stat.checksum != '5fcc01bd546ba5c3f1291c2803658ebd3cedb3836489eda3be357d41bfcf28a7'
+
+    - name: Create runner directory
+      ansible.builtin.file:
+        path: '/opt/github_actions_runner'
+        state: directory
+      register: _github_actions_runner_dir
+
+    - name: Extract installer
+      ansible.builtin.unarchive:
+        src: "{{ _github_actions_installer.dest }}"
+        dest: "{{ _github_actions_runner_dir.dest }}"
+
+    - name: Configure runner
+      ansible.builtin.command:
+        cmd: "{{ _github_actions_runner_dir.dest }}/config.sh --url https://github.com/niklasea/infrastructure --token {{ vault_github_actions_runner_token }}"
+
+    - name: Start runner
+      ansible.builtin.command:
+        cmd: "{{ _github_actions_runner_dir.dest }}/run.sh"

@@ -32,7 +32,7 @@ create_vm_hetzner_api_credentials:
   api_token: "{{ vault_hetzner.api_token }}"
 
 docker_compose_dir: /etc/compose
-haproxy_compose_dir: "{{ docker_compose_dir }}/haproxy"
+notification_email: "{{ vault_notification_email }}"
 haproxy_tls_certificate_path: "{{ haproxy_compose_dir }}/certificate.pem"
 certbot_domain: "{{ inventory_hostname_short }}.{{ local_domain }}"
 certbot_email: "{{ vault_notification_email }}"

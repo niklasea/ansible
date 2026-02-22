@@ -12,10 +12,4 @@
   when: ansible_virtualization_role == 'guest'
 
 - name: Configure SSH
-  become: true
   ansible.builtin.import_tasks: ssh_hardening.yml
-
-- name: Set timezone
-  become: true
-  community.general.timezone:
-    name: Europe/Copenhagen

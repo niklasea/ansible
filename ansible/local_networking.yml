@@ -1,0 +1,30 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: VyOS router config
+  hosts: vyos
+  tasks:
+    - ansible.builtin.import_role:
+        name: vyos
+
+- name: Create DNS servers if they don't exist
+  hosts: localhost
+  connection: local
+  tasks:
+    - ansible.builtin.import_role:
+        name: proxmox_vm
+      vars:
+        create_vm_proxmox_node: atreides
+        create_vm_proxmox_name: "{{ item }}"
+        create_vm_proxmox_net:
+          net0: "virtio={{ infrastructure_hosts[proxmox_vm]['hardware_address'] }},bridge=vmbr0,tag=10"
+        create_vm_proxmox_tags:
+          - dns_server
+      loop:
+        - dns01
+        - dns02
+
+- name: Configure internal DNS servers
+  hosts: dns_server
+  tasks:
+    - ansible.builtin.import_role:
+        name: dns
