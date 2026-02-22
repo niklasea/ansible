@@ -1,5 +1,4 @@
-# Omada EAP controller expects MongoDB 4.x which was last available in Debian 10.
-ARG DEBIAN_VERSION=trixie
+ARG DEBIAN_VERSION=bookworm
 ARG KEY_RING_DIR=/usr/share/keyrings
 ARG APT_SOURCES_DIR=/etc/apt/sources.list.d
 ARG INSTALL_DIR=/opt/tplink
@@ -18,7 +17,7 @@ RUN apt-get update \
     curl \
     gpg
 
-ARG MONGO_DB_VERSION=4.4
+ARG MONGO_DB_VERSION=7.0
 ARG MONGO_DB_REPO_KEY_PATH=${KEY_RING_DIR}/mongodb-server-${MONGO_DB_VERSION}.gpg
 RUN curl -fsSL https://pgp.mongodb.com/server-${MONGO_DB_VERSION}.asc \
   | gpg -o ${MONGO_DB_REPO_KEY_PATH} --dearmor
