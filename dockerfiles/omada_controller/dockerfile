@@ -1,5 +1,5 @@
 # Omada EAP controller expects MongoDB 4.x which was last available in Debian 10.
-ARG DEBIAN_VERSION=buster
+ARG DEBIAN_VERSION=trixie
 ARG KEY_RING_DIR=/usr/share/keyrings
 ARG APT_SOURCES_DIR=/etc/apt/sources.list.d
 ARG INSTALL_DIR=/opt/tplink
