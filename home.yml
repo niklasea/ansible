@@ -92,6 +92,12 @@
     - ansible.builtin.import_role:
         name: dns
 
+- name: Public docker server
+  hosts: public-docker
+  tasks:
+    - ansible.builtin.import_role:
+        name: netbird_service
+
 - name: Internal docker server
   hosts: internal-docker
   tasks:
@@ -164,9 +170,3 @@
           - { port: '8080', proto: 'tcp', comment: 'Remote control' }
     - ansible.builtin.import_role:
         name: wireguard
-
-- name: Public docker server
-  hosts: public-docker
-  tasks:
-    - ansible.builtin.import_role:
-        name: linuxgsm
