@@ -17,7 +17,7 @@ RUN apt-get update \
     curl \
     gpg
 
-ARG MONGO_DB_VERSION=7.0
+ARG MONGO_DB_VERSION=8.0
 ARG MONGO_DB_REPO_KEY_PATH=${KEY_RING_DIR}/mongodb-server-${MONGO_DB_VERSION}.gpg
 RUN curl -fsSL https://pgp.mongodb.com/server-${MONGO_DB_VERSION}.asc \
   | gpg -o ${MONGO_DB_REPO_KEY_PATH} --dearmor
@@ -31,7 +31,7 @@ RUN echo "deb [signed-by=${ADOPTIUM_REPO_KEY_PATH}] https://packages.adoptium.ne
   | tee ${APT_SOURCES_DIR}/adoptium.list
 
 WORKDIR ${INSTALL_DIR}
-ARG OMADA_TAR_URL=https://static.tp-link.com/upload/software/2023/202309/20230920/Omada_SDN_Controller_v5.12.7_linux_x64.tar.gz
+ARG OMADA_TAR_URL=https://static.tp-link.com/upload/software/2026/202601/20260121/Omada_Network_Application_v6.1.0.19_linux_x64_20260117100056.tar.gz
 RUN curl -fsSL ${OMADA_TAR_URL} | tar -xz -C . --strip-components=1
 RUN sed -i "/\${link_name} start/d" ./install.sh
 
@@ -60,7 +60,7 @@ RUN apt-get update \
     procps \
     curl \
     mongodb-org \
-    temurin-8-jre \
+    temurin-17-jre \
     jsvc \
     libcap2-bin \
   && rm -rf /var/lib/apt/lists/*
@@ -87,10 +87,12 @@ EXPOSE 29811/tcp
 EXPOSE 29812/tcp
 # Omada EAP firmware upgrade
 EXPOSE 29813/tcp
-# Omada EAP device management?
+# Omada EAP device management
 EXPOSE 29814/tcp
 EXPOSE 29815/tcp
 EXPOSE 29816/tcp
+EXPOSE 29816/tcp
+EXPOSE 29817/tcp
 
 WORKDIR ${INSTALL_DIR}
 CMD [ "/bin/bash", "-c", "set -e; ./bin/control.sh start; sleep infinity;" ]
