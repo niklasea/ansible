@@ -38,4 +38,4 @@ jobs:
       context: dockerfiles/omada_controller
       file: dockerfiles/omada_controller/dockerfile
       build-args: |
-        GETDNS_RELEASE=${{ inputs.omada_tar_url || 'https://static.tp-link.com/upload/software/2024/202402/20240227/Omada_SDN_Controller_v5.13.30.8_linux_x64.tar.gz' }}
+        OMADA_TAR_URL=${{ inputs.omada_tar_url || 'https://static.tp-link.com/upload/software/2026/202601/20260121/Omada_Network_Application_v6.1.0.19_linux_x64_20260117100056.tar.gz' }}
