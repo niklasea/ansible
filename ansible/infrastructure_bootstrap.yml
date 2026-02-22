@@ -17,12 +17,14 @@
           net0: "virtio,bridge=vmbr0,tag=10"
         proxmox_vm_tags:
           - infrastructure_bootstrap
+      register: _proxmox_vm_infrastructure_bootstrap
       loop:
         - terraform-agent
         - github-actions-agent
 
     - name: Refresh inventory to ensure new instances exist in inventory
       ansible.builtin.meta: refresh_inventory
+      when: _proxmox_vm_infrastructure_bootstrap is changed
 
 - name: Common settings
   hosts: infrastructure_bootstrap

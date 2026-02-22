@@ -33,4 +33,4 @@
     - name: Fail the deployment
       ansible.builtin.fail:
         msg: VyOS configuration failed!
-  when: vyos_configuration_script is changed
+  when: _vyos_configuration_script is changed
